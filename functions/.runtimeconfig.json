@@ -1,0 +1,8 @@
+{
+  "firebase": {
+    "databaseURL": "https://hannd-72c18.firebaseio.com",
+    "storageBucket": "hannd-72c18.appspot.com",
+    "apiKey": "AIzaSyC_3Ce2J1HXIAiMf4QchhNNsesXCDNiszc",
+    "authDomain": "hannd-72c18.firebaseapp.com"
+  }
+}

@@ -1,108 +1,110 @@
-// The Cloud Functions for Firebase SDK to create Cloud Functions and setup triggers.
+/**
+ * Created by Mukhtiar.Ahmed on 6/21/2017.
+ */
 const functions = require('firebase-functions');
-
-// The Firebase Admin SDK to access the Firebase Realtime Database. 
-const admin = require('firebase-admin');
+const admin = require('firebase-admin')
 admin.initializeApp(functions.config().firebase);
+const database = admin.database();
+const express = require('express');
+const fileUpload = require('express-fileupload');
+const moment = require('moment');
+const app = express.Router();
+const dal = require('./dal');
+const utils = require('./utils');
+const challengeController = require('./ChallengeController');
+const gameController = require('./GameController');
+const playerController = require('./PlayerController');
+const version = '1.0';
 
-// Take the text parameter passed to this HTTP endpoint and insert it into the
-// Realtime Database under the path /messages/:pushId/original
-exports.leaderboards = functions.https.onRequest((req, res) => {
-    let object = admin.database().ref('leaderboards');
-    object.once('value', function (snapshot) {
-        let leaderBoards = [];
-        snapshot.forEach(function (childSnapshot) {
-            let highScore = childSnapshot.child('highScore').val();
-            let userId = childSnapshot.child('userId').val();
-            leaderBoards.push({userId: userId, highScore: highScore});
-        });
-        leaderBoards.sort(function (a, b) {
-            return parseInt(b.highScore) - parseInt(a.highScore)
-        });
-        let rankBoards = [];
-        for (let i = 1; i <= leaderBoards.length; i++) {
-            leaderBoards[i - 1].rank = i;
-        }
-        res.json(leaderBoards);
-    });
-});
-exports.reportScore = functions.https.onRequest((req, res) => {
-    let requestUserId = req.body.userId;
-    let requestScore = req.body.score;
-    admin.database().ref('leaderboards').once('value', function (snapshot) {
-        let isExist = false;
-        let message = '';
-        snapshot.forEach(function (childSnapshot) {
-            let userId = childSnapshot.child('userId').val();
-            let highScore = childSnapshot.child('highScore').val();
-            if (requestUserId === userId) {
-                isExist = true;
-                if (parseInt(requestScore) > parseInt(highScore)) {
-                    childSnapshot.ref.update({
-                        highScore: requestScore
-                    })
-                    message = 'updated score success';
-                }else{
-                    message = 'score not need update';
-                }
-            }
-        });
-        if (!isExist) {
-            snapshot.ref.push({
-                userId: requestUserId,
-                highScore: requestScore
-            });
-            message = 'added new score to leaderboard';
-        }
-        return res.json({messsage: message});
-    });
+exports.setDefaultUserDate = functions.auth.user().onCreate(function(event) {
+
+    const user = event.data;
+    console.log( ' setDefaultUserDate');
+    try  {
+        dal.addDefaultUserData(user);
+    } catch(err) {
+        console.error(err);
+    }
 });
 
-exports.getTotalPlayers = functions.https.onRequest((req, res) => {
-    let userData = admin.database().ref('leaderboards');
-    userData.once('value', function (snapshot) {
-        let count = 0;
-        snapshot.forEach(function (childSnapshot) {
-            count++;
+
+const authenticate = (req, res, next) => {
+
+    var idToken = '';
+    if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
+         res.status(403).send(JSON.stringify({'status' : 'Unauthorized'}));
+         return;
+        //req.user = {uid : 'S4iBgV67kebptSKJzEZjvUdKs4e2', name : 'bob'}
+        //next();
+    }  else {
+        idToken = req.headers.authorization.split('Bearer ')[1];
+        admin.auth().verifyIdToken(idToken).then(decodedIdToken => {
+            req.user = decodedIdToken;
+            next();
+        }).catch(error => {
+
+            res.status(403).send(JSON.stringify({'status' : 'Unauthorized'}));
         });
-        return res.json({totalPlayers: count});
-    });
+    }
+};
+
+app.use(function (req, res, next) {
+    console.log(req.originalUrl);
+    res.header("Content-Type",'application/json');
+    next();
 });
 
-exports.getLeaderboardPosition = functions.https.onRequest((req, res) => {
-    let requestUserId = req.body.userId;
-    let userData = admin.database().ref('leaderboards');
-    userData.once('value', function (snapshot) {
-        let rank = -1;
-        snapshot.forEach(function (childSnapshot) {
-            let userId = childSnapshot.child('userId').val();
-            if (requestUserId === userId) {
-                rank = childSnapshot.child('rank').val();
-            }
-        });
-        res.json({rank: rank});
-    });
+
+
+// default options
+app.use(fileUpload());
+
+app.use(authenticate);
+
+app.get( '/' + version + '/currentWeek', (request, response) => {
+    var currentWeek = utils.currentWeek();
+    response.send(JSON.stringify({'CurrentWeek' : currentWeek}));
 });
 
-exports.updateRankLeaderBoards = functions.database.ref('/leaderboards/{pushId}/highScore')
-    .onWrite(event => {
-        admin.database().ref('leaderboards').once('value', function (snapshot) {
-            let leaderBoards = [];
-            snapshot.forEach(function (childSnapshot) {
-                let highScore = childSnapshot.child('highScore').val();
-                let userId = childSnapshot.child('userId').val();
-                leaderBoards.push({userId: userId, highScore: highScore, childSnapshot : childSnapshot});
-            });
-            leaderBoards.sort(function (a, b) {
-                return parseInt(b.highScore) - parseInt(a.highScore)
-            });
-            for (let i = 1; i <= leaderBoards.length; i++) {
-                leaderBoards[i - 1].rank = i;
-            }
+app.get( '/'+ version +'/GetChallenges', challengeController.getWeeklyChallenges);
 
-            leaderBoards.forEach(function(item){
-                item.childSnapshot.ref.update({rank : item.rank});
-            });
+app.get( '/'+ version +'/GetShopItems', gameController.getShopItems);
 
-        });
-    });
+app.get( '/'+ version +'/Player', playerController.getPlayer);
+
+app.get( '/'+ version +'/GetLeaderboardTotalPlayers', gameController.getLeaderboardTotalPlayers);
+
+app.post( '/'+ version +'/PostScoreForChallenge', playerController.postScoreForChallenge);
+
+app.get( '/'+ version +'/GetLeaderboardPosition', playerController.getLeaderboardPosition);
+
+app.post( '/'+ version +'/PurchaseItem', playerController.purchaseItem);
+
+app.get( '/'+ version +'/GetInAppPurchaseItems', playerController.getInAppPurchaseItems);
+
+app.post( '/'+ version +'/StorePurchase', playerController.storePurchase);
+
+app.get( '/'+ version +'/GetCoins', playerController.getCoins);
+
+app.get( '/'+ version +'/GetPowerUps', playerController.getPowerUps);
+
+app.get( '/'+ version +'/GetPowerUpsOfType', playerController.getPowerUpsOfType);
+
+app.post( '/'+ version +'/UsePowerUp', playerController.usePowerUp);
+
+app.post( '/'+ version +'/DataImport', gameController.dataImport);
+
+app.post( '/'+ version +'/InAppPurchase', gameController.addInAppPurchase);
+
+app.post( '/'+ version +'/RewardPlayer', playerController.rewardPlayer);
+
+app.post( '/'+ version +'/SetUserProfile', playerController.setUserProfile);
+
+app.get( '/'+ version +'/GetUserProfile', playerController.getUserProfile);
+
+app.use(function(request, response, next){
+    response.status(404).send(JSON.stringify({'status' : 'Not Found'}));
+});
+
+// Expose the API as a function
+exports.api = functions.https.onRequest(app);
