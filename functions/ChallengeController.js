@@ -14,9 +14,10 @@ exports.getWeeklyChallenges = function(request, response) {
     var startOfWeek = moment().utc().startOf('week').toDate();
     var startOfWeekTime = moment().utc().startOf('week').subtract(1, "days").toDate().getTime();
     var endOfWeekTime   = moment().utc().endOf('week').subtract(1, "days").toDate().getTime();
+    var currentTime = moment().utc().toDate().getTime();
     var user = request.user;
     try {
-        Promise.all([dal.getCurrentWeeklyChallenges(startOfWeekTime)]).then(function(data) {
+        Promise.all([dal.getCurrentWeeklyChallenges(currentTime)]).then(function(data) {
             var levels = data[0];
             var challenges = [];
             if(levels) {

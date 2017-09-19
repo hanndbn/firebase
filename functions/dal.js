@@ -145,10 +145,10 @@ exports.getLeaderboardPlayersCount = function(userId) {
  * @param startOfWeekTime
  * @returns {*}
  */
-exports.getCurrentWeeklyChallenges = function(startOfWeekTime) {
-    console.log(startOfWeekTime);
-    return database.ref('Challenge').orderByChild('StartDate').equalTo(startOfWeekTime)
-        .limitToLast(5).once("value").then(function(snapshot){
+exports.getCurrentWeeklyChallenges = function(currentTime) {
+    console.log(currentTime);
+    return database.ref('Challenge').orderByChild('EndDate').startAt(currentTime)
+        .limitToFirst(5).once("value").then(function(snapshot){
             return snapshot.val();
     });
 };
