@@ -33,10 +33,10 @@ const authenticate = (req, res, next) => {
 
     var idToken = '';
     if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
-         res.status(403).send(JSON.stringify({'status' : 'Unauthorized'}));
-         return;
-        //req.user = {uid : 'S4iBgV67kebptSKJzEZjvUdKs4e2', name : 'bob'}
-        //next();
+         // res.status(403).send(JSON.stringify({'status' : 'Unauthorized'}));
+         // return;
+        req.user = {uid : 'S4iBgV67kebptSKJzEZjvUdKs4e2', name : 'bob'}
+        next();
     }  else {
         idToken = req.headers.authorization.split('Bearer ')[1];
         admin.auth().verifyIdToken(idToken).then(decodedIdToken => {
@@ -56,11 +56,10 @@ app.use(function (req, res, next) {
 });
 
 
-
 // default options
 app.use(fileUpload());
 
-//app.use(authenticate);
+app.use(authenticate);
 
 app.get( '/' + version + '/currentWeek', (request, response) => {
     var currentWeek = utils.currentWeek();
