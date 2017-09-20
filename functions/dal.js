@@ -154,6 +154,18 @@ exports.getCurrentWeeklyChallenges = function(currentTime) {
 };
 
 /**
+ * Get Current Weekly challenges.
+ * @param startOfWeekTime
+ * @returns {*}
+ */
+exports.getTopPlayers = function(divisionType) {
+    return database.ref('Leaderboard/'+ divisionType).orderByChild('TotalScore')
+        .limitToFirst(50).once('value').then(function(snapshot){
+            return snapshot.val();
+    });
+};
+
+/**
  * Get Challenge by id.
  * @param levelId
  * @param callback
