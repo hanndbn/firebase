@@ -439,6 +439,15 @@ exports.getUserProfileData = function(user, callback) {
     });
 };
 
+exports.getTrackConsecutiveDay = function(user, callback) {
+    database.ref('TrackConsecutiveDay/'+ user.uid).once('value', function(snapshot) {
+        callback(null, snapshot.val());
+    }, function (error) {
+        console.log(error);
+        callback(error, null);
+    });
+};
+
 
 exports.updateUserProfileData = function(user, userProfile, callback) {
     var updates = {};
