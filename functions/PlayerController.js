@@ -427,10 +427,9 @@ exports.setUserProfile = function(request, response) {
 
 
 exports.getUserProfile = function(request, response) {
-
+    //var user = request.user;
     var user = request.user;
     try {
-        dal.getTrackConsecutiveDay()
         dal.getUserProfileData(user, function(error, data) {
             if (error) {
                 response.status(500).send(JSON.stringify({'status' : 'Internal Server error'}));

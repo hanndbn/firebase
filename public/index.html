@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<!-- xlsx.js (C) 2013-present  SheetJS http://sheetjs.com -->
+<!-- vim: set ts=2: -->
+<html ng-app="app">
+<head>
+    <title>hannd</title>
+    <!-- Vue 2 -->
+    <script src="https://unpkg.com/vue@2.x"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue-resource@1.3.4"></script>
+
+    <!-- FileSaver shim for exporting files -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.3/FileSaver.min.js"></script>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/4.2.0/firebase.js"></script>
+    <!-- SheetJS js-xlsx library -->
+    <script src="xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.0.4/popper.js"></script>
+    <script src="bootstrap.min.js"></script>
+    <link rel="stylesheet" href="bootstrap.min.css"/>
+
+    <!-- SheetJS Vue components -->
+    <script src="SheetJS-vue.js"></script>
+
+    <style>
+        .padding{
+            padding-top: 20px
+        }
+        .loader {
+            border: 10px solid #f3f3f3;
+            border-top: 10px solid #3498db;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 2s linear infinite;
+            position: fixed;
+            margin: 125px auto;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            top: 0;
+            display: block;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+<div class="container ">
+    <div class="row padding text-center">
+        <div class="col-12 padding"><h3 class="alert alert-primary">IMPORT TO FIREBASE DATABASE FROM EXCEL FILE</h3></div>
+        <!--<div class="col-12"><h6 class="alert-warning text-left">Warning: It will erase all old data and recreate</h6></div>-->
+        <div id="app" class="col-12 padding">
+            <html-preview></html-preview>
+        </div>
+    </div>
+</div>
+<script lang="javascript">
+    var app = new Vue({el: '#app'});
+</script>
+</body>
+</html>

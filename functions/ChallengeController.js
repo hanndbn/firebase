@@ -46,8 +46,6 @@ exports.getWeeklyChallenges = function(request, response) {
         console.error(err);
         response.status(500).send(JSON.stringify({'status' : 'Internal Server error'}));
     }
-
-
 };
 
 

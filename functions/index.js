@@ -108,7 +108,6 @@ app.post( '/'+ version +'/GetTopPlayers', leaderboardController.getTopPlayers);
 
 // ole OE API
 const request = require('request');
-
 exports.PurchaseMaybankItem = functions.https.onRequest((req, res) => {
     // responeReturn:
     let errorResponse = {
@@ -306,46 +305,20 @@ exports.saveAccessUser = functions.https.onRequest((req, res) => {
     });
 });
 
-exports.updateTPBalance = functions.https.onRequest((req, res) => {
-    let outputRsHeader = {
-        date: moment().utcOffset(480).format('YYYYMMDD'),
-        time: moment().utcOffset(480).format('HHmmss'),
-        timeZone: "GMT" + moment().utcOffset(480).format('Z'),
-        responseCode: "",
-        errorCode: "",
-        errorMessage: ""
-    };
-    // if game user id not valid
-    let requestGameUserId = req.body.gameUserID;
-    // get data from database
-    admin.database().ref('UserProfile').once('value', function (accessUser) {
-        let isExist = false;
-        accessUser.forEach(function (user) {
-            if (requestGameUserId == user.key) {
-                isExist = true;
-                let requestTPBalance = req.body.TPBalance;
-                let objUpdate = {};
-                if (requestTPBalance != null && requestTPBalance != "") {
-                    objUpdate.Player_Balance = requestTPBalance;
-                }else{
-                    objUpdate.Player_Balance = "0";
-                }
-                user.ref.update(objUpdate);
-                // response
-                outputRsHeader.responseCode = "00";
-                outputRsHeader.errorCode = "";
-                outputRsHeader.errorMessage = "change balance success";
-            }
-        });
-        if (!isExist) {
-            outputRsHeader.responseCode = "NN";
-            outputRsHeader.errorCode = "NOT_EXIST_USER_ID";
-            outputRsHeader.errorMessage = "not exist user game id";
-        }
-        return res.json({rsHeader: outputRsHeader});
+exports.importToDatabase = functions.https.onRequest((req, res) => {
+    let database = req.body;
+    dal.gameDataImport(database, function(error, records) {
+        return res.json({result: "success"});
     });
+    // //let database = JSON.parse(req.body.data).data;
+    // for(let table in database){
+    //     let tableData = admin.database().ref(table);
+    //     database[table].forEach(function (data) {
+    //         tableData.push(data);
+    //     })
+    // }
+    return res.json({result: "false"});
 });
-
 
 app.use(function(request, response, next){
     response.status(404).send(JSON.stringify({'status' : 'Not Found'}));
