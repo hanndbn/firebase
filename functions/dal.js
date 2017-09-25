@@ -525,7 +525,7 @@ exports.gameDataImport = function(data, callback) {
     const powerUpItem = data['PowerUpItem']  ? data['PowerUpItem'] : [];
     const itemMapping = data['ItemMapping']  ? data['ItemMapping'] : [];
 
-    let enviromentalNameMap = {};
+    enviromentalNameMap = {};
     enviromentalName.forEach(function(item) {
         if(item.ID) {
             Object.keys(item).forEach(function(k){ if(!k)  delete item[k]; });
@@ -540,7 +540,7 @@ exports.gameDataImport = function(data, callback) {
         console.log('EnviromentalName Empty');
     }
 
-    let playTypeMap = {};
+    playTypeMap = {};
     playType.forEach(function(item) {
         if(item.ID) {
             Object.keys(item).forEach(function(k){ if(!k)  delete item[k]; });
@@ -571,7 +571,7 @@ exports.gameDataImport = function(data, callback) {
         console.log('GameTypes Empty');
     }
 
-    let gameSettingsMap = {};
+    gameSettingsMap = {};
     gameSettings.forEach(function(item) {
         if(item.ID) {
             var GameTypes = [];
@@ -600,7 +600,7 @@ exports.gameDataImport = function(data, callback) {
         console.log('GameSettings Empty');
     }
 
-    let challengeTitleMap = {};
+    challengeTitleMap = {};
     challengeTitle.forEach(function(item) {
         if(item.ID) {
             Object.keys(item).forEach(function(k){ if(!k)  delete item[k]; });
@@ -615,7 +615,7 @@ exports.gameDataImport = function(data, callback) {
         console.log('ChallengeTitle Empty');
     }
 
-    let challengeDataMap = {};
+    challengeDataMap = {};
     challengeData.forEach(function(item) {
         if(item.ID) {
             Object.keys(item).forEach(function(k){ if(!k)  delete item[k]; });
@@ -677,7 +677,7 @@ exports.gameDataImport = function(data, callback) {
         }
     });
 
-    let challengesMap = {};
+    challengesMap = {};
     challenges.forEach(function(item) {
         if(item.ID) {
             Object.keys(item).forEach(function(k){ if(!k)  delete item[k]; });
@@ -695,7 +695,7 @@ exports.gameDataImport = function(data, callback) {
         console.log('CountryDialCode Empty');
     }
 
-    let platformMap = {};
+    platformMap = {};
     platform.forEach(function(item) {
         if(item.ID) {
             Object.keys(item).forEach(function(k){ if(!k)  delete item[k]; });
@@ -711,7 +711,7 @@ exports.gameDataImport = function(data, callback) {
     }
 
 
-    let divisionTypeMap = {};
+    divisionTypeMap = {};
     divisionType.forEach(function(type) {
         if(type.ID) {
             Object.keys(type).forEach(function(k){ if(!k)  delete type[k]; });
@@ -726,7 +726,7 @@ exports.gameDataImport = function(data, callback) {
         console.log('DivisionType Empty');
     }
 
-    let effectTypeMap = {};
+    effectTypeMap = {};
     effectType.forEach(function(type) {
         if(type.ID) {
             Object.keys(type).forEach(function(k){ if(!k)  delete type[k]; });
@@ -742,7 +742,7 @@ exports.gameDataImport = function(data, callback) {
     }
 
 
-    let powerUpEffectMap = {};
+    powerUpEffectMap = {};
     powerUpEffect.forEach(function(item) {
         if(item.ID) {
             Object.keys(item).forEach(function(k){ if(!k)  delete item[k]; });
@@ -763,7 +763,7 @@ exports.gameDataImport = function(data, callback) {
     }
 
 
-    let powerUpTypeMap = {};
+    powerUpTypeMap = {};
     powerUpType.forEach(function(item) {
         if(item.ID) {
             Object.keys(item).forEach(function(k){ if(!k)  delete item[k]; });
@@ -778,7 +778,7 @@ exports.gameDataImport = function(data, callback) {
         console.log('PowerUpType Empty');
     }
 
-    let powerUpItemMap = {};
+    powerUpItemMap = {};
     powerUpItem.forEach(function(item) {
         if (item.ID) {
             Object.keys(item).forEach(function(k){ if(!k)  delete item[k]; });
@@ -796,7 +796,7 @@ exports.gameDataImport = function(data, callback) {
         console.log('PowerUpItem Empty');
     }
 
-    let powerUpMap = {};
+    powerUpMap = {};
     powerUp.forEach(function(item) {
         if (item.PowerUpItem) {
             Object.keys(item).forEach(function(k){ if(!k)  delete item[k]; });
@@ -828,7 +828,7 @@ exports.gameDataImport = function(data, callback) {
         console.log('PowerUp Empty');
     }
 
-    let inAppItemMap = {};
+    inAppItemMap = {};
     inAppItem.forEach(function(item) {
         if (item.ID) {
             Object.keys(item).forEach(function(k){ if(!k)  delete item[k]; });
@@ -844,7 +844,7 @@ exports.gameDataImport = function(data, callback) {
         console.log('InAppItem Empty');
     }
 
-    let inAppPurchasesMap = {};
+    inAppPurchasesMap = {};
     inAppPurchases.forEach(function(item) {
         if (item.ID) {
             Object.keys(item).forEach(function(k){ if(!k)  delete item[k]; });
@@ -879,7 +879,7 @@ exports.gameDataImport = function(data, callback) {
         console.log('InAppPurchases Empty');
     }
 
-    let shopItemsMap = {};
+    shopItemsMap = {};
     shopItems.forEach(function(item) {
         if (item.ID) {
             var powerUps = [];
@@ -914,7 +914,7 @@ exports.gameDataImport = function(data, callback) {
         console.log('ShopItem Empty');
     }
 
-    let triviaAnswersMap = {};
+    triviaAnswersMap = {};
     triviaAnswers.forEach(function(item) {
         if(item.ID) {
             Object.keys(item).forEach(function(k){ if(!k)  delete item[k]; });
@@ -929,7 +929,7 @@ exports.gameDataImport = function(data, callback) {
         console.log('TriviaAnswers Empty');
     }
 
-    let triviaQuestionsMap = {};
+    triviaQuestionsMap = {};
     triviaQuestions.forEach(function(item) {
         var TrivaAnswers = [];
         if(item.ID) {
@@ -956,7 +956,7 @@ exports.gameDataImport = function(data, callback) {
         console.log('TriviaQuestions Empty');
     }
 
-    let rewardReleaseMap = {};
+    rewardReleaseMap = {};
     rewardRelease.forEach(function(item) {
         if(item.ID) {
             Object.keys(item).forEach(function(k){ if(!k)  delete item[k]; });
@@ -971,7 +971,7 @@ exports.gameDataImport = function(data, callback) {
         console.log('RewardRelease Empty');
     }
 
-    let rewardTypeMap = {};
+    rewardTypeMap = {};
     rewardType.forEach(function(item) {
         if(item.ID) {
             Object.keys(item).forEach(function(k){ if(!k)  delete item[k]; });
@@ -986,7 +986,7 @@ exports.gameDataImport = function(data, callback) {
         console.log('RewardType Empty');
     }
 
-    let rewardMap = {};
+    rewardMap = {};
     reward.forEach(function(item) {
         if(item.ID) {
             Object.keys(item).forEach(function(k){ if(!k)  delete item[k]; });
@@ -1003,7 +1003,7 @@ exports.gameDataImport = function(data, callback) {
         console.log('Reward Empty');
     }
 
-    let itemMappingMap = {};
+    itemMappingMap = {};
     itemMapping.forEach(function(item) {
         if(item.ID) {
             Object.keys(item).forEach(function(k){ if(!k)  delete item[k]; });
