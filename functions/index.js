@@ -16,6 +16,15 @@ const gameController = require('./GameController');
 const playerController = require('./PlayerController');
 const leaderboardController = require('./LeaderboardController');
 const version = '1.0';
+const scheduler = require('node-schedule');
+
+let startedJob = false;
+var j = scheduler.scheduleJob('07 * * * *', function(){
+    if(!startedJob){
+        console.log('The answer to life, the universe, and everything!');
+        startedJob = true;
+    }
+});
 
 exports.setDefaultUserDate = functions.auth.user().onCreate(function(event) {
 
@@ -28,9 +37,7 @@ exports.setDefaultUserDate = functions.auth.user().onCreate(function(event) {
     }
 });
 
-
 const authenticate = (req, res, next) => {
-
     var idToken = '';
     if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
          // res.status(403).send(JSON.stringify({'status' : 'Unauthorized'}));
