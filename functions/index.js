@@ -107,6 +107,8 @@ app.post( '/'+ version +'/RewardPlayer', playerController.rewardPlayer);
 
 app.post( '/'+ version +'/SetUserProfile', playerController.setUserProfile);
 
+app.get( '/'+ version +'/EraseMaybankToken', playerController.eraseMaybankToken);
+
 app.get( '/'+ version +'/GetUserProfile', playerController.getUserProfile);
 
 // OE API
@@ -291,6 +293,8 @@ exports.saveAccessUser = functions.https.onRequest((req, res) => {
                 if (requestTierCode != null && requestTierCode != "") {
                     objUpdate.Player_Tier = requestTierCode;
                 }
+                objUpdate.MaybankLoggedIn = true;
+
                 if (requestTPBalance != null && requestTPBalance != "") {
                     objUpdate.Player_Balance = requestTPBalance;
                 }else{

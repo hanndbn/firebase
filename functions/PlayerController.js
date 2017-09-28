@@ -472,6 +472,32 @@ exports.getUserProfile = function(request, response) {
 
 };
 
+exports.eraseMaybankToken = function(request, response) {
+    var user = request.user;
+    try {
+        dal.getUserProfileData(user, function(error, data) {
+            if (error) {
+                response.status(500).send(JSON.stringify({'status' : 'Internal Server error'}));
+            } else {
+                if(!data) {
+                    data = {};
+                }
+                data.Maybank_token  = "";
+                dal.updateUserProfileData(user, data, function(error, result) {
+                    if (error) {
+                        response.status(500).send(JSON.stringify({'status' : 'Internal Server error'}));
+                    } else {
+                        response.send(JSON.stringify(result));
+                    }
+                });
+            }
+        });
+    } catch(err) {
+        console.error(err);
+        response.status(500).send(JSON.stringify({'status' : 'Internal Server error'}));
+    }
+};
+
 exports.registerUser = function(request, response) {
 
     try {

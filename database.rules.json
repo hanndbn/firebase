@@ -1,6 +1,17 @@
 {
   "rules": {
     ".read": "auth != null",
-    ".write": "auth != null"
+    ".write": "auth != null",
+    "Challenge": {
+      ".indexOn": ["StartDate", "EndDate"]
+    },
+    "Leaderboard": {
+      "$user_id": {
+        ".indexOn": "TotalScore"
+      }
+    },
+    "InAppPurchases": {
+      ".indexOn": "Platform"
+    }
   }
 }
