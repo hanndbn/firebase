@@ -50,7 +50,7 @@ const authenticate = (req, res, next) => {
             req.user = decodedIdToken;
             next();
         }).catch(error => {
-
+            console.log(error);
             res.status(403).send(JSON.stringify({'status' : 'Unauthorized'}));
         });
     }
@@ -153,7 +153,7 @@ exports.PurchaseMaybankItem = functions.https.onRequest((req, res) => {
     }
 
     let headers =  {'content-type': 'application/json' };
-    let url = "http://118.70.177.14:8080/api/gameRedemption";
+    let url = "https://122.11.168.196:8434/api/gameRedemption";
 
     admin.database().ref('ItemMapping').once('value', function (items) {
         if(items.exists()) {
@@ -206,6 +206,9 @@ exports.PurchaseMaybankItem = functions.https.onRequest((req, res) => {
                 url: url,
                 json: true,
                 headers: headers,
+                rejectUnauthorized: false,
+                strictSSL: false,
+                secureProtocol: 'TLSv1_method',
                 body: requestPurchase
             }, function (error, response, body) {
                 if (!error && response.statusCode == 200) {
