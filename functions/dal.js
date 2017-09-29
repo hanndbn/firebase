@@ -17,6 +17,12 @@ exports.getFirebaseData = function (endpoint) {
     });
 };
 
+exports.getLeaderBoardData = function (endpoint) {
+    return database.ref(endpoint).limitToLast(50).once("value").then(function (snapshot) {
+        return snapshot.val();
+    });
+};
+
 /**
  * Get challenges by ids.
  * @param levelIds

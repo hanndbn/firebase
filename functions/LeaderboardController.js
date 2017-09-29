@@ -16,23 +16,50 @@ exports.getTopPlayers = function(request, response) {
     }
     let divisionType = request.body.divisionType;
     try {
-        database.ref('Leaderboard/'+ divisionType).orderByChild('TotalScore')
-            .limitToLast(50).once('value').then(function(snapshot){
-                let data = [];
-                snapshot.forEach(function (childSnapshot) {
-                let userData = {};
-                userData.playerName = childSnapshot.child('PlayerName').val();
-                userData.totalScore = childSnapshot.child('TotalScore').val();
-                    if(userData.playerName != ""){
-                        data.push(userData);
-                    }
-            });
-                let outputData = [];
-                for(let i = (data.length - 1); i >= 0; i--){
-                    outputData.push(data[i]);
+        let leaderboard = dal.getLeaderBoardData('Leaderboard/'+ divisionType);
+        let userProfile = dal.getFirebaseData('UserProfile');
+
+        Promise.all([leaderboard, userProfile]).then(function(snapshots) {
+            leaderboard = snapshots[0];
+            userProfile = snapshots[1];
+           // console.log(leaderboard);
+            let data = [];
+            Object.keys(leaderboard).map((key, idx)=>{
+                let leaderboarObj = {};
+                leaderboarObj.TotalScore = leaderboard[key].TotalScore ? leaderboard[key].TotalScore : 0;
+                leaderboarObj.UserName = "Player" + idx;
+                if(userProfile[key] && userProfile[key].UserName){
+                    leaderboarObj.UserName = userProfile[key].UserName;
                 }
-                response.send(JSON.stringify(outputData));
+                data.push(leaderboarObj);
+            });
+            data.sort((a,b)=>{
+                if (a.TotalScore < b.TotalScore)
+                    return 1;
+                if (a.TotalScore > b.TotalScore)
+                    return -1;
+                return 0;
+            });
+
+            return response.status(200).send(JSON.stringify(data));
         });
+        // database.ref('Leaderboard/'+ divisionType).orderByChild('TotalScore')
+        //     .limitToLast(50).once('value').then(function(snapshot){
+        //         let data = [];
+        //         snapshot.forEach(function (childSnapshot) {
+        //         let userData = {};
+        //         userData.playerName = childSnapshot.child('PlayerName').val();
+        //         userData.totalScore = childSnapshot.child('TotalScore').val();
+        //             if(userData.playerName != ""){
+        //                 data.push(userData);
+        //             }
+        //     });
+        //         let outputData = [];
+        //         for(let i = (data.length - 1); i >= 0; i--){
+        //             outputData.push(data[i]);
+        //         }
+        //         response.send(JSON.stringify(outputData));
+        // });
         // Promise.all([dal.getTopPlayers(divisionType)]).then(function(data) {
         //     console.log(data);
         //     response.send(JSON.stringify(data));
