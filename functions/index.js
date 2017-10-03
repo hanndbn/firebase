@@ -2,13 +2,13 @@
  * Created by Mukhtiar.Ahmed on 6/21/2017.
  */
 const functions = require('firebase-functions');
-const admin = require('firebase-admin')
+const admin = require('firebase-admin');
 admin.initializeApp(functions.config().firebase);
 const database = admin.database();
 const express = require('express');
 const fileUpload = require('express-fileupload');
 const moment = require('moment');
-const app = express.Router();
+const app = express();
 const dal = require('./dal');
 const utils = require('./utils');
 const challengeController = require('./ChallengeController');
@@ -16,18 +16,13 @@ const gameController = require('./GameController');
 const playerController = require('./PlayerController');
 const leaderboardController = require('./LeaderboardController');
 const version = '1.0';
-const scheduler = require('node-schedule');
 
-let startedJob = false;
-var j = scheduler.scheduleJob('07 * * * *', function(){
-    if(!startedJob){
-        console.log('The answer to life, the universe, and everything!');
-        startedJob = true;
-    }
-});
+// const CronJob = require('cron').CronJob;
+// new CronJob('00 60 * * * *', function() {
+//     console.log('You will see this message every second');
+// }, null, true, 'America/Los_Angeles');
 
 exports.setDefaultUserDate = functions.auth.user().onCreate(function(event) {
-
     const user = event.data;
     console.log( ' setDefaultUserDate');
     try  {
@@ -38,6 +33,13 @@ exports.setDefaultUserDate = functions.auth.user().onCreate(function(event) {
 });
 
 const authenticate = (req, res, next) => {
+    //console.log(database);
+    let dateStr = moment().utcOffset(480).weekday(6).format('DD/MM/YYYY 23:59:59');
+    let lastDate = moment(dateStr, 'DD/MM/YYYY HH:mm:dd');
+    let duration = lastDate.diff(moment().utcOffset(480), 'seconds');
+    console.log(moment.utc(duration*1000).format('DD HH:mm:ss'));
+
+    //console.log(moment("20171003 010000", "YYYYMMDD HHmmss").utcOffset(480).fromNow());
     var idToken = '';
     if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
          // res.status(403).send(JSON.stringify({'status' : 'Unauthorized'}));
