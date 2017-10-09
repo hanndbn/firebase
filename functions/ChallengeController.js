@@ -9,6 +9,14 @@ const moment = require('moment');
 const dal = require('./dal');
 const utils = require('./utils');
 
+exports.getChallengesRemainingTime = function(request, response) {
+    //console.log(database);
+    let dateStr = moment().utcOffset(480).weekday(6).format('DD/MM/YYYY 23:59:59');
+    let lastDate = moment(dateStr, 'DD/MM/YYYY HH:mm:dd');
+    let duration = lastDate.diff(moment().utcOffset(480), 'seconds');
+    response.json({ChallengesRemainingTime : moment.utc(duration*1000).format('DD HH:mm:ss')});
+};
+
 
 exports.getWeeklyChallenges = function(request, response) {
     var startOfWeek = moment().utc().startOf('week').toDate();

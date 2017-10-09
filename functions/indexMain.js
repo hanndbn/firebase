@@ -17,18 +17,10 @@ const playerController = require('./PlayerController');
 const leaderboardController = require('./LeaderboardController');
 const version = '1.0';
 
-const schedule = require("node-schedule");
-const rule = new schedule.RecurrenceRule();
-rule.second = 59;
-rule.minute = 59;
-rule.hour = 23;
-rule.dayOfWeek = 6;
-const leaderBoardUpdate = schedule.scheduleJob({tz: "Asia/Singapore",rule: rule}, function(){
-    console.log("start update leaderBoard");
-    leaderboardController.updateLeaderBoard();
-    console.log("end update leaderBoard");
-});
-//leaderBoardUpdate.cancel();
+// const CronJob = require('cron').CronJob;
+// new CronJob('00 60 * * * *', function() {
+//     console.log('You will see this message every second');
+// }, null, true, 'America/Los_Angeles');
 
 exports.setDefaultUserDate = functions.auth.user().onCreate(function(event) {
     const user = event.data;
@@ -50,8 +42,8 @@ const authenticate = (req, res, next) => {
     //console.log(moment("20171003 010000", "YYYYMMDD HHmmss").utcOffset(480).fromNow());
     var idToken = '';
     if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
-        // res.status(403).send(JSON.stringify({'status' : 'Unauthorized'}));
-        // return;
+         // res.status(403).send(JSON.stringify({'status' : 'Unauthorized'}));
+         // return;
         req.user = {uid : 'S4iBgV67kebptSKJzEZjvUdKs4e2', name : 'bob'}
         next();
     }  else {
@@ -123,12 +115,6 @@ app.get( '/'+ version +'/GetUserProfile', playerController.getUserProfile);
 
 // OE API
 app.post( '/'+ version +'/GetTopPlayers', leaderboardController.getTopPlayers);
-
-app.get( '/'+ version +'/GetChallengesRemainingTime', challengeController.getChallengesRemainingTime);
-
-    app.post( '/'+ version +'/ReSchedule', (request, response) => {
-    leaderboardController.reSchedule(request, response, leaderBoardUpdate);
-});
 
 
 // ole OE API

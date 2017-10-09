@@ -23,6 +23,59 @@ exports.getLeaderBoardData = function (endpoint) {
     });
 };
 
+exports.backupLeaderBoardData = function (dateStr) {
+    database.ref('Leaderboard').once("value").then(function (snapshot) {
+        database.ref('LeaderboardHistory').once("value").then(function (snapshotLeaderboardHistory) {
+            let leaderboardHistory = snapshotLeaderboardHistory.val() ? snapshotLeaderboardHistory.val() : {};
+            leaderboardHistory[dateStr] = snapshot.val();
+            snapshotLeaderboardHistory.ref.set(leaderboardHistory);
+        });
+    });
+};
+
+exports.getLeaderBoardWithType = function (divisionType) {
+    return database.ref('Leaderboard/' + divisionType).once("value").then(function (snap) {
+        let data = [];
+        snap.forEach((item) => {
+            let newItem = item.val();
+            newItem.key = item.key;
+            data.push(newItem);
+        });
+        data.sort((a, b) => {
+            if (a.TotalScore < b.TotalScore)
+                return 1;
+            if (a.TotalScore > b.TotalScore)
+                return -1;
+            return 0;
+        });
+
+        let promotionData = [];
+        let demotionData = [];
+        let keepPositionData = [];
+        let numberPerson = Math.floor(data.length / 4);
+        data.map((item, idx) => {
+            let rank = idx + 1;
+            if(data.length <3){
+                keepPositionData.push(item);
+            }else{
+                if(rank <= numberPerson){
+                    promotionData.push(item);
+                }else if(rank >= data.length - numberPerson + 1){
+                    demotionData.push(item)
+                } else {
+                    keepPositionData.push(item);
+                }
+            }
+        });
+        return {
+            promotionData: promotionData,
+            demotionData: demotionData,
+            keepPositionData: keepPositionData,
+            numberPerson : data.length
+        };
+    });
+};
+
 /**
  * Get challenges by ids.
  * @param levelIds
