@@ -15,7 +15,9 @@ const challengeController = require('./ChallengeController');
 const gameController = require('./GameController');
 const playerController = require('./PlayerController');
 const leaderboardController = require('./LeaderboardController');
+const sha256 = require('js-sha256');
 const version = '1.0';
+
 
 const schedule = require("node-schedule");
 const rule = new schedule.RecurrenceRule();
@@ -23,19 +25,19 @@ rule.second = 59;
 rule.minute = 59;
 rule.hour = 23;
 rule.dayOfWeek = 6;
-const leaderBoardUpdate = schedule.scheduleJob({tz: "Asia/Singapore",rule: rule}, function(){
+const leaderBoardUpdate = schedule.scheduleJob({tz: "Asia/Singapore", rule: rule}, function () {
     console.log("start update leaderBoard");
     leaderboardController.updateLeaderBoard();
     console.log("end update leaderBoard");
 });
 //leaderBoardUpdate.cancel();
 
-exports.setDefaultUserDate = functions.auth.user().onCreate(function(event) {
+exports.setDefaultUserDate = functions.auth.user().onCreate(function (event) {
     const user = event.data;
-    console.log( ' setDefaultUserDate');
-    try  {
+    console.log(' setDefaultUserDate');
+    try {
         dal.addDefaultUserData(user);
-    } catch(err) {
+    } catch (err) {
         console.error(err);
     }
 });
@@ -45,30 +47,30 @@ const authenticate = (req, res, next) => {
     let dateStr = moment().utcOffset(480).weekday(6).format('DD/MM/YYYY 23:59:59');
     let lastDate = moment(dateStr, 'DD/MM/YYYY HH:mm:dd');
     let duration = lastDate.diff(moment().utcOffset(480), 'seconds');
-    console.log(moment.utc(duration*1000).format('DD HH:mm:ss'));
+    console.log(moment.utc(duration * 1000).format('DD HH:mm:ss'));
 
     //console.log(moment("20171003 010000", "YYYYMMDD HHmmss").utcOffset(480).fromNow());
     var idToken = '';
     if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
         // res.status(403).send(JSON.stringify({'status' : 'Unauthorized'}));
         // return;
-        req.user = {uid : 'S4iBgV67kebptSKJzEZjvUdKs4e2', name : 'bob'}
+        req.user = {uid: 'S4iBgV67kebptSKJzEZjvUdKs4e2', name: 'bob'}
         next();
-    }  else {
+    } else {
         idToken = req.headers.authorization.split('Bearer ')[1];
         admin.auth().verifyIdToken(idToken).then(decodedIdToken => {
             req.user = decodedIdToken;
             next();
         }).catch(error => {
             console.log(error);
-            res.status(403).send(JSON.stringify({'status' : 'Unauthorized'}));
+            res.status(403).send(JSON.stringify({'status': 'Unauthorized'}));
         });
     }
 };
 
 app.use(function (req, res, next) {
     console.log(req.originalUrl);
-    res.header("Content-Type",'application/json');
+    res.header("Content-Type", 'application/json');
     next();
 });
 
@@ -78,55 +80,57 @@ app.use(fileUpload());
 
 app.use(authenticate);
 
-app.get( '/' + version + '/currentWeek', (request, response) => {
+app.get('/' + version + '/currentWeek', (request, response) => {
     var currentWeek = utils.currentWeek();
-    response.send(JSON.stringify({'CurrentWeek' : currentWeek}));
+    response.send(JSON.stringify({'CurrentWeek': currentWeek}));
 });
 
-app.get( '/'+ version +'/GetChallenges', challengeController.getWeeklyChallenges);
+app.get('/' + version + '/GetChallenges', challengeController.getWeeklyChallenges);
 
-app.get( '/'+ version +'/GetShopItems', gameController.getShopItems);
+app.get('/' + version + '/GetShopItems', gameController.getShopItems);
 
-app.get( '/'+ version +'/Player', playerController.getPlayer);
+app.get('/' + version + '/Player', playerController.getPlayer);
 
-app.get( '/'+ version +'/GetLeaderboardTotalPlayers', gameController.getLeaderboardTotalPlayers);
+app.get('/' + version + '/GetLeaderboardTotalPlayers', gameController.getLeaderboardTotalPlayers);
 
-app.post( '/'+ version +'/PostScoreForChallenge', playerController.postScoreForChallenge);
+app.post('/' + version + '/PostScoreForChallenge', playerController.postScoreForChallenge);
 
-app.get( '/'+ version +'/GetLeaderboardPosition', playerController.getLeaderboardPosition);
+app.get('/' + version + '/GetLeaderboardPosition', playerController.getLeaderboardPosition);
 
-app.post( '/'+ version +'/PurchaseItem', playerController.purchaseItem);
+app.post('/' + version + '/PurchaseItem', playerController.purchaseItem);
 
-app.get( '/'+ version +'/GetInAppPurchaseItems', playerController.getInAppPurchaseItems);
+app.get('/' + version + '/GetInAppPurchaseItems', playerController.getInAppPurchaseItems);
 
-app.post( '/'+ version +'/StorePurchase', playerController.storePurchase);
+app.post('/' + version + '/StorePurchase', playerController.storePurchase);
 
-app.get( '/'+ version +'/GetCoins', playerController.getCoins);
+app.get('/' + version + '/GetCoins', playerController.getCoins);
 
-app.get( '/'+ version +'/GetPowerUps', playerController.getPowerUps);
+app.get('/' + version + '/GetPowerUps', playerController.getPowerUps);
 
-app.get( '/'+ version +'/GetPowerUpsOfType', playerController.getPowerUpsOfType);
+app.get('/' + version + '/GetPowerUpsOfType', playerController.getPowerUpsOfType);
 
-app.post( '/'+ version +'/UsePowerUp', playerController.usePowerUp);
+app.post('/' + version + '/UsePowerUp', playerController.usePowerUp);
 
-app.post( '/'+ version +'/DataImport', gameController.dataImport);
+app.post('/' + version + '/DataImport', gameController.dataImport);
 
-app.post( '/'+ version +'/InAppPurchase', gameController.addInAppPurchase);
+app.post('/' + version + '/InAppPurchase', gameController.addInAppPurchase);
 
-app.post( '/'+ version +'/RewardPlayer', playerController.rewardPlayer);
+app.post('/' + version + '/RewardPlayer', playerController.rewardPlayer);
 
-app.post( '/'+ version +'/SetUserProfile', playerController.setUserProfile);
+app.post('/' + version + '/SetUserProfile', playerController.setUserProfile);
 
-app.get( '/'+ version +'/EraseMaybankToken', playerController.eraseMaybankToken);
+app.get('/' + version + '/EraseMaybankToken', playerController.eraseMaybankToken);
 
-app.get( '/'+ version +'/GetUserProfile', playerController.getUserProfile);
+app.get('/' + version + '/GetUserProfile', playerController.getUserProfile);
 
 // OE API
-app.post( '/'+ version +'/GetTopPlayers', leaderboardController.getTopPlayers);
+app.post('/' + version + '/GetTopPlayers', leaderboardController.getTopPlayers);
 
-app.get( '/'+ version +'/GetChallengesRemainingTime', challengeController.getChallengesRemainingTime);
+app.get('/' + version + '/GetServerInfo', gameController.getServerInfo);
 
-    app.post( '/'+ version +'/ReSchedule', (request, response) => {
+app.get('/' + version + '/GetChallengesRemainingTime', challengeController.getChallengesRemainingTime);
+
+app.post('/' + version + '/ReSchedule', (request, response) => {
     leaderboardController.reSchedule(request, response, leaderBoardUpdate);
 });
 
@@ -153,7 +157,7 @@ exports.PurchaseMaybankItem = functions.https.onRequest((req, res) => {
             "itemToken": "",
             "itemCode": "",
             "quantity": "",
-            "refNo": "" ,
+            "refNo": "",
             "pointRedeemed": "",
             "tpbalance": ""
         }
@@ -162,18 +166,19 @@ exports.PurchaseMaybankItem = functions.https.onRequest((req, res) => {
     let itemId = req.body.itemId;
     let accessToken = req.body.accessToken;
     let userId = req.body.userId;
-    if(!itemId || !accessToken || !userId){
+    if (!itemId || !accessToken || !userId) {
         errorResponse.rsHeader.errorCode = "REQUEST_PARAMETER_INVALID";
         errorResponse.rsHeader.errorMessage = "request parameter invalid!";
         return res.json(errorResponse);
     }
 
-    let headers =  {'content-type': 'application/json' };
+    let headers = {'content-type': 'application/json'};
     //let url = "https://122.11.168.196:8434/api/gameRedemption";
     let url = "https://122.11.168.197/api/gameRedemption";
+    //let url = "http://118.70.177.14:8080/api/gameRedemption";
 
     admin.database().ref('ItemMapping').once('value', function (items) {
-        if(items.exists()) {
+        if (items.exists()) {
             let existItem = false;
             let itemCode = "";
             let pointRequired = "";
@@ -188,7 +193,6 @@ exports.PurchaseMaybankItem = functions.https.onRequest((req, res) => {
                 errorResponse.rsHeader.errorCode = "NOT_FOUND_DATA_MAPPING";
                 errorResponse.rsHeader.errorMessage = "can not get data mapping in firebase database with item Id";
                 return res.json(errorResponse);
-
             }
 
             // request to server
@@ -199,7 +203,7 @@ exports.PurchaseMaybankItem = functions.https.onRequest((req, res) => {
                     "time": moment().utcOffset(480).format('HHmmss'),
                     "accessToken": accessToken
                 },
-                "channelId" : "GM",
+                "channelId": "GM",
                 "itemCode": itemCode,
                 "quantity": "1",
                 "totalPoint": pointRequired
@@ -212,7 +216,7 @@ exports.PurchaseMaybankItem = functions.https.onRequest((req, res) => {
                         existUser = true;
                     }
                 });
-                if(!existUser){
+                if (!existUser) {
                     errorResponse.rsHeader.errorCode = "NOT EXIST USER";
                     errorResponse.rsHeader.errorMessage = "not exist user in database with request item Id";
                     return res.json(errorResponse);
@@ -231,7 +235,7 @@ exports.PurchaseMaybankItem = functions.https.onRequest((req, res) => {
                 if (!error && response.statusCode == 200) {
                     let bodyValid = body.rsHeader ? body.rsHeader.responseCode == '00' : false;
                     let tpbalance = body.redeemData ? body.redeemData.tpbalance : '';
-                    if(bodyValid && userId && tpbalance){
+                    if (bodyValid && userId && tpbalance) {
                         admin.database().ref('UserProfile').once('value', function (accessUser) {
                             accessUser.forEach(function (user) {
                                 if (userId == user.key) {
@@ -255,6 +259,269 @@ exports.PurchaseMaybankItem = functions.https.onRequest((req, res) => {
             return res.json(errorResponse);
         }
     });
+});
+
+exports.PurchaseMaybankItemTest = functions.https.onRequest((req, res) => {
+    // responeReturn:
+    let errorResponse = {
+        "versionNo": "1505353646721",
+        "language": "SG",
+        "rsHeader": {
+            "timeZone": "GMT" + moment().utcOffset(480).format('Z'),
+            "date": moment().utcOffset(480).format('YYYYMMDD'),
+            "time": moment().utcOffset(480).format('HHmmss'),
+            "versionNo": "9005003",
+            "appVersion": "1.0.0",
+            "accessToken": "",
+            "responseCode": "NN",
+            "errorCode": "",
+            "errorMessage": ""
+        },
+        "redeemData": {
+            "itemToken": "",
+            "itemCode": "",
+            "quantity": "",
+            "refNo": "",
+            "pointRedeemed": "",
+            "tpbalance": ""
+        }
+    };
+
+    let itemId = req.body.itemId;
+    let accessToken = req.body.accessToken;
+    let userId = req.body.userId;
+    if (!itemId || !accessToken || !userId) {
+        errorResponse.rsHeader.errorCode = "REQUEST_PARAMETER_INVALID";
+        errorResponse.rsHeader.errorMessage = "request parameter invalid!";
+        return res.json(errorResponse);
+    }
+
+    let headers = {'content-type': 'application/json'};
+    //let url = "https://122.11.168.196:8434/api/gameRedemption";
+    let url = "https://122.11.168.197/api/gameRedemption";
+    //let url = "http://localhost:8080/api/gameRedemption";
+    //let url = "http://118.70.177.14:8080/api/gameRedemption";
+
+
+    let itemMapping = dal.getFirebaseData('ItemMapping');
+    let userData = dal.getFirebaseData('UserProfile/' + userId);
+
+    Promise.all([itemMapping, userData]).then(function (snapshots) {
+        itemMapping = snapshots[0];
+        userData = snapshots[1];
+
+        let existItem = false;
+        let itemCode = "";
+        let pointRequired = "";
+
+        // check exist table item mapping
+        if (itemMapping) {
+            itemMapping.forEach(function (item) {
+                if (itemId == item['GameItemCode']) {
+                    existItem = true;
+                    itemCode = item['MaybankItemCode'];
+                    pointRequired = item['PointRequired'];
+                }
+            });
+        } else {
+            errorResponse.rsHeader.errorCode = "NOT_EXIST_TABLE_ITEMMAPING";
+            errorResponse.rsHeader.errorMessage = "not exist table ItemMapping in firebase database";
+            return res.json(errorResponse);
+        }
+
+        // check exist data in item mapping
+        if (!existItem || itemCode === "" || pointRequired === "") {
+            errorResponse.rsHeader.errorCode = "NOT_FOUND_DATA_MAPPING";
+            errorResponse.rsHeader.errorMessage = "can not get data mapping in firebase database with item Id";
+            return res.json(errorResponse);
+        }
+
+        // check exist user with user id
+        if(!userData){
+            errorResponse.rsHeader.errorCode = "NOT EXIST USER";
+            errorResponse.rsHeader.errorMessage = "not exist user in database with request item Id";
+            return res.json(errorResponse);
+        }
+
+        //         request to server
+        let requestPurchase = {
+            "rqHeader": {
+                "timeZone": "GMT" + moment().utcOffset(480).format('Z'),
+                "date": moment().utcOffset(480).format('YYYYMMDD'),
+                "time": moment().utcOffset(480).format('HHmmss'),
+                "accessToken": accessToken
+            },
+            "channelId": "GM",
+            "itemCode": itemCode,
+            "quantity": "1",
+            "totalPoint": 1000
+        };
+
+        request.post({
+            url: url,
+            json: true,
+            headers: headers,
+            rejectUnauthorized: false,
+            strictSSL: false,
+            secureProtocol: 'TLSv1_method',
+            body: requestPurchase
+        }, function (error, response, body) {
+            if (!error && response.statusCode == 200) {
+                let bodyValid = body.rsHeader ? body.rsHeader.responseCode == '00' : false;
+                let tpbalance = body.redeemData ? body.redeemData.tpbalance : '';
+                if(bodyValid && userId && tpbalance){
+                    admin.database().ref('RedemptionHistory').once('value', function (redemptionSnapshot) {
+                        let redemption = redemptionSnapshot.val() ? redemptionSnapshot.val() : {};
+                        if(body.redeemData.itemToken != "" && redemption[body.redeemData.itemToken]){
+                            errorResponse.rsHeader.errorCode = "REDEMPTION FAILED. ITEM HAD REDEEMED";
+                            errorResponse.rsHeader.errorMessage = "a item only redeem once";
+                            return res.json(errorResponse);
+                        } else if(body.redeemData.itemToken != ""){
+                            let SV = "12345";
+                            let accessToken = body.rsHeader.accessToken;
+                            let itemCode = body.redeemData.itemCode;
+                            let quantity = body.redeemData.quantity;
+                            let transactionDate = body.redeemData.transactionDate;
+                            let transactioneTime = body.redeemData.transactionTime;
+                            let refNo = body.redeemData.refNo;
+                            let hashString = SV + accessToken + itemCode + quantity + transactionDate + transactioneTime + refNo;
+                            let sha256String = sha256(hashString);
+                            if(sha256String.toString().substr(0, 20).toUpperCase() == body.redeemData.itemToken){
+                                redemption[body.redeemData.itemToken] = body;
+                                redemptionSnapshot.ref.set(redemption);
+
+                                //update data UserProfile
+                                admin.database().ref('UserProfile').once('value', function (accessUser) {
+                                    accessUser.forEach(function (user) {
+                                        if (userId == user.key) {
+                                            let objUpdate = {};
+                                            objUpdate.Player_Balance = tpbalance;
+                                            user.ref.update(objUpdate);
+                                        }
+                                    });
+                                });
+                                return res.json(body);
+                            }else{
+                                errorResponse.rsHeader.errorCode = "DATA NOT MAPPING";
+                                errorResponse.rsHeader.errorMessage = "data not mapping";
+                                return res.json(errorResponse);
+                            }
+                        }
+                    });
+                }
+            } else {
+                errorResponse.rsHeader.errorCode = "REQUEST_TO_SERVER_ERROR";
+                errorResponse.rsHeader.errorMessage = error.code;
+                return res.json({errorResponse});
+            }
+        });
+    });
+
+    // admin.database().ref('ItemMapping').once('value', function (items) {
+    //     if(items.exists() ) {
+    //         let existItem = false;
+    //         let itemCode = "";
+    //         let pointRequired = "";
+    //         items.forEach(function (item) {
+    //             if (itemId == item.child('GameItemCode').val()) {
+    //                 existItem = true;
+    //                 itemCode = item.child('MaybankItemCode').val()
+    //                 pointRequired = item.child('PointRequired').val()
+    //             }
+    //         });
+    //         if (!existItem || itemCode === "" || pointRequired === "") {
+    //             errorResponse.rsHeader.errorCode = "NOT_FOUND_DATA_MAPPING";
+    //             errorResponse.rsHeader.errorMessage = "can not get data mapping in firebase database with item Id";
+    //             return res.json(errorResponse);
+    //         }
+    //
+    //         request to server
+    //         let requestPurchase = {
+    //             "rqHeader": {
+    //                 "timeZone": "GMT" + moment().utcOffset(480).format('Z'),
+    //                 "date": moment().utcOffset(480).format('YYYYMMDD'),
+    //                 "time": moment().utcOffset(480).format('HHmmss'),
+    //                 "accessToken": accessToken
+    //             },
+    //             "channelId" : "GM",
+    //             "itemCode": itemCode,
+    //             "quantity": "1",
+    //             "totalPoint": 1000
+    //         };
+    //
+    //         admin.database().ref('UserProfile/' + userId).once('value', function (accessUser) {
+    //             if(!accessUser.val()){
+    //                 errorResponse.rsHeader.errorCode = "NOT EXIST USER";
+    //                 errorResponse.rsHeader.errorMessage = "not exist user in database with request item Id";
+    //                 return res.json(errorResponse);
+    //             }
+    //
+    //             request.post({
+    //     url: url,
+    //     json: true,
+    //     headers: headers,
+    //     rejectUnauthorized: false,
+    //     strictSSL: false,
+    //     secureProtocol: 'TLSv1_method',
+    //     body: requestPurchase
+    // }, function (error, response, body) {
+    //     if (!error && response.statusCode == 200) {
+    //         let bodyValid = body.rsHeader ? body.rsHeader.responseCode == '00' : false;
+    //         let tpbalance = body.redeemData ? body.redeemData.tpbalance : '';
+    //         if(bodyValid && userId && tpbalance){
+    //             admin.database().ref('RedemptionHistory').once('value', function (redemptionSnapshot) {
+    //                 let redemption = redemptionSnapshot.val() ? redemptionSnapshot.val() : {};
+    //                 if(body.redeemData.itemToken != "" && redemption[body.redeemData.itemToken]){
+    //                     errorResponse.rsHeader.errorCode = "REDEMPTION FAILED. ITEM HAD REDEEMED";
+    //                     errorResponse.rsHeader.errorMessage = "a item only redeem once";
+    //                     return res.json(errorResponse);
+    //                 } else if(body.redeemData.itemToken != ""){
+    //                     let SV = "12345";
+    //                     let accessToken = body.rsHeader.accessToken;
+    //                     let itemCode = body.redeemData.itemCode;
+    //                     let quantity = body.redeemData.quantity;
+    //                     let transactionDate = body.redeemData.transactionDate;
+    //                     let transactioneTime = body.redeemData.transactionTime;
+    //                     let refNo = body.redeemData.refNo;
+    //                     let hashString = SV + accessToken + itemCode + quantity + transactionDate + transactioneTime + refNo;
+    //                     let sha256String = sha256(hashString);
+    //                     if(sha256String.toString().substr(0, 20).toUpperCase() == body.redeemData.itemToken){
+    //                         redemption[body.redeemData.itemToken] = body;
+    //                         redemptionSnapshot.ref.set(redemption);
+    //
+    //                         //update data UserProfile
+    //                         admin.database().ref('UserProfile').once('value', function (accessUser) {
+    //                             accessUser.forEach(function (user) {
+    //                                 if (userId == user.key) {
+    //                                     let objUpdate = {};
+    //                                     objUpdate.Player_Balance = tpbalance;
+    //                                     user.ref.update(objUpdate);
+    //                                 }
+    //                             });
+    //                         });
+    //                         return res.json(body);
+    //                     }else{
+    //                         errorResponse.rsHeader.errorCode = "DATA NOT MAPPING";
+    //                         errorResponse.rsHeader.errorMessage = "data not mapping";
+    //                         return res.json(errorResponse);
+    //                     }
+    //                 }
+    //             });
+    //         }
+    //
+    //     } else {
+    //         errorResponse.rsHeader.errorCode = "REQUEST_TO_SERVER_ERROR";
+    //         errorResponse.rsHeader.errorMessage = error.code;
+    //         return res.json({errorResponse});
+    //     }
+    // });
+    //         });
+    //     } else {
+    //         errorResponse.rsHeader.errorCode = "NOT_EXIST_TABLE_ITEMMAPING";
+    //         errorResponse.rsHeader.errorMessage = "not exist table ItemMapping in firebase database";
+    //         return res.json(errorResponse);
+    //     }
+    // });
 });
 
 
@@ -317,7 +584,7 @@ exports.saveAccessUser = functions.https.onRequest((req, res) => {
 
                 if (requestTPBalance != null && requestTPBalance != "") {
                     objUpdate.Player_Balance = requestTPBalance;
-                }else{
+                } else {
                     objUpdate.Player_Balance = "0";
                 }
                 user.ref.update(objUpdate);
@@ -338,7 +605,7 @@ exports.saveAccessUser = functions.https.onRequest((req, res) => {
 
 exports.importToDatabase = functions.https.onRequest((req, res) => {
     let database = req.body;
-    dal.gameDataImport(database, function(error, records) {
+    dal.gameDataImport(database, function (error, records) {
         return res.json({result: "success"});
     });
     // //let database = JSON.parse(req.body.data).data;
@@ -351,8 +618,8 @@ exports.importToDatabase = functions.https.onRequest((req, res) => {
     return res.json({result: "false"});
 });
 
-app.use(function(request, response, next){
-    response.status(404).send(JSON.stringify({'status' : 'Not Found'}));
+app.use(function (request, response, next) {
+    response.status(404).send(JSON.stringify({'status': 'Not Found'}));
 });
 
 // Expose the API as a function

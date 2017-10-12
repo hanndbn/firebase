@@ -319,6 +319,24 @@ exports.dataImport = function(request, response, next) {
 
 };
 
+exports.getServerInfo = function(request, response) {
+    try {
+        database.ref('ServerInfo').once('value').then(function (snapshot) {
+            let serverInfo = snapshot.val();
+            if(serverInfo){
+                 serverInfo.status = "success"
+             }else{
+                serverInfo = {};
+                serverInfo.status = "can't get server info"
+            }
+            return response.status(200).send(JSON.stringify(serverInfo));
+        });
+    } catch(err) {
+        console.error(err);
+        response.status(500).send(JSON.stringify({'status' : 'Internal Server error'}));
+    }
+};
+
 
 
 
