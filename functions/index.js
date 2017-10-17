@@ -174,7 +174,7 @@ exports.PurchaseMaybankItem = functions.https.onRequest((req, res) => {
 
     let headers = {'content-type': 'application/json'};
     //let url = "https://122.11.168.196:8434/api/gameRedemption";
-    let url = "https://122.11.168.197/api/gameRedemption";
+    let url = "https://uatrewards.maybank.com.sg/api/gameRedemption";
     //let url = "http://118.70.177.14:8080/api/gameRedemption";
 
     admin.database().ref('ItemMapping').once('value', function (items) {
@@ -196,18 +196,7 @@ exports.PurchaseMaybankItem = functions.https.onRequest((req, res) => {
             }
 
             // request to server
-            let requestPurchase = {
-                "rqHeader": {
-                    "timeZone": "GMT" + moment().utcOffset(480).format('Z'),
-                    "date": moment().utcOffset(480).format('YYYYMMDD'),
-                    "time": moment().utcOffset(480).format('HHmmss'),
-                    "accessToken": accessToken
-                },
-                "channelId": "GM",
-                "itemCode": itemCode,
-                "quantity": "1",
-                "totalPoint": pointRequired
-            };
+            let requestPurchase = {"rqHeader":{"timeZone":"GMT"+ moment().utcOffset(480).format('Z'),"date":moment().utcOffset(480).format('YYYYMMDD'),"time":moment().utcOffset(480).format('HHmmss'),"accessToken":accessToken},"channelId":"GM","itemCode":itemCode,"quantity":"1","totalPoint":pointRequired};
 
             admin.database().ref('UserProfile').once('value', function (accessUser) {
                 let existUser = false;
@@ -227,9 +216,9 @@ exports.PurchaseMaybankItem = functions.https.onRequest((req, res) => {
                 url: url,
                 json: true,
                 headers: headers,
-                rejectUnauthorized: false,
-                strictSSL: false,
-                secureProtocol: 'TLSv1_method',
+                //rejectUnauthorized: false,
+                //strictSSL: false,
+                //secureProtocol: 'TLSv1_method',
                 body: requestPurchase
             }, function (error, response, body) {
                 if (!error && response.statusCode == 200) {
@@ -298,7 +287,7 @@ exports.PurchaseMaybankItemTest = functions.https.onRequest((req, res) => {
 
     let headers = {'content-type': 'application/json'};
     //let url = "https://122.11.168.196:8434/api/gameRedemption";
-    let url = "https://122.11.168.197/api/gameRedemption";
+    let url = "https://uatrewards.maybank.com.sg/api/gameRedemption";
     //let url = "http://localhost:8080/api/gameRedemption";
     //let url = "http://118.70.177.14:8080/api/gameRedemption";
 
@@ -335,48 +324,38 @@ exports.PurchaseMaybankItemTest = functions.https.onRequest((req, res) => {
             errorResponse.rsHeader.errorMessage = "can not get data mapping in firebase database with item Id";
             return res.json(errorResponse);
         }
-
         // check exist user with user id
         if(!userData){
             errorResponse.rsHeader.errorCode = "NOT EXIST USER";
             errorResponse.rsHeader.errorMessage = "not exist user in database with request item Id";
             return res.json(errorResponse);
         }
-
         //         request to server
-        let requestPurchase = {
-            "rqHeader": {
-                "timeZone": "GMT" + moment().utcOffset(480).format('Z'),
-                "date": moment().utcOffset(480).format('YYYYMMDD'),
-                "time": moment().utcOffset(480).format('HHmmss'),
-                "accessToken": accessToken
-            },
-            "channelId": "GM",
-            "itemCode": itemCode,
-            "quantity": "1",
-            "totalPoint": 1000
-        };
+        let requestPurchase = {"rqHeader":{"timeZone":"GMT"+ moment().utcOffset(480).format('Z'),"date":moment().utcOffset(480).format('YYYYMMDD'),"time":moment().utcOffset(480).format('HHmmss'),"accessToken":accessToken},"channelId":"GM","itemCode":itemCode,"quantity":"1","totalPoint":pointRequired};
 
         request.post({
             url: url,
             json: true,
             headers: headers,
-            rejectUnauthorized: false,
-            strictSSL: false,
-            secureProtocol: 'TLSv1_method',
+            //rejectUnauthorized: false,
+            //strictSSL: false,
+            //secureProtocol: 'TLSv1_method',
             body: requestPurchase
         }, function (error, response, body) {
             if (!error && response.statusCode == 200) {
+                console.log("request success");
                 let bodyValid = body.rsHeader ? body.rsHeader.responseCode == '00' : false;
                 let tpbalance = body.redeemData ? body.redeemData.tpbalance : '';
                 if(bodyValid && userId && tpbalance){
                     admin.database().ref('RedemptionHistory').once('value', function (redemptionSnapshot) {
                         let redemption = redemptionSnapshot.val() ? redemptionSnapshot.val() : {};
                         if(body.redeemData.itemToken != "" && redemption[body.redeemData.itemToken]){
+                            console.log("redeemed");
                             errorResponse.rsHeader.errorCode = "REDEMPTION FAILED. ITEM HAD REDEEMED";
                             errorResponse.rsHeader.errorMessage = "a item only redeem once";
                             return res.json(errorResponse);
                         } else if(body.redeemData.itemToken != ""){
+                            console.log("itemtoken");
                             let SV = "12345";
                             let accessToken = body.rsHeader.accessToken;
                             let itemCode = body.redeemData.itemCode;
@@ -387,20 +366,17 @@ exports.PurchaseMaybankItemTest = functions.https.onRequest((req, res) => {
                             let hashString = SV + accessToken + itemCode + quantity + transactionDate + transactioneTime + refNo;
                             let sha256String = sha256(hashString);
                             if(sha256String.toString().substr(0, 20).toUpperCase() == body.redeemData.itemToken){
+                                console.log("redeem success");
                                 redemption[body.redeemData.itemToken] = body;
                                 redemptionSnapshot.ref.set(redemption);
 
                                 //update data UserProfile
-                                admin.database().ref('UserProfile').once('value', function (accessUser) {
-                                    accessUser.forEach(function (user) {
-                                        if (userId == user.key) {
-                                            let objUpdate = {};
-                                            objUpdate.Player_Balance = tpbalance;
-                                            user.ref.update(objUpdate);
-                                        }
-                                    });
+                                admin.database().ref('UserProfile' + userId).once('value', function (accessUser) {
+                                    let objUpdate = {};
+                                    objUpdate.Player_Balance = tpbalance;
+                                    accessUser.ref.update(objUpdate);
+                                    return res.json(body);
                                 });
-                                return res.json(body);
                             }else{
                                 errorResponse.rsHeader.errorCode = "DATA NOT MAPPING";
                                 errorResponse.rsHeader.errorMessage = "data not mapping";
@@ -416,112 +392,6 @@ exports.PurchaseMaybankItemTest = functions.https.onRequest((req, res) => {
             }
         });
     });
-
-    // admin.database().ref('ItemMapping').once('value', function (items) {
-    //     if(items.exists() ) {
-    //         let existItem = false;
-    //         let itemCode = "";
-    //         let pointRequired = "";
-    //         items.forEach(function (item) {
-    //             if (itemId == item.child('GameItemCode').val()) {
-    //                 existItem = true;
-    //                 itemCode = item.child('MaybankItemCode').val()
-    //                 pointRequired = item.child('PointRequired').val()
-    //             }
-    //         });
-    //         if (!existItem || itemCode === "" || pointRequired === "") {
-    //             errorResponse.rsHeader.errorCode = "NOT_FOUND_DATA_MAPPING";
-    //             errorResponse.rsHeader.errorMessage = "can not get data mapping in firebase database with item Id";
-    //             return res.json(errorResponse);
-    //         }
-    //
-    //         request to server
-    //         let requestPurchase = {
-    //             "rqHeader": {
-    //                 "timeZone": "GMT" + moment().utcOffset(480).format('Z'),
-    //                 "date": moment().utcOffset(480).format('YYYYMMDD'),
-    //                 "time": moment().utcOffset(480).format('HHmmss'),
-    //                 "accessToken": accessToken
-    //             },
-    //             "channelId" : "GM",
-    //             "itemCode": itemCode,
-    //             "quantity": "1",
-    //             "totalPoint": 1000
-    //         };
-    //
-    //         admin.database().ref('UserProfile/' + userId).once('value', function (accessUser) {
-    //             if(!accessUser.val()){
-    //                 errorResponse.rsHeader.errorCode = "NOT EXIST USER";
-    //                 errorResponse.rsHeader.errorMessage = "not exist user in database with request item Id";
-    //                 return res.json(errorResponse);
-    //             }
-    //
-    //             request.post({
-    //     url: url,
-    //     json: true,
-    //     headers: headers,
-    //     rejectUnauthorized: false,
-    //     strictSSL: false,
-    //     secureProtocol: 'TLSv1_method',
-    //     body: requestPurchase
-    // }, function (error, response, body) {
-    //     if (!error && response.statusCode == 200) {
-    //         let bodyValid = body.rsHeader ? body.rsHeader.responseCode == '00' : false;
-    //         let tpbalance = body.redeemData ? body.redeemData.tpbalance : '';
-    //         if(bodyValid && userId && tpbalance){
-    //             admin.database().ref('RedemptionHistory').once('value', function (redemptionSnapshot) {
-    //                 let redemption = redemptionSnapshot.val() ? redemptionSnapshot.val() : {};
-    //                 if(body.redeemData.itemToken != "" && redemption[body.redeemData.itemToken]){
-    //                     errorResponse.rsHeader.errorCode = "REDEMPTION FAILED. ITEM HAD REDEEMED";
-    //                     errorResponse.rsHeader.errorMessage = "a item only redeem once";
-    //                     return res.json(errorResponse);
-    //                 } else if(body.redeemData.itemToken != ""){
-    //                     let SV = "12345";
-    //                     let accessToken = body.rsHeader.accessToken;
-    //                     let itemCode = body.redeemData.itemCode;
-    //                     let quantity = body.redeemData.quantity;
-    //                     let transactionDate = body.redeemData.transactionDate;
-    //                     let transactioneTime = body.redeemData.transactionTime;
-    //                     let refNo = body.redeemData.refNo;
-    //                     let hashString = SV + accessToken + itemCode + quantity + transactionDate + transactioneTime + refNo;
-    //                     let sha256String = sha256(hashString);
-    //                     if(sha256String.toString().substr(0, 20).toUpperCase() == body.redeemData.itemToken){
-    //                         redemption[body.redeemData.itemToken] = body;
-    //                         redemptionSnapshot.ref.set(redemption);
-    //
-    //                         //update data UserProfile
-    //                         admin.database().ref('UserProfile').once('value', function (accessUser) {
-    //                             accessUser.forEach(function (user) {
-    //                                 if (userId == user.key) {
-    //                                     let objUpdate = {};
-    //                                     objUpdate.Player_Balance = tpbalance;
-    //                                     user.ref.update(objUpdate);
-    //                                 }
-    //                             });
-    //                         });
-    //                         return res.json(body);
-    //                     }else{
-    //                         errorResponse.rsHeader.errorCode = "DATA NOT MAPPING";
-    //                         errorResponse.rsHeader.errorMessage = "data not mapping";
-    //                         return res.json(errorResponse);
-    //                     }
-    //                 }
-    //             });
-    //         }
-    //
-    //     } else {
-    //         errorResponse.rsHeader.errorCode = "REQUEST_TO_SERVER_ERROR";
-    //         errorResponse.rsHeader.errorMessage = error.code;
-    //         return res.json({errorResponse});
-    //     }
-    // });
-    //         });
-    //     } else {
-    //         errorResponse.rsHeader.errorCode = "NOT_EXIST_TABLE_ITEMMAPING";
-    //         errorResponse.rsHeader.errorMessage = "not exist table ItemMapping in firebase database";
-    //         return res.json(errorResponse);
-    //     }
-    // });
 });
 
 
