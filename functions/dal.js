@@ -18,7 +18,7 @@ exports.getFirebaseData = function (endpoint) {
 };
 
 exports.getLeaderBoardData = function (endpoint) {
-    return database.ref(endpoint).limitToLast(50).once("value").then(function (snapshot) {
+    return database.ref(endpoint).orderByChild('TotalScore').limitToLast(50).once("value").then(function (snapshot) {
         return snapshot.val();
     });
 };
@@ -399,18 +399,45 @@ exports.updatePlayerScoreForChallenge = function (user, levelId, record, callbac
  * @param callback
  */
 exports.getUserLeaderboardPosition = function (user, callback) {
-    database.ref('PlayerData').child(user.uid).once('value').then(function (snapshot) {
-        var record = snapshot.val();
-        if (record) {
-            var playerDivision = record.ProgressStats.CurrentLeaderboard;
-            var totalScore = record.ProgressStats.TotalScore;
-            database.ref('Leaderboard/' + playerDivision).orderByChild('TotalScore').startAt(totalScore).once("value", function (snap) {
-                return callback(null, {"Position": snap.numChildren()});
+    database.ref('Leaderboard').once('value').then(function (snapshot) {
+        let leaderboard = snapshot;
+        let division = "";
+        leaderboard.forEach((divisionType)=>{
+            let userDataTmp = divisionType.val()[user.uid];
+            if(userDataTmp){
+                division = divisionType.key;
+            }
+        });
+        if(division != ""){
+            let leaderBoardData = snapshot.val()[division];
+                // console.log(leaderboard);
+            let data = [];
+            Object.keys(leaderBoardData).map((key, idx) => {
+                let leaderboarObj = {};
+                leaderboarObj.TotalScore = leaderBoardData[key].TotalScore ? leaderBoardData[key].TotalScore : 0;
+                leaderboarObj.userId = key;
+                data.push(leaderboarObj);
             });
-        } else {
-            return callback(null, null);
-        }
+            data.sort((a, b) => {
+                if (a.TotalScore < b.TotalScore)
+                    return 1;
+                if (a.TotalScore > b.TotalScore)
+                    return -1;
+                return 0;
+            });
 
+            let position = 0;
+            for(let i = 0; i < data.length; i++){
+                if(data[i].userId == user.uid){
+                    position = i + 1;
+                    break;
+                }
+            }
+
+            return callback(null, {"Position": position});
+        }else {
+            return callback(null, {"Position": 0});
+        }
     }, function (error) {
         console.log(error);
         return callback(error, null);

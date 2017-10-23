@@ -23,7 +23,7 @@ exports.findGameTypeById = function(request, response) {
         Promise.all([dal.findGameTypeByKey(key)]).then(function(data) {
             var result = data[0];
             if(result) {
-                response.send(JSON.stringify(result));
+                response.status(200).send(JSON.stringify(result));
             } else {
                 response.status(404).send(JSON.stringify({'status' : 'Not Found'}));
             }
@@ -43,7 +43,7 @@ exports.getLeaderboardTotalPlayers = function(request, response) {
         Promise.all([dal.getLeaderboardPlayersCount(user.uid)]).then(function(data) {
             var result = data[0];
             if(result) {
-                response.send(JSON.stringify(result));
+                response.status(200).send(JSON.stringify(result));
             } else {
                 response.status(404).send(JSON.stringify({'status' : 'Not Found'}));
             }
@@ -66,7 +66,7 @@ exports.addPowerUpItem = function(request, response) {
             updates['/PowerUpItem/' + key] = request.body;
 
             database.ref().update(updates).then(function(){
-                response.send(JSON.stringify({'PowerUpItemKey' :key}));
+                response.status(200).send(JSON.stringify({'PowerUpItemKey' :key}));
             }).catch(function(error) {
                 response.status(500).send(JSON.stringify({'status' : 'Internal Server Error'}));
             });
@@ -83,7 +83,7 @@ exports.addPowerUpEffect = function(request, response) {
     updates['/PowerUpEffect/' + key] = request.body;
 
     database.ref().update(updates).then(function(){
-        response.send(JSON.stringify({'PowerUpEffectKey' :key}));
+        response.status(200).send(JSON.stringify({'PowerUpEffectKey' :key}));
     }).catch(function(error) {
         response.status(500).send(JSON.stringify({'status' : 'Internal Server Error'}));
     });
@@ -100,7 +100,7 @@ exports.addPowerUp = function(request, response) {
     updates['/PowerUp/' + key] = request.body;
 
     database.ref().update(updates).then(function(){
-        response.send(JSON.stringify({'PowerUpKey' :key}));
+        response.status(200).send(JSON.stringify({'PowerUpKey' :key}));
     }).catch(function(error) {
         response.status(500).send(JSON.stringify({'status' : 'Internal Server Error'}));
     });
@@ -118,7 +118,7 @@ exports.addInAppItem = function(request, response) {
     updates['/InAppItem/' + key] = request.body;
 
     database.ref().update(updates).then(function(){
-        response.send(JSON.stringify({'InAppItemKey' :key}));
+        response.status(200).send(JSON.stringify({'InAppItemKey' :key}));
     }).catch(function(error) {
         response.status(500).send(JSON.stringify({'status' : 'Internal Server Error'}));
     });
@@ -146,7 +146,7 @@ exports.addInAppPurchase = function(request, response) {
                 delete record.inAppItemId;
                 updates['/InAppPurchases/' + key] = record;
                 database.ref().update(updates);
-                response.send(JSON.stringify({'InAppPurchasesId' :key}));
+                response.status(200).send(JSON.stringify({'InAppPurchasesId' :key}));
             } else {
                 return response.status(404).send(JSON.stringify([]));
             }
@@ -173,7 +173,7 @@ exports.getShopItems = function(request, response) {
                     item.id = key;
                     return item;
                 });
-                return response.send(JSON.stringify(records));
+                return response.status(200).send(JSON.stringify(records));
             } else {
                 return response.status(404).send(JSON.stringify([]));
             }

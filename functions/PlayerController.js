@@ -58,7 +58,7 @@ exports.postScoreForChallenge = function(request, response) {
                             if (err) {
                                 response.status(500).send(JSON.stringify({'status' : 'Internal Server error'}));
                             } else {
-                                response.send(JSON.stringify({'status' : 'Success'}));
+                                response.status(200).send(JSON.stringify({'status' : 'Success'}));
                             }
                         });
                     } else {
@@ -79,7 +79,7 @@ exports.getLeaderboardPosition = function(request, response) {
     var user = request.user;
     dal.getUserLeaderboardPosition(user, function(error, result) {
         if(result) {
-            response.send(JSON.stringify(result));
+            response.status(200).send(JSON.stringify(result));
         } else {
             response.status(404).send(JSON.stringify({'status' : 'Not Found'}));
         }
@@ -124,7 +124,7 @@ exports.purchaseItem = function(request, response) {
                         if (error) {
                             response.status(500).send(JSON.stringify({'status': 'Internal Server error'}));
                         } else {
-                            response.send(JSON.stringify({'status': 'Success'}));
+                            response.status(200).send(JSON.stringify({'status': 'Success'}));
                         }
                     });
                 }
@@ -161,7 +161,7 @@ exports.getInAppPurchaseItems = function(request, response) {
                     item.id = key;
                     return item;
                 });
-                response.send(JSON.stringify(records));
+                response.status(200).send(JSON.stringify(records));
 
 
             } else {
@@ -215,7 +215,7 @@ exports.storePurchase = function(request, response) {
                                 if (error) {
                                     response.status(500).send(JSON.stringify({'status': 'Internal Server error'}));
                                 } else {
-                                    response.send(JSON.stringify({'status': 'Success'}));
+                                    response.status(200).send(JSON.stringify({'status': 'Success'}));
                                 }
                             });
                         } else {
@@ -245,16 +245,16 @@ exports.getCoins = function(request, response) {
         if (error) {
             response.status(500).send(JSON.stringify({'status' : 'Internal Server error'}));
         } else if(result) {
-            response.send(JSON.stringify({"Coins": result.Coins}));
+            response.status(200).send(JSON.stringify({"Coins": result.Coins}));
         } else {
-            response.send(JSON.stringify({"Coins": 0}));
+            response.status(200).send(JSON.stringify({"Coins": 0}));
         }
     });
 };
 
 
 exports.getPlayer = function(request, response) {
-    response.send(JSON.stringify(request.user));
+    response.status(200).send(JSON.stringify(request.user));
 };
 
 exports.getPowerUps = function(request, response) {
@@ -263,7 +263,7 @@ exports.getPowerUps = function(request, response) {
         if (error) {
             response.status(500).send(JSON.stringify({'status' : 'Internal Server error'}));
         } else if(result) {
-            response.send(JSON.stringify({"PowerUps": result.PowerUps}));
+            response.status(200).send(JSON.stringify({"PowerUps": result.PowerUps}));
         } else {
             response.status(404).send(JSON.stringify({'status' : 'Not Found'}));
         }
@@ -284,7 +284,7 @@ exports.getPowerUpsOfType = function(request, response) {
             if (error) {
                 response.status(500).send(JSON.stringify({'status' : 'Internal Server error'}));
             } else {
-                response.send(JSON.stringify(data));
+                response.status(200).send(JSON.stringify(data));
             }
         });
     } catch(err) {
@@ -322,7 +322,7 @@ exports.usePowerUp = function(request, response) {
                     if (error) {
                         response.status(500).send(JSON.stringify({'status' : 'Internal Server error'}));
                     } else {
-                        response.send(JSON.stringify({'status' : 'Success'}));
+                        response.status(200).send(JSON.stringify({'status' : 'Success'}));
                     }
                 });
             } else {
@@ -353,7 +353,7 @@ exports.rewardPlayer = function(request, response) {
                 if (error) {
                     response.status(500).send(JSON.stringify({'status': 'Internal Server error'}));
                 } else {
-                    response.send(JSON.stringify({'status': 'Success'}));
+                    response.status(200).send(JSON.stringify({'status': 'Success'}));
                 }
             });
         } else {
@@ -411,7 +411,7 @@ exports.setUserProfile = function(request, response) {
                     if (error) {
                         response.status(500).send(JSON.stringify({'status' : 'Internal Server error'}));
                     } else {
-                        response.send(JSON.stringify(result));
+                        response.status(200).send(JSON.stringify(result));
                     }
                 });
 
@@ -459,7 +459,7 @@ exports.getUserProfile = function(request, response) {
                             data.DivisionType = 'bronze';
                         }
 
-                        response.send(JSON.stringify(data));
+                        response.status(200).send(JSON.stringify(data));
                     }
 
                 });
@@ -485,9 +485,9 @@ exports.eraseMaybankToken = function(request, response) {
                 data.Maybank_token  = "";
                 dal.updateUserProfileData(user, data, function(error, result) {
                     if (error) {
-                        response.status(500).send(JSON.stringify({'status' : 'Internal Server error'}));
+                        response.status(500).status(200).send(JSON.stringify({'status' : 'Internal Server error'}));
                     } else {
-                        response.send(JSON.stringify(result));
+                        response.status(200).send(JSON.stringify(result));
                     }
                 });
             }

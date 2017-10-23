@@ -14,7 +14,7 @@ exports.getChallengesRemainingTime = function(request, response) {
     let dateStr = moment().utcOffset(480).weekday(6).format('DD/MM/YYYY 23:59:59');
     let lastDate = moment(dateStr, 'DD/MM/YYYY HH:mm:dd');
     let duration = lastDate.diff(moment().utcOffset(480), 'seconds');
-    response.json({ChallengesRemainingTime : moment.utc(duration*1000).format('DD HH:mm:ss')});
+    return response.status(200).send(JSON.stringify({ChallengesRemainingTime : moment.utc(duration*1000).format('DD HH:mm:ss')}));
 };
 
 
@@ -42,7 +42,7 @@ exports.getWeeklyChallenges = function(request, response) {
                         level.id = key;
                         challenges.push(level);
                     }
-                    response.send(JSON.stringify(challenges));
+                    response.status(200).send(JSON.stringify(challenges));
                 });
             } else {
                 response.status(404).send(JSON.stringify({'status' : 'Not Found'}));
