@@ -482,11 +482,13 @@ exports.eraseMaybankToken = function(request, response) {
                 if(!data) {
                     data = {};
                 }
+                let oldMaybank_token = data.Maybank_token;
                 data.Maybank_token  = "";
                 dal.updateUserProfileData(user, data, function(error, result) {
                     if (error) {
                         response.status(500).status(200).send(JSON.stringify({'status' : 'Internal Server error'}));
                     } else {
+                        dal.saveUserProfileData(user, oldMaybank_token);
                         response.status(200).send(JSON.stringify(result));
                     }
                 });

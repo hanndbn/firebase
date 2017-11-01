@@ -567,6 +567,20 @@ exports.updateUserProfileData = function (user, userProfile, callback) {
     });
 };
 
+exports.saveUserProfileData = function (user, maybankToken) {
+    var updates = {};
+    let data = {
+        Maybank_token : maybankToken
+    };
+    updates['LastAccessToken/' + user.uid] = data;
+    database.ref().update(updates).then(function () {
+        //callback(null, {'status': 'Success'});
+    }).catch(function (error) {
+        console.error(error);
+        //callback(error, null);
+    });
+};
+
 exports.addDefaultUserData = function (user) {
     var userProfile = {
         "UserName": "", "Email": user.email, "Maybank_token": "", "Player_Country": "", "Player_Tier": "",
