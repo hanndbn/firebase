@@ -17,6 +17,12 @@ exports.getFirebaseData = function (endpoint) {
     });
 };
 
+exports.getPlayerData = function (endpoint) {
+    return database.ref(endpoint).once("value").then(function (snapshot) {
+        return snapshot;
+    });
+};
+
 exports.getLeaderBoardData = function (endpoint) {
     return database.ref(endpoint).orderByChild('TotalScore').limitToLast(50).once("value").then(function (snapshot) {
         return snapshot.val();
@@ -39,7 +45,9 @@ exports.getLeaderBoardWithType = function (divisionType) {
         snap.forEach((item) => {
             let newItem = item.val();
             newItem.key = item.key;
-            data.push(newItem);
+            if(newItem.TotalScore) {
+                data.push(newItem);
+            }
         });
         data.sort((a, b) => {
             if (a.TotalScore < b.TotalScore)
@@ -567,12 +575,12 @@ exports.updateUserProfileData = function (user, userProfile, callback) {
     });
 };
 
-exports.saveUserProfileData = function (user, maybankToken) {
+exports.saveUserProfileData = function (userId, maybankToken) {
     var updates = {};
     let data = {
         Maybank_token : maybankToken
     };
-    updates['LastAccessToken/' + user.uid] = data;
+    updates['LastAccessToken/' + userId] = data;
     database.ref().update(updates).then(function () {
         //callback(null, {'status': 'Success'});
     }).catch(function (error) {

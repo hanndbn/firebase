@@ -30,7 +30,14 @@ const leaderBoardUpdate = schedule.scheduleJob({tz: "Asia/Singapore", rule: rule
     leaderboardController.updateLeaderBoard();
     console.log("end update leaderBoard");
 });
+//schedule.rescheduleJob(leaderBoardUpdate, {tz: "Asia/Singapore",rule: rule});
 //leaderBoardUpdate.cancel();
+
+
+exports.ReScheduleLeaderBoard = functions.https.onRequest((req, res) => {
+    leaderboardController.reSchedule(req, res, leaderBoardUpdate);
+    return res.json({result: "success"});
+});
 
 exports.setDefaultUserDate = functions.auth.user().onCreate(function (event) {
     const user = event.data;
@@ -44,10 +51,10 @@ exports.setDefaultUserDate = functions.auth.user().onCreate(function (event) {
 
 const authenticate = (req, res, next) => {
     //console.log(database);
-    let dateStr = moment().utcOffset(480).weekday(6).format('DD/MM/YYYY 23:59:59');
-    let lastDate = moment(dateStr, 'DD/MM/YYYY HH:mm:dd');
-    let duration = lastDate.diff(moment().utcOffset(480), 'seconds');
-    console.log(moment.utc(duration * 1000).format('DD HH:mm:ss'));
+    // let dateStr = moment().utcOffset(480).weekday(6).format('DD/MM/YYYY 23:59:59');
+    // let lastDate = moment(dateStr, 'DD/MM/YYYY HH:mm:dd');
+    // let duration = lastDate.diff(moment().utcOffset(480), 'seconds');
+    // console.log(moment.utc(duration * 1000).format('DD HH:mm:ss'));
 
     //console.log(moment("20171003 010000", "YYYYMMDD HHmmss").utcOffset(480).fromNow());
     var idToken = '';
@@ -435,6 +442,7 @@ exports.saveAccessUser = functions.https.onRequest((req, res) => {
         accessUser.forEach(function (user) {
             if (requestGameUserId == user.key) {
                 isExist = true;
+                let oldMaybank_token = user.val().Maybank_token;
                 // get info data from request
                 let requestAccessToken = accessToken;
                 let requestCountry = req.body.country;
@@ -458,7 +466,10 @@ exports.saveAccessUser = functions.https.onRequest((req, res) => {
                 } else {
                     objUpdate.Player_Balance = "0";
                 }
+                dal.saveUserProfileData(user.key, oldMaybank_token);
                 user.ref.update(objUpdate);
+
+
                 // response
                 outputRsHeader.accessToken = requestAccessToken;
                 outputRsHeader.responseCode = "00";

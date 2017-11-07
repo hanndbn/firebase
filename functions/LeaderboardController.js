@@ -84,15 +84,13 @@ exports.reSchedule = function (request, response, leaderBoardUpdate) {
     if (dayOfWeek) {
         rule.dayOfWeek = parseInt(dayOfWeek)
     }
-
     schedule.rescheduleJob(leaderBoardUpdate, {tz: "Asia/Singapore",rule: rule});
-    response.status(200).send(JSON.stringify({'status': 'success'}));
 };
 
 exports.updateLeaderBoard = function () {
     try {
         // backup leaderboard
-        let dateStr = moment().utcOffset(480).format('YYYYMMDD-HHmmss-SSS');
+        let dateStr = moment().utcOffset(480).format('YYYYMMDD-HHmmss');
         let backupLeaderBoardData = dal.backupLeaderBoardData(dateStr);
 
         let bronzeRank = dal.getLeaderBoardWithType("bronze");
@@ -101,11 +99,15 @@ exports.updateLeaderBoard = function () {
         //return response.json(silverRank);
         let goldRank = dal.getLeaderBoardWithType("gold");
 
+        let playerData = dal.getPlayerData('PlayerData');
 
-        Promise.all([backupLeaderBoardData, bronzeRank, silverRank, goldRank]).then(function (snapshots) {
+
+        Promise.all([backupLeaderBoardData, bronzeRank, silverRank, goldRank, playerData]).then(function (snapshots) {
             bronzeRank = snapshots[1];
             silverRank = snapshots[2];
             goldRank = snapshots[3];
+            playerData = snapshots[4];
+            let playerDataVal = snapshots[4].val();
 
             // bronze data
             let newBronzeRank = {};
@@ -117,6 +119,10 @@ exports.updateLeaderBoard = function () {
                     let key = item.key;
                     delete item.key;
                     newBronzeRank[key] = item;
+                    if(playerDataVal[key]){
+                        playerDataVal[key].ProgressStats.CurrentLeaderboard = "bronze";
+                    }
+
                 });
             } else {
                 newBronzeRank = {bronze: "bronze"}
@@ -132,6 +138,9 @@ exports.updateLeaderBoard = function () {
                     let key = item.key;
                     delete item.key;
                     newSilverRank[key] = item;
+                    if(playerDataVal[key]){
+                        playerDataVal[key].ProgressStats.CurrentLeaderboard = "silver";
+                    }
                 });
             } else {
                 newSilverRank = {silver: "silver"}
@@ -147,6 +156,9 @@ exports.updateLeaderBoard = function () {
                     let key = item.key;
                     delete item.key;
                     newGoldRank[key] = item;
+                    if(playerDataVal[key]){
+                        playerDataVal[key].ProgressStats.CurrentLeaderboard = "gold";
+                    }
                 });
             } else {
                 newGoldRank = {gold: "gold"}
@@ -161,6 +173,8 @@ exports.updateLeaderBoard = function () {
             database.ref('Leaderboard').once("value").then(function (snap) {
                 snap.ref.set(newLeaderBoard);
             });
+
+            playerData.ref.set(playerDataVal);
 
             let infData = {
                 status: "success",
