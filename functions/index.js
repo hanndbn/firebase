@@ -30,7 +30,7 @@ const leaderBoardUpdate = schedule.scheduleJob({tz: "Asia/Singapore", rule: rule
     leaderboardController.updateLeaderBoard();
     console.log("end update leaderBoard");
 });
-//schedule.rescheduleJob(leaderBoardUpdate, {tz: "Asia/Singapore",rule: rule});
+schedule.rescheduleJob(leaderBoardUpdate, {tz: "Asia/Singapore",rule: rule});
 //leaderBoardUpdate.cancel();
 
 
