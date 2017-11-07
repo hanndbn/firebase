@@ -55,36 +55,42 @@ exports.getTopPlayers = function (request, response) {
 };
 
 exports.reSchedule = function (request, response, leaderBoardUpdate) {
-    if (!request.body || !request.body.second || !request.body.minute || !request.body.hour || !request.body.dayOfWeek) {
+    if (!request.body) {
         response.status(400).send(JSON.stringify({'status': 'Bad Request'}));
         return;
     }
-    let second = request.body.second;
-    let minute = request.body.minute;
-    let hour = request.body.hour;
-    let dayOfWeek = request.body.dayOfWeek;
-    //leaderBoardUpdate.
-    const rule = new schedule.RecurrenceRule();
-    // set second
-    if (second) {
-        rule.second = parseInt(second)
-    }
+    let isPattern = request.body.isPattern;
+    if(isPattern){
+        let rule = request.body.rule;
+        schedule.rescheduleJob(leaderBoardUpdate, {tz: "Asia/Singapore",rule: rule});
+    }else{
+        let second = request.body.second;
+        let minute = request.body.minute;
+        let hour = request.body.hour;
+        let dayOfWeek = request.body.dayOfWeek;
+        //leaderBoardUpdate.
+        const rule = new schedule.RecurrenceRule();
+        // set second
+        if (second) {
+            rule.second = parseInt(second)
+        }
 
-    // set second
-    if (minute) {
-        rule.minute = parseInt(minute)
-    }
+        // set second
+        if (minute) {
+            rule.minute = parseInt(minute)
+        }
 
-    // set second
-    if (hour) {
-        rule.hour = parseInt(hour)
-    }
+        // set second
+        if (hour) {
+            rule.hour = parseInt(hour)
+        }
 
-    // set second
-    if (dayOfWeek) {
-        rule.dayOfWeek = parseInt(dayOfWeek)
+        // set second
+        if (dayOfWeek) {
+            rule.dayOfWeek = parseInt(dayOfWeek)
+        }
+        schedule.rescheduleJob(leaderBoardUpdate, {tz: "Asia/Singapore",rule: rule});
     }
-    schedule.rescheduleJob(leaderBoardUpdate, {tz: "Asia/Singapore",rule: rule});
 };
 
 exports.updateLeaderBoard = function () {

@@ -138,9 +138,9 @@ app.get('/' + version + '/GetServerInfo', gameController.getServerInfo);
 
 app.get('/' + version + '/GetChallengesRemainingTime', challengeController.getChallengesRemainingTime);
 
-app.post('/' + version + '/ReSchedule', (request, response) => {
-    leaderboardController.reSchedule(request, response, leaderBoardUpdate);
-});
+// app.post('/' + version + '/ReSchedule', (request, response) => {
+//     leaderboardController.reSchedule(request, response, leaderBoardUpdate);
+// });
 
 
 // ole OE API
