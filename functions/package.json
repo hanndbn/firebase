@@ -5,6 +5,7 @@
     "cors": "^2.8.1",
     "express": "^4.15.2",
     "express-fileupload": "^0.1.4",
+    "fast-crc32c": "^1.0.4",
     "firebase-admin": "^5.2.1",
     "firebase-functions": "^0.5.9",
     "js-sha256": "^0.6.0",

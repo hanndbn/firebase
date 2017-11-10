@@ -17,23 +17,36 @@ const playerController = require('./PlayerController');
 const leaderboardController = require('./LeaderboardController');
 const sha256 = require('js-sha256');
 const version = '1.0';
+const bucket = admin.storage().bucket();
 
-
-const schedule = require("node-schedule");
-const rule = new schedule.RecurrenceRule();
-rule.second = 59;
-rule.minute = 59;
-rule.hour = 23;
-rule.dayOfWeek = 6;
-const leaderBoardUpdate = schedule.scheduleJob({tz: "Asia/Singapore", rule: rule}, function () {
-    console.log("start update leaderBoard");
-    leaderboardController.updateLeaderBoard();
-    console.log("end update leaderBoard");
-});
-schedule.rescheduleJob(leaderBoardUpdate, {tz: "Asia/Singapore",rule: rule});
+// const schedule = require("node-schedule");
+// const rule = new schedule.RecurrenceRule();
+// rule.second = 59;
+// rule.minute = 59;
+// rule.hour = 23;
+// rule.dayOfWeek = 6;
+// const leaderBoardUpdate = schedule.scheduleJob({tz: "Asia/Singapore", rule: rule}, function () {
+//     console.log("start update leaderBoard");
+//     leaderboardController.updateLeaderBoard();
+//     console.log("end update leaderBoard");
+// });
+// schedule.rescheduleJob(leaderBoardUpdate, {tz: "Asia/Singapore",rule: rule});
 //leaderBoardUpdate.cancel();
 
 
+
+exports.upLoadFile = functions.https.onRequest((req, res) => {
+    bucket.upload('./data/demo.jpg', function(err, file, apiResponse) {
+        // Your bucket now contains:
+        // - "image.png" (with the contents of `/local/path/image.png')
+
+        // `file` is an instance of a File object that refers to your new file.
+        //console.log(err);
+        console.log(file);
+        //console.log(apiResponse);
+    });
+    return res.json({result: "success"});
+});
 exports.ReScheduleLeaderBoard = functions.https.onRequest((req, res) => {
     leaderboardController.reSchedule(req, res, leaderBoardUpdate);
     return res.json({result: "success"});
