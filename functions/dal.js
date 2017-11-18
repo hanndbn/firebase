@@ -633,6 +633,7 @@ exports.gameDataImport = function (data, callback) {
     const effectType = data['EffectType'] ? data['EffectType'] : [];
     const inAppPurchases = data['InAppPurchases'] ? data['InAppPurchases'] : [];
     const inAppItem = data['InAppItem'] ? data['InAppItem'] : [];
+    const inAppItemSpecialOffer = data['InAppItemSpecialOffer'] ? data['InAppItemSpecialOffer'] : [];
     const platform = data['Platform'] ? data['Platform'] : [];
     const triviaQuestions = data['TriviaQuestions'] ? data['TriviaQuestions'] : [];
     const triviaAnswers = data['TriviaAnswers'] ? data['TriviaAnswers'] : [];
@@ -983,8 +984,9 @@ exports.gameDataImport = function (data, callback) {
         console.log('PowerUp Empty');
     }
 
+
     inAppItemMap = {};
-    inAppItem.forEach(function (item) {
+    inAppItem.concat(inAppItemSpecialOffer).forEach(function (item) {
         if (item.ID) {
             Object.keys(item).forEach(function (k) {
                 if (!k) delete item[k];
@@ -994,6 +996,7 @@ exports.gameDataImport = function (data, callback) {
             delete item.ID;
         }
     });
+    console.log(inAppItemMap);
 
     if (!utils.isEmpty(inAppItemMap)) {
         database.ref().child('InAppItem').set(inAppItemMap);
