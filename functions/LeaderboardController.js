@@ -54,6 +54,57 @@ exports.getTopPlayers = function (request, response) {
     }
 };
 
+exports.reportTopPlayer = function(leaderboard, userProfile, lastAccessToken){
+    let data = [];
+    if(!leaderboard){
+        return [];
+    }
+
+    Object.keys(leaderboard).map((key, idx) => {
+        let leaderboarObj = {};
+        leaderboarObj.TotalScore = leaderboard[key].TotalScore ? leaderboard[key].TotalScore : 0;
+
+        //set PlayerName
+        leaderboarObj.PlayerName = "Player" + idx;
+        if (userProfile[key] && userProfile[key].UserName) {
+            leaderboarObj.PlayerName = userProfile[key].UserName;
+        }
+
+        leaderboarObj.Email = "";
+        if (userProfile[key] && userProfile[key].Email) {
+            leaderboarObj.Email = userProfile[key].Email;
+        }
+
+        leaderboarObj.Telephone = "";
+        if (userProfile[key] && userProfile[key].Telephone) {
+            leaderboarObj.Telephone = userProfile[key].Telephone;
+        }
+
+        leaderboarObj.Telephone = "";
+        if (userProfile[key] && userProfile[key].Telephone) {
+            leaderboarObj.Telephone = userProfile[key].Telephone;
+        }
+
+        leaderboarObj.MaybankAccessToken = lastAccessToken[key] ? lastAccessToken[key].Maybank_token : "";
+        data.push(leaderboarObj);
+    });
+
+    data.sort((a, b) => {
+        if (a.TotalScore < b.TotalScore)
+            return 1;
+        if (a.TotalScore > b.TotalScore)
+            return -1;
+        return 0;
+    });
+
+    // set ranking
+    for(let i = 0; i < data.length ; i++){
+        data[i].Ranking = i + 1;
+       //delete data[i].TotalScore;
+    }
+    return data;
+}
+
 exports.reSchedule = function (request, response, leaderBoardUpdate) {
     if (!request.body) {
         response.status(400).send(JSON.stringify({'status': 'Bad Request'}));

@@ -17,26 +17,28 @@ const playerController = require('./PlayerController');
 const leaderboardController = require('./LeaderboardController');
 const sha256 = require('js-sha256');
 const version = '1.0';
-const bucket = admin.storage().bucket();
 
-// const schedule = require("node-schedule");
-// const rule = new schedule.RecurrenceRule();
-// rule.second = 59;
-// rule.minute = 59;
-// rule.hour = 23;
-// rule.dayOfWeek = 6;
-// const leaderBoardUpdate = schedule.scheduleJob({tz: "Asia/Singapore", rule: rule}, function () {
-//     console.log("start update leaderBoard");
-//     leaderboardController.updateLeaderBoard();
-//     console.log("end update leaderBoard");
-// });
-// schedule.rescheduleJob(leaderBoardUpdate, {tz: "Asia/Singapore",rule: rule});
+const schedule = require("node-schedule");
+const rule = new schedule.RecurrenceRule();
+rule.second = 59;
+rule.minute = 59;
+rule.hour = 23;
+rule.dayOfWeek = 6;
+const leaderBoardUpdate = schedule.scheduleJob({tz: "Asia/Singapore", rule: rule}, function () {
+    console.log("start update leaderBoard");
+    leaderboardController.updateLeaderBoard();
+    console.log("end update leaderBoard");
+});
+schedule.rescheduleJob(leaderBoardUpdate, {tz: "Asia/Singapore",rule: rule});
 //leaderBoardUpdate.cancel();
-
+exports.ReScheduleLeaderBoard = functions.https.onRequest((req, res) => {
+    leaderboardController.reSchedule(req, res, leaderBoardUpdate);
+    return res.json({result: "success"});
+});
 
 
 exports.upLoadFile = functions.https.onRequest((req, res) => {
-    bucket.upload('./data/demo.jpg', function(err, file, apiResponse) {
+    bucket.upload('./data/demo.jpg', function (err, file, apiResponse) {
         // Your bucket now contains:
         // - "image.png" (with the contents of `/local/path/image.png')
 
@@ -47,10 +49,33 @@ exports.upLoadFile = functions.https.onRequest((req, res) => {
     });
     return res.json({result: "success"});
 });
-exports.ReScheduleLeaderBoard = functions.https.onRequest((req, res) => {
-    leaderboardController.reSchedule(req, res, leaderBoardUpdate);
-    return res.json({result: "success"});
+
+exports.report = functions.https.onRequest((req, res) => {
+    try {
+        let leaderboard = dal.getFirebaseData('Leaderboard');
+        let userProfile = dal.getFirebaseData('UserProfile');
+        let lastAccessToken = dal.getFirebaseData('LastAccessToken');
+        Promise.all([leaderboard, userProfile, lastAccessToken]).then(function (snapshots) {
+            leaderboard = snapshots[0];
+            userProfile = snapshots[1];
+            lastAccessToken = snapshots[2];
+            let bronze = leaderboardController.reportTopPlayer(leaderboard.bronze, userProfile, lastAccessToken);
+            let silver = leaderboardController.reportTopPlayer(leaderboard.silver, userProfile, lastAccessToken);
+            let gold = leaderboardController.reportTopPlayer(leaderboard.gold, userProfile, lastAccessToken);
+            return res.json({
+                bronze: bronze.length > 0 ? bronze : "",
+                silver: silver.length > 0 ? silver : "",
+                gold: gold.length > 0 ? gold : "",
+            });
+
+        });
+    }
+    catch (err) {
+        return res.json({});
+    }
+
 });
+
 
 exports.setDefaultUserDate = functions.auth.user().onCreate(function (event) {
     const user = event.data;
@@ -74,7 +99,7 @@ const authenticate = (req, res, next) => {
     if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
         // res.status(403).send(JSON.stringify({'status' : 'Unauthorized'}));
         // return;
-        req.user = {uid: 'S4iBgV67kebptSKJzEZjvUdKs4e2', name: 'bob'}
+        req.user = {uid: 'S4iBgV67kebptSKJzEZjvUdKs4e2', name: 'bob'};
         next();
     } else {
         idToken = req.headers.authorization.split('Bearer ')[1];
@@ -151,6 +176,8 @@ app.get('/' + version + '/GetServerInfo', gameController.getServerInfo);
 
 app.get('/' + version + '/GetChallengesRemainingTime', challengeController.getChallengesRemainingTime);
 
+app.post('/' + version + '/GetVoucherReward', playerController.getVoucherReward);
+
 // app.post('/' + version + '/ReSchedule', (request, response) => {
 //     leaderboardController.reSchedule(request, response, leaderBoardUpdate);
 // });
@@ -217,7 +244,14 @@ exports.PurchaseMaybankItemTest = functions.https.onRequest((req, res) => {
             }
 
             // request to server
-            let requestPurchase = {"rqHeader":{"timeZone":"GMT"+ moment().utcOffset(480).format('Z'),"date":moment().utcOffset(480).format('YYYYMMDD'),"time":moment().utcOffset(480).format('HHmmss'),"accessToken":accessToken},"channelId":"GM","itemCode":itemCode,"quantity":"1","totalPoint":pointRequired};
+            let requestPurchase = {
+                "rqHeader": {
+                    "timeZone": "GMT" + moment().utcOffset(480).format('Z'),
+                    "date": moment().utcOffset(480).format('YYYYMMDD'),
+                    "time": moment().utcOffset(480).format('HHmmss'),
+                    "accessToken": accessToken
+                }, "channelId": "GM", "itemCode": itemCode, "quantity": "1", "totalPoint": pointRequired
+            };
 
             admin.database().ref('UserProfile').once('value', function (accessUser) {
                 let existUser = false;
@@ -346,13 +380,20 @@ exports.PurchaseMaybankItem = functions.https.onRequest((req, res) => {
             return res.json(errorResponse);
         }
         // check exist user with user id
-        if(!userData){
+        if (!userData) {
             errorResponse.rsHeader.errorCode = "NOT EXIST USER";
             errorResponse.rsHeader.errorMessage = "not exist user in database with request item Id";
             return res.json(errorResponse);
         }
         //         request to server
-        let requestPurchase = {"rqHeader":{"timeZone":"GMT"+ moment().utcOffset(480).format('Z'),"date":moment().utcOffset(480).format('YYYYMMDD'),"time":moment().utcOffset(480).format('HHmmss'),"accessToken":accessToken},"channelId":"GM","itemCode":itemCode,"quantity":"1","totalPoint":pointRequired};
+        let requestPurchase = {
+            "rqHeader": {
+                "timeZone": "GMT" + moment().utcOffset(480).format('Z'),
+                "date": moment().utcOffset(480).format('YYYYMMDD'),
+                "time": moment().utcOffset(480).format('HHmmss'),
+                "accessToken": accessToken
+            }, "channelId": "GM", "itemCode": itemCode, "quantity": "1", "totalPoint": pointRequired
+        };
 
         request.post({
             url: url,
@@ -367,15 +408,15 @@ exports.PurchaseMaybankItem = functions.https.onRequest((req, res) => {
                 console.log("request success");
                 let bodyValid = body.rsHeader ? body.rsHeader.responseCode == '00' : false;
                 let tpbalance = body.redeemData ? body.redeemData.tpbalance : '';
-                if(bodyValid && userId && tpbalance){
+                if (bodyValid && userId && tpbalance) {
                     admin.database().ref('RedemptionHistory').once('value', function (redemptionSnapshot) {
                         let redemption = redemptionSnapshot.val() ? redemptionSnapshot.val() : {};
-                        if(body.redeemData.itemToken != "" && redemption[body.redeemData.itemToken]){
+                        if (body.redeemData.itemToken != "" && redemption[body.redeemData.itemToken]) {
                             console.log("redeemed");
                             errorResponse.rsHeader.errorCode = "REDEMPTION FAILED. ITEM HAD REDEEMED";
                             errorResponse.rsHeader.errorMessage = "a item only redeem once";
                             return res.json(errorResponse);
-                        } else if(body.redeemData.itemToken != ""){
+                        } else if (body.redeemData.itemToken != "") {
                             console.log("itemtoken");
                             let SV = "12345";
                             let accessToken = body.rsHeader.accessToken;
@@ -386,19 +427,19 @@ exports.PurchaseMaybankItem = functions.https.onRequest((req, res) => {
                             let refNo = body.redeemData.refNo;
                             let hashString = SV + accessToken + itemCode + quantity + transactionDate + transactioneTime + refNo;
                             let sha256String = sha256(hashString);
-                            if(sha256String.toString().substr(0, 20).toUpperCase() == body.redeemData.itemToken){
+                            if (sha256String.toString().substr(0, 20).toUpperCase() == body.redeemData.itemToken) {
                                 console.log("redeem success");
                                 redemption[body.redeemData.itemToken] = body;
                                 redemptionSnapshot.ref.set(redemption);
 
                                 //update data UserProfile
-                                admin.database().ref('UserProfile' + userId).once('value', function (accessUser) {
+                                admin.database().ref('UserProfile/' + userId).once('value', function (accessUser) {
                                     let objUpdate = {};
                                     objUpdate.Player_Balance = tpbalance;
                                     accessUser.ref.update(objUpdate);
                                     return res.json(body);
                                 });
-                            }else{
+                            } else {
                                 errorResponse.rsHeader.errorCode = "UNAUTHORIZED_PURCHASE";
                                 errorResponse.rsHeader.errorMessage = "Unauthorized Purchase";
                                 return res.json(errorResponse);
