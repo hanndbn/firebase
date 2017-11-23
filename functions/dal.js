@@ -986,7 +986,7 @@ exports.gameDataImport = function (data, callback) {
 
 
     inAppItemMap = {};
-    inAppItem.concat(inAppItemSpecialOffer).forEach(function (item) {
+    inAppItem.forEach(function (item) {
         if (item.ID) {
             Object.keys(item).forEach(function (k) {
                 if (!k) delete item[k];
