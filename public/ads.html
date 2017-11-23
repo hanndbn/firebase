@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<!-- xlsx.js (C) 2013-present  SheetJS http://sheetjs.com -->
+<!-- vim: set ts=2: -->
+<html ng-app="app">
+<head>
+    <title>hannd</title>
+    <script src="./js/jquery.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/4.2.0/firebase.js"></script>
+    <!-- SheetJS js-xlsx library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.0.4/popper.js"></script>
+    <script src="./js/bootstrap.min.js"></script>
+    <script src="./js/slick.min.js"></script>
+    <link rel="stylesheet" href="./styles/bootstrap.min.css"/>
+    <link rel="stylesheet" href="./styles/slick-theme.css"/>
+    <link rel="stylesheet" href="./styles/slick.css"/>
+    <link rel="stylesheet" href="./styles/styles.css"/>
+</head>
+<body>
+<div class="ads">
+    <div class="ads-img" style="background-image: url('./images/ad01.png');"></div>
+    <div class="ads-img" style="background-image: url('./images/ad02.png');"></div>
+    <div class="ads-img" style="background-image: url('./images/ad03.png');"></div>
+    <div class="ads-img" style="background-image: url('./images/ad04.png');"></div>
+    <div class="ads-img" style="background-image: url('./images/ad05.png');"></div>
+    <div class="ads-img" style="background-image: url('./images/ad06.png');"></div>
+</div>
+<script lang="javascript">
+    $(document).ready(function () {
+        $('.ads').slick({
+            slidesToShow: 1,
+            slidesToScroll: 1,
+            autoplay: true,
+            autoplaySpeed: 3000,
+            dots: true,
+            //infinite: true,
+            //speed: 500,
+            fade: true,
+            cssEase: 'linear'
+        });
+    });
+</script>
+</body>
+</html>

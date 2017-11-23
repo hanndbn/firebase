@@ -1,0 +1,37 @@
+.container-ads1{
+    display: flex;
+    flex: 1;
+}
+.ads{
+    /*display: flex;*/
+    /*align-items: stretch;*/
+    /*background-color: #1e7e34;*/
+    height: 100vh;
+}
+
+.ads-img{
+    height: 100vh;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+
+}
+
+.slick-dots li button:before{
+    font-size: 22px;
+    color: white;
+    opacity: .85;
+}
+.slick-dots li{
+    margin: 0 20px;
+}
+
+.slick-dots li.slick-active button:before
+{
+    opacity: .75;
+    color: #ff3838;
+}
+
+.slick-dots{
+    bottom: 25px;
+}
