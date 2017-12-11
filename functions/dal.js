@@ -261,6 +261,20 @@ exports.getAllShopItems = function (callback) {
     });
 };
 
+/**
+ * Get All shop item.
+ * @param levelId
+ * @returns {*}
+ */
+exports.getAllShopItemSpecialOffers = function (callback) {
+    return database.ref('ShopItemsSpecialOffer').once('value').then(function (snapshot) {
+        return callback(null, snapshot.val());
+    }, function (error) {
+        console.log(error);
+        return callback(error, null);
+    });
+};
+
 
 /**
  * Get All shop item.
@@ -633,7 +647,6 @@ exports.gameDataImport = function (data, callback) {
     const effectType = data['EffectType'] ? data['EffectType'] : [];
     const inAppPurchases = data['InAppPurchases'] ? data['InAppPurchases'] : [];
     const inAppItem = data['InAppItem'] ? data['InAppItem'] : [];
-    const inAppItemSpecialOffer = data['InAppItemSpecialOffer'] ? data['InAppItemSpecialOffer'] : [];
     const platform = data['Platform'] ? data['Platform'] : [];
     const triviaQuestions = data['TriviaQuestions'] ? data['TriviaQuestions'] : [];
     const triviaAnswers = data['TriviaAnswers'] ? data['TriviaAnswers'] : [];
@@ -641,6 +654,7 @@ exports.gameDataImport = function (data, callback) {
     const rewardRelease = data['RewardRelease'] ? data['RewardRelease'] : [];
     const rewardType = data['RewardType'] ? data['RewardType'] : [];
     const shopItems = data['ShopItems'] ? data['ShopItems'] : [];
+    const shopItemsSpecialOffer = data['ShopItemsSpecialOffer'] ? data['ShopItemsSpecialOffer'] : [];
     const powerUpItem = data['PowerUpItem'] ? data['PowerUpItem'] : [];
     const itemMapping = data['ItemMapping'] ? data['ItemMapping'] : [];
 
@@ -1076,6 +1090,43 @@ exports.gameDataImport = function (data, callback) {
         database.ref().child('ShopItem').set(shopItemsMap);
     } else {
         console.log('ShopItem Empty');
+    }
+
+    shopItemsSpecialOfferMap = {};
+    shopItemsSpecialOffer.forEach(function (item) {
+        if (item.ID) {
+            var powerUps = [];
+            Object.keys(item).forEach(function (k) {
+                if (!k) delete item[k];
+            });
+            shopItemsSpecialOfferMap[item.InAppPurchase] = item;
+            item.InAppPurchase = inAppPurchasesMap[item.InAppPurchase];
+            /*
+             item.InAppItem = inAppItemMap[item.InAppPurchase.InAppItem];
+             item.InAppItem.id = item.InAppPurchase.InAppItem;
+             item.InAppItem.PowerUps.forEach(function(key) {
+             if(key &&  typeof key == "string") {
+             var power = powerUpMap[key.trim()];
+             power.id = key.trim();
+             powerUps.push(power);
+             } else {
+             powerUps.push(key);
+             }
+
+             });
+
+             item.InAppItem.PowerUps = powerUps;
+             */
+            item.InAppItem = item.InAppPurchase.InAppItem;
+            delete item.ID;
+            delete item.InAppPurchase;
+        }
+    });
+
+    if (!utils.isEmpty(shopItemsSpecialOfferMap)) {
+        database.ref().child('ShopItemsSpecialOffer').set(shopItemsSpecialOfferMap);
+    } else {
+        console.log('ShopItemsSpecialOfferMap Empty');
     }
 
     triviaAnswersMap = {};

@@ -161,9 +161,7 @@ exports.addInAppPurchase = function(request, response) {
 
 
 exports.getShopItems = function(request, response) {
-
     try {
-
         dal.getAllShopItems(function(error, records) {
             if (error) {
                 response.status(500).send(JSON.stringify({'status' : 'Internal Server error'}));

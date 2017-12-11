@@ -137,7 +137,58 @@ exports.purchaseItem = function (request, response) {
         console.error(err);
         response.status(500).send(JSON.stringify({'status': 'Internal Server error'}));
     }
+};
 
+exports.purchaseSpecialOffer = function (request, response) {
+    var user = request.user;
+    var inAppPurchaseId = request.body.inAppPurchaseId;
+    if (!inAppPurchaseId) {
+        response.status(400).send(JSON.stringify({'status': 'Bad Request inAppItemId is missing'}));
+        return;
+    }
+
+    try {
+        var inAppPurchase = dal.getFirebaseData('ShopItemsSpecialOffer/' + inAppPurchaseId);
+        var playerData = dal.getFirebaseData('PlayerData/' + user.uid);
+        Promise.all([inAppPurchase, playerData]).then(function (snapshots) {
+            inAppPurchase = snapshots[0];
+            playerData = snapshots[1];
+            if (inAppPurchase) {
+                var coins = inAppPurchase.Value;
+                var powerUps = inAppPurchase.InAppItem.PowerUps;
+                if (playerData.Coins < coins) {
+                    response.status(400).send(JSON.stringify({'status': 'Not Enough Coins'}));
+                } else {
+
+                    playerData.Coins = playerData.Coins - coins;
+                    powerUps.forEach(function (powerUp) {
+                        var powerUpEffects = powerUp.PowerUpEffects;
+                        if (powerUp.PowerUpItem.ItemType == "Coins") {
+                            playerData.Coins = Number(playerData.Coins) + Number(powerUpEffects[0].Value);
+                        } else {
+                            if (!playerData.PowerUps) {
+                                playerData.PowerUps = [];
+                            }
+                            playerData.PowerUps.push(powerUp);
+                        }
+                    });
+
+                    dal.updatePlayerData(user, playerData, function (error, result) {
+                        if (error) {
+                            response.status(500).send(JSON.stringify({'status': 'Internal Server error'}));
+                        } else {
+                            response.status(200).send(JSON.stringify({'status': 'Success'}));
+                        }
+                    });
+                }
+            } else {
+                response.status(404).send(JSON.stringify({'status': 'Not Found'}));
+            }
+        });
+    } catch (err) {
+        console.error(err);
+        response.status(500).send(JSON.stringify({'status': 'Internal Server error'}));
+    }
 };
 
 exports.getInAppPurchaseItems = function (request, response) {
@@ -175,6 +226,29 @@ exports.getInAppPurchaseItems = function (request, response) {
         response.status(500).send(JSON.stringify({'status': 'Internal Server error'}));
     }
 
+};
+
+exports.getSpecialOffer = function (request, response) {
+    try {
+        dal.getAllShopItemSpecialOffers(function(error, records) {
+            if (error) {
+                response.status(500).send(JSON.stringify({'status' : 'Internal Server error'}));
+            } else if(records) {
+                records =  Object.keys(records).map(function(key) {
+                    var item =  records[key];
+                    item.id = key;
+                    return item;
+                });
+                return response.status(200).send(JSON.stringify(records));
+            } else {
+                return response.status(404).send(JSON.stringify([]));
+            }
+        });
+    }
+    catch(err) {
+        console.error(err);
+        response.status(500).send(JSON.stringify({'status' : 'Internal Server error'}));
+    }
 };
 
 exports.storePurchase = function (request, response) {
@@ -553,7 +627,7 @@ exports.getVoucherReward = function (req, res) {
             database.ref('UserProfile/' + req.user.uid).once('value', function (snapshotUserProfile) {
                 let userData = snapshotUserProfile.val();
                 let country = userData.Player_Country;
-                if(!country || country == ''){
+                if (!country || country == '') {
                     let result = ({
                         resultCode: 'NN',
                         result: "country invalid"

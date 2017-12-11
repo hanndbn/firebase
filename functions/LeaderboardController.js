@@ -178,6 +178,8 @@ exports.updateLeaderBoard = function () {
                     newBronzeRank[key] = item;
                     if(playerDataVal[key]){
                         playerDataVal[key].ProgressStats.CurrentLeaderboard = "bronze";
+                        playerDataVal[key].ProgressStats.TotalScore = 0;
+                        playerDataVal[key].ProgressStats.TriviaScore = 0;
                     }
 
                 });
@@ -197,6 +199,8 @@ exports.updateLeaderBoard = function () {
                     newSilverRank[key] = item;
                     if(playerDataVal[key]){
                         playerDataVal[key].ProgressStats.CurrentLeaderboard = "silver";
+                        playerDataVal[key].ProgressStats.TotalScore = 0;
+                        playerDataVal[key].ProgressStats.TriviaScore = 0;
                     }
                 });
             } else {
@@ -215,6 +219,8 @@ exports.updateLeaderBoard = function () {
                     newGoldRank[key] = item;
                     if(playerDataVal[key]){
                         playerDataVal[key].ProgressStats.CurrentLeaderboard = "gold";
+                        playerDataVal[key].ProgressStats.TotalScore = 0;
+                        playerDataVal[key].ProgressStats.TriviaScore = 0;
                     }
                 });
             } else {

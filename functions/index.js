@@ -37,19 +37,6 @@ exports.ReScheduleLeaderBoard = functions.https.onRequest((req, res) => {
 });
 
 
-exports.upLoadFile = functions.https.onRequest((req, res) => {
-    bucket.upload('./data/demo.jpg', function (err, file, apiResponse) {
-        // Your bucket now contains:
-        // - "image.png" (with the contents of `/local/path/image.png')
-
-        // `file` is an instance of a File object that refers to your new file.
-        //console.log(err);
-        console.log(file);
-        //console.log(apiResponse);
-    });
-    return res.json({result: "success"});
-});
-
 exports.report = functions.https.onRequest((req, res) => {
     try {
         let leaderboard = dal.getFirebaseData('Leaderboard');
@@ -144,6 +131,10 @@ app.post('/' + version + '/PostScoreForChallenge', playerController.postScoreFor
 app.get('/' + version + '/GetLeaderboardPosition', playerController.getLeaderboardPosition);
 
 app.post('/' + version + '/PurchaseItem', playerController.purchaseItem);
+
+app.post('/' + version + '/PurchaseSpecialOffer', playerController.purchaseSpecialOffer);
+
+app.get('/' + version + '/GetSpecialOffer', playerController.getSpecialOffer);
 
 app.get('/' + version + '/GetInAppPurchaseItems', playerController.getInAppPurchaseItems);
 
