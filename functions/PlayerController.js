@@ -104,30 +104,44 @@ exports.purchaseItem = function (request, response) {
             if (inAppPurchase) {
                 var coins = inAppPurchase.Value;
                 var powerUps = inAppPurchase.InAppItem.PowerUps;
+                let itemId = powerUps[0].id;
+                let itemType = powerUps[0].PowerUpItem.ItemType;
+
                 if (playerData.Coins < coins) {
                     response.status(400).send(JSON.stringify({'status': 'Not Enough Coins'}));
                 } else {
-
-                    playerData.Coins = playerData.Coins - coins;
-                    powerUps.forEach(function (powerUp) {
-                        var powerUpEffects = powerUp.PowerUpEffects;
-                        if (powerUp.PowerUpItem.ItemType == "Coins") {
-                            playerData.Coins = Number(playerData.Coins) + Number(powerUpEffects[0].Value);
-                        } else {
-                            if (!playerData.PowerUps) {
-                                playerData.PowerUps = [];
+                    // check exist
+                    let isExists = false;
+                    playerData.PowerUps.forEach(function (powerUp) {
+                        if(powerUp.id == itemId && (itemType == 'Kit' || itemType == 'Boots')){
+                            isExists = true;
+                        }
+                    });
+                    if (!isExists) {
+                        playerData.Coins = playerData.Coins - coins;
+                        powerUps.forEach(function (powerUp) {
+                            var powerUpEffects = powerUp.PowerUpEffects;
+                            if (powerUp.PowerUpItem.ItemType == "Coins") {
+                                playerData.Coins = Number(playerData.Coins) + Number(powerUpEffects[0].Value);
+                            } else {
+                                if (!playerData.PowerUps) {
+                                    playerData.PowerUps = [];
+                                }
+                                playerData.PowerUps.push(powerUp);
                             }
-                            playerData.PowerUps.push(powerUp);
-                        }
-                    });
+                        });
 
-                    dal.updatePlayerData(user, playerData, function (error, result) {
-                        if (error) {
-                            response.status(500).send(JSON.stringify({'status': 'Internal Server error'}));
-                        } else {
-                            response.status(200).send(JSON.stringify({'status': 'Success'}));
-                        }
-                    });
+                        dal.updatePlayerData(user, playerData, function (error, result) {
+                            if (error) {
+                                response.status(500).send(JSON.stringify({'status': 'Internal Server error'}));
+                            } else {
+                                response.status(200).send(JSON.stringify({'status': 'Success'}));
+                            }
+                        });
+                    }
+                    else {
+                        response.status(400).send(JSON.stringify({'status': 'Not success - item exist in player data'}));
+                    }
                 }
             } else {
                 response.status(404).send(JSON.stringify({'status': 'Not Found'}));
@@ -156,30 +170,44 @@ exports.purchaseSpecialOffer = function (request, response) {
             if (inAppPurchase) {
                 var coins = inAppPurchase.Value;
                 var powerUps = inAppPurchase.InAppItem.PowerUps;
+                let itemId = powerUps[0].id;
+                let itemType = powerUps[0].PowerUpItem.ItemType;
+
                 if (playerData.Coins < coins) {
                     response.status(400).send(JSON.stringify({'status': 'Not Enough Coins'}));
                 } else {
-
-                    playerData.Coins = playerData.Coins - coins;
-                    powerUps.forEach(function (powerUp) {
-                        var powerUpEffects = powerUp.PowerUpEffects;
-                        if (powerUp.PowerUpItem.ItemType == "Coins") {
-                            playerData.Coins = Number(playerData.Coins) + Number(powerUpEffects[0].Value);
-                        } else {
-                            if (!playerData.PowerUps) {
-                                playerData.PowerUps = [];
+                    // check exist
+                    let isExists = false;
+                    playerData.PowerUps.forEach(function (powerUp) {
+                        if(powerUp.id == itemId && (itemType == 'Kit' || itemType == 'Boots')){
+                            isExists = true;
+                        }
+                    });
+                    if (!isExists) {
+                        playerData.Coins = playerData.Coins - coins;
+                        powerUps.forEach(function (powerUp) {
+                            var powerUpEffects = powerUp.PowerUpEffects;
+                            if (powerUp.PowerUpItem.ItemType == "Coins") {
+                                playerData.Coins = Number(playerData.Coins) + Number(powerUpEffects[0].Value);
+                            } else {
+                                if (!playerData.PowerUps) {
+                                    playerData.PowerUps = [];
+                                }
+                                playerData.PowerUps.push(powerUp);
                             }
-                            playerData.PowerUps.push(powerUp);
-                        }
-                    });
+                        });
 
-                    dal.updatePlayerData(user, playerData, function (error, result) {
-                        if (error) {
-                            response.status(500).send(JSON.stringify({'status': 'Internal Server error'}));
-                        } else {
-                            response.status(200).send(JSON.stringify({'status': 'Success'}));
-                        }
-                    });
+                        dal.updatePlayerData(user, playerData, function (error, result) {
+                            if (error) {
+                                response.status(500).send(JSON.stringify({'status': 'Internal Server error'}));
+                            } else {
+                                response.status(200).send(JSON.stringify({'status': 'Success'}));
+                            }
+                        });
+                    }
+                    else {
+                        response.status(400).send(JSON.stringify({'status': 'Not success - item exist in player data'}));
+                    }
                 }
             } else {
                 response.status(404).send(JSON.stringify({'status': 'Not Found'}));
@@ -230,12 +258,12 @@ exports.getInAppPurchaseItems = function (request, response) {
 
 exports.getSpecialOffer = function (request, response) {
     try {
-        dal.getAllShopItemSpecialOffers(function(error, records) {
+        dal.getAllShopItemSpecialOffers(function (error, records) {
             if (error) {
-                response.status(500).send(JSON.stringify({'status' : 'Internal Server error'}));
-            } else if(records) {
-                records =  Object.keys(records).map(function(key) {
-                    var item =  records[key];
+                response.status(500).send(JSON.stringify({'status': 'Internal Server error'}));
+            } else if (records) {
+                records = Object.keys(records).map(function (key) {
+                    var item = records[key];
                     item.id = key;
                     return item;
                 });
@@ -245,9 +273,9 @@ exports.getSpecialOffer = function (request, response) {
             }
         });
     }
-    catch(err) {
+    catch (err) {
         console.error(err);
-        response.status(500).send(JSON.stringify({'status' : 'Internal Server error'}));
+        response.status(500).send(JSON.stringify({'status': 'Internal Server error'}));
     }
 };
 
