@@ -18,23 +18,23 @@ const leaderboardController = require('./LeaderboardController');
 const sha256 = require('js-sha256');
 const version = '1.0';
 
-const schedule = require("node-schedule");
-const rule = new schedule.RecurrenceRule();
-rule.second = 59;
-rule.minute = 59;
-rule.hour = 23;
-rule.dayOfWeek = 6;
-const leaderBoardUpdate = schedule.scheduleJob({tz: "Asia/Singapore", rule: rule}, function () {
-    console.log("start update leaderBoard");
-    leaderboardController.updateLeaderBoard();
-    console.log("end update leaderBoard");
-});
-schedule.rescheduleJob(leaderBoardUpdate, {tz: "Asia/Singapore",rule: rule});
-//leaderBoardUpdate.cancel();
-exports.ReScheduleLeaderBoard = functions.https.onRequest((req, res) => {
-    leaderboardController.reSchedule(req, res, leaderBoardUpdate);
-    return res.json({result: "success"});
-});
+// const schedule = require("node-schedule");
+// const rule = new schedule.RecurrenceRule();
+// rule.second = 59;
+// rule.minute = 59;
+// rule.hour = 23;
+// rule.dayOfWeek = 6;
+// const leaderBoardUpdate = schedule.scheduleJob({tz: "Asia/Singapore", rule: rule}, function () {
+//     console.log("start update leaderBoard");
+//     leaderboardController.updateLeaderBoard();
+//     console.log("end update leaderBoard");
+// });
+// //schedule.rescheduleJob(leaderBoardUpdate, {tz: "Asia/Singapore",rule: rule});
+// //leaderBoardUpdate.cancel();
+// exports.ReScheduleLeaderBoard = functions.https.onRequest((req, res) => {
+//     leaderboardController.reSchedule(req, res, leaderBoardUpdate);
+//     return res.json({result: "success"});
+// });
 
 
 exports.report = functions.https.onRequest((req, res) => {
@@ -84,10 +84,10 @@ const authenticate = (req, res, next) => {
     //console.log(moment("20171003 010000", "YYYYMMDD HHmmss").utcOffset(480).fromNow());
     var idToken = '';
     if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
-        // res.status(403).send(JSON.stringify({'status' : 'Unauthorized'}));
-        // return;
-        req.user = {uid: 'S4iBgV67kebptSKJzEZjvUdKs4e2', name: 'bob'};
-        next();
+        res.status(403).send(JSON.stringify({'status' : 'Unauthorized'}));
+        return;
+        // req.user = {uid: 'S4iBgV67kebptSKJzEZjvUdKs4e2', name: 'bob'};
+        // next();
     } else {
         idToken = req.headers.authorization.split('Bearer ')[1];
         admin.auth().verifyIdToken(idToken).then(decodedIdToken => {

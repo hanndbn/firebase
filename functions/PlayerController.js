@@ -112,11 +112,13 @@ exports.purchaseItem = function (request, response) {
                 } else {
                     // check exist
                     let isExists = false;
-                    playerData.PowerUps.forEach(function (powerUp) {
-                        if(powerUp.id == itemId && (itemType == 'Kit' || itemType == 'Boots')){
-                            isExists = true;
-                        }
-                    });
+                    if(playerData.PowerUps){
+                        playerData.PowerUps.forEach(function (powerUp) {
+                            if(powerUp.id == itemId && (itemType == 'Kit' || itemType == 'Boots')){
+                                isExists = true;
+                            }
+                        });
+                    }
                     if (!isExists) {
                         playerData.Coins = playerData.Coins - coins;
                         powerUps.forEach(function (powerUp) {
