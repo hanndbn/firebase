@@ -18,24 +18,29 @@ const leaderboardController = require('./LeaderboardController');
 const sha256 = require('js-sha256');
 const version = '1.0';
 
-// const schedule = require("node-schedule");
-// const rule = new schedule.RecurrenceRule();
-// rule.second = 59;
-// rule.minute = 59;
-// rule.hour = 23;
-// rule.dayOfWeek = 6;
-// const leaderBoardUpdate = schedule.scheduleJob({tz: "Asia/Singapore", rule: rule}, function () {
-//     console.log("start update leaderBoard");
+const schedule = require("node-schedule");
+const rule = new schedule.RecurrenceRule();
+rule.second = 0;
+rule.minute = 45;
+rule.hour = 11;
+rule.dayOfWeek = 5;
+leaderBoardUpdate = "";
+//leaderBoardUpdate.cancel();
+// leaderBoardUpdate.reschedule(rule, {tz: "Asia/Singapore",rule: rule});
+exports.ReScheduleLeaderBoard = functions.https.onRequest((req, res) => {
+    if(leaderBoardUpdate == "") {
+        leaderBoardUpdate = schedule.scheduleJob({tz: "Asia/Singapore", rule: rule}, function () {
+            leaderboardController.updateLeaderBoard();
+        });
+    }
+    leaderboardController.reSchedule(req, res, leaderBoardUpdate);
+    return res.json({result: "success"});
+});
+
+// exports.LeaderBoardUpdate = functions.https.onRequest((req, res) => {
 //     leaderboardController.updateLeaderBoard();
-//     console.log("end update leaderBoard");
-// });
-// //schedule.rescheduleJob(leaderBoardUpdate, {tz: "Asia/Singapore",rule: rule});
-// //leaderBoardUpdate.cancel();
-// exports.ReScheduleLeaderBoard = functions.https.onRequest((req, res) => {
-//     leaderboardController.reSchedule(req, res, leaderBoardUpdate);
 //     return res.json({result: "success"});
 // });
-
 
 exports.report = functions.https.onRequest((req, res) => {
     try {

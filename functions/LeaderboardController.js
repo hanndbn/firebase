@@ -103,7 +103,7 @@ exports.reportTopPlayer = function(leaderboard, userProfile, lastAccessToken){
        //delete data[i].TotalScore;
     }
     return data;
-}
+};
 
 exports.reSchedule = function (request, response, leaderBoardUpdate) {
     if (!request.body) {
@@ -146,6 +146,7 @@ exports.reSchedule = function (request, response, leaderBoardUpdate) {
 
 exports.updateLeaderBoard = function () {
     try {
+        console.log("start update leaderBoard");
         // backup leaderboard
         let dateStr = moment().utcOffset(480).format('YYYYMMDD-HHmmss');
         let backupLeaderBoardData = dal.backupLeaderBoardData(dateStr);
@@ -258,8 +259,8 @@ exports.updateLeaderBoard = function () {
                     gold: goldRank,
                 }
             };
-
             console.log(JSON.stringify(infData));
+            console.log("end update leaderBoard");
         });
     }
     catch (err) {
