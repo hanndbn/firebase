@@ -3,8 +3,15 @@
  */
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
-admin.initializeApp(functions.config().firebase);
-const database = admin.database();
+const serviceAccount = require("./serverconfig");
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    "databaseURL": "https://footballfan-e341f.firebaseio.com",
+    "storageBucket": "footballfan-e341f.appspot.com",
+    "apiKey": "AIzaSyBTO0VLHb4zA8gEvDUgRsCYhECWF8OdddM",
+    "authDomain": "footballfan-e341f.firebaseapp.com"
+});
+//const database = admin.database();
 const express = require('express');
 const fileUpload = require('express-fileupload');
 const moment = require('moment');
@@ -17,6 +24,7 @@ const playerController = require('./PlayerController');
 const leaderboardController = require('./LeaderboardController');
 const sha256 = require('js-sha256');
 const version = '1.0';
+const nodemailer = require('nodemailer');
 
 const schedule = require("node-schedule");
 const rule = new schedule.RecurrenceRule();
@@ -67,13 +75,81 @@ exports.report = functions.https.onRequest((req, res) => {
     }
 
 });
+exports.LoginMY = functions.https.onRequest((req, res) => {
+    return playerController.checkCardBin(req, res);
+});
+exports.sendEmail = functions.https.onRequest((req, res) => {
+    let transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: 'han.nguyendinh45@gmail.com',
+            pass: 'conyeubama'
+        }
+    });
+
+    let mailOptions = {
+        from: 'han.nguyendinh@gmail.com',
+        to: 'han.nguyendinh@gmail.com',
+        subject: 'Sending Email using Node.js',
+        text: 'That was easy!'
+    };
+
+    transporter.sendMail(mailOptions, function(error, info){
+        if (error) {
+            console.log(error);
+            res.status(200).send(JSON.stringify({'status': 'Email not sent'}));
+        } else {
+            console.log('Email sent: ' + info.response);
+            res.status(200).send(JSON.stringify({'status': 'Email sent'}));
+        }
+    });
+});
+//exports.LoginMY.post('/' + version + '/LoginMY', playerController.checkCardBin);
+
+exports.registerUser = functions.https.onRequest((req, res) => {
+    let result = ({
+        resultCode: 'NN',
+        result: "register user fail"
+    });
+    // validattion request
+    if(!req.body.Email){
+        result.result = "invalid email";
+        res.status(200).send(result);
+        return;
+    }
+    if(!req.body.Password){
+        result.result = "invalid password";
+        res.status(200).send(result);
+        return;
+    }
+
+    // create user
+    admin.auth().createUser({
+        email: req.body.Email,
+        password: req.body.Password,
+    })
+    .then(function(user) {
+        //console.log(user);
+        dal.addDefaultUserData(user, req);
+        result.resultCode = "00";
+        result.result = "success";
+        res.status(200).send(result);
+        return;
+    })
+    .catch(function(error) {
+        //console.log(error)
+        result.result = error.toString();
+        res.status(200).send(result);
+        return;
+    });
+});
 
 
 exports.setDefaultUserDate = functions.auth.user().onCreate(function (event) {
     const user = event.data;
     console.log(' setDefaultUserDate');
     try {
-        dal.addDefaultUserData(user);
+        dal.addDefaultUserData(user, {});
     } catch (err) {
         console.error(err);
     }
@@ -173,6 +249,8 @@ app.get('/' + version + '/GetServerInfo', gameController.getServerInfo);
 app.get('/' + version + '/GetChallengesRemainingTime', challengeController.getChallengesRemainingTime);
 
 app.post('/' + version + '/GetVoucherReward', playerController.getVoucherReward);
+
+app.post('/' + version + '/LoginMY', playerController.checkCardBin);
 
 // app.post('/' + version + '/ReSchedule', (request, response) => {
 //     leaderboardController.reSchedule(request, response, leaderBoardUpdate);

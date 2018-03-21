@@ -6,7 +6,7 @@ const admin = require('firebase-admin');
 admin.initializeApp(functions.config().firebase);
 const database = admin.database();
 const express = require('express');
-const fileUpload = require('express-fileupload');
+//const fileUpload = require('express-fileupload');
 const moment = require('moment');
 const app = express();
 const dal = require('./dal');
@@ -71,7 +71,7 @@ app.use(function (req, res, next) {
 
 
 // default options
-app.use(fileUpload());
+//app.use(fileUpload());
 
 app.use(authenticate);
 

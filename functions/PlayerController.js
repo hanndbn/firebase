@@ -112,9 +112,9 @@ exports.purchaseItem = function (request, response) {
                 } else {
                     // check exist
                     let isExists = false;
-                    if(playerData.PowerUps){
+                    if (playerData.PowerUps) {
                         playerData.PowerUps.forEach(function (powerUp) {
-                            if(powerUp.id == itemId && (itemType == 'Kit' || itemType == 'Boots')){
+                            if (powerUp.id == itemId && (itemType == 'Kit' || itemType == 'Boots')) {
                                 isExists = true;
                             }
                         });
@@ -181,7 +181,7 @@ exports.purchaseSpecialOffer = function (request, response) {
                     // check exist
                     let isExists = false;
                     playerData.PowerUps.forEach(function (powerUp) {
-                        if(powerUp.id == itemId && (itemType == 'Kit' || itemType == 'Boots')){
+                        if (powerUp.id == itemId && (itemType == 'Kit' || itemType == 'Boots')) {
                             isExists = true;
                         }
                     });
@@ -477,6 +477,8 @@ exports.setUserProfile = function (request, response) {
     var playerTier = request.body.Player_Tier;
     var telephone = request.body.Telephone;
     var userName = request.body.UserName;
+    var email = request.body.Email;
+    var dob = request.body.DOB;
     try {
         dal.getUserProfileData(user, function (error, data) {
             if (error) {
@@ -510,6 +512,12 @@ exports.setUserProfile = function (request, response) {
                 }
                 if (telephone) {
                     data.Telephone = telephone;
+                }
+                if (email) {
+                    data.Email = email;
+                }
+                if (dob) {
+                    data.DOB = dob;
                 }
 
                 dal.updateUserProfileData(user, data, function (error, result) {
@@ -603,38 +611,6 @@ exports.eraseMaybankToken = function (request, response) {
     }
 };
 
-exports.registerUser = function (request, response) {
-
-    try {
-
-        admin.auth().createUser({
-            email: "ahmed@gmail.com",
-            emailVerified: false,
-            phoneNumber: "+923002610463",
-            password: "cubix123",
-            displayName: "Ahmed",
-            photoURL: "https://media.licdn.com/mpr/mpr/shrinknp_400_400/p/3/000/097/0c1/134a5e5.jpg",
-            disabled: false
-        })
-            .then(function (userRecord) {
-                // See the UserRecord reference doc for the contents of userRecord.
-                console.log("Successfully created new user:", userRecord.uid);
-                response.status(201).send(JSON.stringify(userRecord));
-            })
-            .catch(function (error) {
-                // Handle Errors here.
-                var errorCode = error.code;
-                var errorMessage = error.message;
-                console.log("Error creating new user:", error);
-            });
-
-    } catch (err) {
-        console.error(err);
-        response.status(500).send(JSON.stringify({'status': 'Internal Server error'}));
-    }
-
-};
-
 exports.getVoucherReward = function (req, res) {
     try {
         let voucherCode = req.body.voucherCode;
@@ -713,6 +689,45 @@ exports.getVoucherReward = function (req, res) {
     } catch (err) {
         console.error(err);
         res.status(500).send(JSON.stringify({'status': 'Internal Server error'}));
+    }
+};
+
+exports.checkCardBin = function (req, res) {
+    try {
+        //validation
+        let cardNumber = req.body.cardNumber;
+        if (!cardNumber) {
+            let result = ({
+                resultCode: 'NN',
+                result: 'card number invalid'
+            });
+            return res.status(200).send(result);
+        }
+
+        // get file from bucget
+        let file = bucket.file('cardbin.txt');
+        file.createReadStream()
+            .on('data', function (response) {
+                let result = ({
+                    resultCode: 'NN',
+                    result: 'card number invalid'
+                });
+                // do stuff
+                //console.log(response.toString('ascii').split("\r\n").length)
+                let cardItem = response.toString('ascii').split("\r\n").filter((line) => {
+                    //console.log(line)
+                    return (line == cardNumber);
+                });
+                if (cardItem.length > 0) {
+                    result.resultCode = '00';
+                    result.result = 'success';
+                }
+                this.end();
+                return res.status(200).send(result);
+            });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).send(JSON.stringify({'status': 'Internal Server error'}));
     }
 };
 

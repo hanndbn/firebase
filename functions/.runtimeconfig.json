@@ -3,6 +3,6 @@
     "databaseURL": "https://footballfan-e341f.firebaseio.com",
     "storageBucket": "footballfan-e341f.appspot.com",
     "apiKey": "AIzaSyBTO0VLHb4zA8gEvDUgRsCYhECWF8OdddM",
-    "authDomain": "footballfan-e341f.firebaseapp.com"
+    "authDomain": "footballfan-e341f.firebaseapp.com",
   }
 }

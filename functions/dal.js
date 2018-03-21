@@ -603,10 +603,11 @@ exports.saveUserProfileData = function (userId, maybankToken) {
     });
 };
 
-exports.addDefaultUserData = function (user) {
+exports.addDefaultUserData = function (user, req) {
     var userProfile = {
-        "UserName": "", "Email": user.email, "Maybank_token": "", "Player_Country": "", "Player_Tier": "",
-        "Player_Balance": "0.0", "Telephone": "", "FirstName": "", "LastName": "", "FB_token": ""
+        "UserName": req.body.UserName ? req.body.UserName : "", "Email": user.email, "Maybank_token": "", "Player_Country": "", "Player_Tier": "",
+        "Player_Balance": "0.0", "Telephone": req.body.Telephone ? req.body.Telephone : "", "FirstName": "", "LastName": "", "FB_token": "",
+        "DOB" : req.body.DOB ? req.body.DOB : ""
     };
     var playerData = {
         "Coins": 0,
@@ -626,7 +627,6 @@ exports.addDefaultUserData = function (user) {
     var userProfileUpdates = {};
     userProfileUpdates['UserProfile/' + user.uid] = userProfile;
     database.ref().update(userProfileUpdates);
-
 
 };
 

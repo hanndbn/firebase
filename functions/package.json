@@ -11,6 +11,7 @@
     "js-sha256": "^0.6.0",
     "moment": "2.18.1",
     "node-schedule": "^1.2.5",
+    "nodemailer": "^4.6.3",
     "request": "^2.81.0",
     "xlsx-to-json-depfix": "^0.2.6"
   },
