@@ -565,11 +565,11 @@ exports.getUserProfileData = function (user, callback) {
         } else {
             userData.ConsecutiveData = ConsecutiveData;
         }
-        if (userData.MaybankLoggedIn == null || userData.MaybankLoggedIn == "" || !userData.MaybankLoggedIn) {
-            userData.MaybankLoggedIn = false;
-        } else {
-            userData.MaybankLoggedIn = true;
-        }
+        // if (userData.MaybankLoggedIn == null || userData.MaybankLoggedIn == "" || !userData.MaybankLoggedIn) {
+        //     userData.MaybankLoggedIn = false;
+        // } else {
+        //     userData.MaybankLoggedIn = true;
+        // }
         snapshot.ref.set(userData);
         callback(null, userData);
     }, function (error) {

@@ -479,6 +479,7 @@ exports.setUserProfile = function (request, response) {
     var userName = request.body.UserName;
     var email = request.body.Email;
     var dob = request.body.DOB;
+    var maybankLoggedIn = request.body.MaybankLoggedIn;
     try {
         dal.getUserProfileData(user, function (error, data) {
             if (error) {
@@ -518,6 +519,9 @@ exports.setUserProfile = function (request, response) {
                 }
                 if (dob) {
                     data.DOB = dob;
+                }
+                if (maybankLoggedIn) {
+                    data.MaybankLoggedIn = maybankLoggedIn;
                 }
 
                 dal.updateUserProfileData(user, data, function (error, result) {
@@ -716,9 +720,26 @@ exports.checkCardBin = function (req, res) {
                 //console.log(response.toString('ascii').split("\r\n").length)
                 let cardItem = response.toString('ascii').split("\r\n").filter((line) => {
                     //console.log(line)
-                    return (line == cardNumber);
+                    return (line == cardNumber.substr(0,6));
                 });
                 if (cardItem.length > 0) {
+                    dal.getUserProfileData(req.user, function (error, data) {
+                        if (error) {
+                            console.log(error)
+                        } else {
+                            if (!data) {
+                                data = {};
+                            }
+                            data.MaybankLoggedIn = true;
+                            dal.updateUserProfileData(req.user, data, function (error, result) {
+                                if (error) {
+                                    console.log("set data error when login MY")
+                                } else {
+                                    console.log("set MaybankLoggedIn success when login MY")
+                                }
+                            });
+                        }
+                    });
                     result.resultCode = '00';
                     result.result = 'success';
                 }
