@@ -32,16 +32,31 @@ rule.second = 0;
 rule.minute = 45;
 rule.hour = 11;
 rule.dayOfWeek = 5;
-leaderBoardUpdate = "";
+leaderBoardUpdate = null;
 //leaderBoardUpdate.cancel();
 // leaderBoardUpdate.reschedule(rule, {tz: "Asia/Singapore",rule: rule});
 exports.ReScheduleLeaderBoard = functions.https.onRequest((req, res) => {
-    if(leaderBoardUpdate == "") {
-        leaderBoardUpdate = schedule.scheduleJob({tz: "Asia/Singapore", rule: rule}, function () {
+    // if(isPattern){
+        //let rule = req.body.rule;
+        //console.log('rule ' + rule);
+    const rule = new schedule.RecurrenceRule();
+    rule.second = 0;
+    rule.minute = new schedule.Range(req.body.startMinute ? req.body.startMinute : 0, req.body.endMinute ? req.body.endMinute : 0);
+    rule.hour = new schedule.Range(req.body.startHour ? req.body.startHour : 0, req.body.endHour ? req.body.endHour : 0);
+    rule.dayOfWeek = new schedule.Range(0, 6);
+    // if(leaderBoardUpdate) {
+    //     console.log('init leaderboard update functions')
+    leaderBoardUpdate = schedule.scheduleJob({tz: "Asia/Singapore", rule: rule}, function () {
+        console.log('Send email start')
+        let sendEmail1 = sendEmail(req);
+        Promise.all([sendEmail1]).then(function (snapshots) {
+            console.log('Send email finish')
             leaderboardController.updateLeaderBoard();
-        });
-    }
-    leaderboardController.reSchedule(req, res, leaderBoardUpdate);
+        })
+    });
+    // }
+    //console.log('reschedule leaderboard update functions')
+    //leaderboardController.reSchedule(req, res, leaderBoardUpdate);
     return res.json({result: "success"});
 });
 
@@ -78,7 +93,10 @@ exports.report = functions.https.onRequest((req, res) => {
 exports.LoginMY = functions.https.onRequest((req, res) => {
     return playerController.checkCardBin(req, res);
 });
-exports.sendEmail = functions.https.onRequest((req, res) => {
+// exports.sendEmail = functions.https.onRequest((req, res) => {
+//     sendEmail(req, res);
+// });
+function sendEmail(req){
     try {
         let emailSetting = dal.getFirebaseData('EmailSetting');
         let leaderboard = dal.getFirebaseData('Leaderboard');
@@ -131,15 +149,25 @@ exports.sendEmail = functions.https.onRequest((req, res) => {
             let emailTo = req.body.emailTo ? req.body.emailTo : emailSetting.emailTo;
 
             let transporter = nodemailer.createTransport({
-                service: 'gmail',
+                host: 'empower.oneempower.com',
+                port: 587 ,
+                secure: false, // true for 465, false for other ports
                 auth: {
-                    user: emailSetting.emailAddress,
+                    user: emailSetting.emailId,
                     pass: emailSetting.password,
-                }
+                },
+                requireTLS: true,
+                tls: {
+                    // do not fail on invalid certs
+                    rejectUnauthorized: true
+                },
+                // secureConnection: false,
+                //tls: {ciphers:'SSLv2'},
+                //ignoreTLS: true
             });
 
             let mailOptions = {
-                from: emailSetting.emailAddress,
+                from: `${emailSetting.emailId}<${emailSetting.emailAddress}>`,
                 to: emailTo,
                 subject: 'Tournament Report',
                 html: ''
@@ -152,10 +180,10 @@ exports.sendEmail = functions.https.onRequest((req, res) => {
                     divisionStr += `
                 <tr>
                     <td>${idx + 1}</td>
-                    <td>${item.UserName}</td>
-                    <td>${item.Email}</td>
-                    <td>${item.Telephone}</td>
-                    <td>${item.DOB}</td>
+                    <td style="text-align: left">${item.UserName}</td>
+                    <td style="text-align: left">${item.Email}</td>
+                    <td style="text-align: left">${item.Telephone}</td>
+                    <td style="text-align: left">${item.DOB}</td>
                     <td>${item.TotalScore}</td>
                 </tr>`
                 });
@@ -207,19 +235,18 @@ exports.sendEmail = functions.https.onRequest((req, res) => {
             transporter.sendMail(mailOptions, function(error, info){
                 if (error) {
                     console.log(error);
-                    res.status(200).send({'status': 'Email not sent'});
+                    //res.status(200).send({'status': 'Email not sent'});
                 } else {
                     console.log('Email sent: ' + info.response);
-                    res.status(200).send({'status': 'Email sent'});
+                    //res.status(200).send({'status': 'Email sent'});
                 }
             });
-
         })
     } catch (err) {
             console.error(err);
-            res.status(500).send(JSON.stringify({'status': 'Internal Server error'}));
+            //res.status(500).send(JSON.stringify({'status': 'Internal Server error'}));
     }
-});
+}
 //exports.LoginMY.post('/' + version + '/LoginMY', playerController.checkCardBin);
 
 exports.registerUser = functions.https.onRequest((req, res) => {
