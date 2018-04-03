@@ -27,6 +27,7 @@ const version = '1.0';
 const nodemailer = require('nodemailer');
 
 const schedule = require("node-schedule");
+var smtp = require('nodemailer-smtp-transport');
 const rule = new schedule.RecurrenceRule();
 rule.second = 0;
 rule.minute = 45;
@@ -37,26 +38,29 @@ leaderBoardUpdate = null;
 // leaderBoardUpdate.reschedule(rule, {tz: "Asia/Singapore",rule: rule});
 exports.ReScheduleLeaderBoard = functions.https.onRequest((req, res) => {
     // if(isPattern){
-        //let rule = req.body.rule;
-        //console.log('rule ' + rule);
+    //let rule = req.body.rule;
+    //console.log('rule ' + rule);
     const rule = new schedule.RecurrenceRule();
     rule.second = 0;
     rule.minute = new schedule.Range(req.body.startMinute ? req.body.startMinute : 0, req.body.endMinute ? req.body.endMinute : 0);
     rule.hour = new schedule.Range(req.body.startHour ? req.body.startHour : 0, req.body.endHour ? req.body.endHour : 0);
     rule.dayOfWeek = new schedule.Range(0, 6);
-    // if(leaderBoardUpdate) {
-    //     console.log('init leaderboard update functions')
+    // if (leaderBoardUpdate == null) {
+    console.log('init leaderboard update functions')
     leaderBoardUpdate = schedule.scheduleJob({tz: "Asia/Singapore", rule: rule}, function () {
         console.log('Send email start')
-        let sendEmail1 = sendEmail(req);
-        Promise.all([sendEmail1]).then(function (snapshots) {
-            console.log('Send email finish')
-            leaderboardController.updateLeaderBoard();
-        })
+        sendEmail(req);
+        // Promise.all([sendEmail1]).then(function (snapshots) {
+        //     console.log('Send email finish')
+        //     //leaderboardController.updateLeaderBoard();
+        // })
     });
+    // } else {
+    //     console.log('reschedule leaderboard')
+    //     leaderboardController.reSchedule(req, res, leaderBoardUpdate);
     // }
-    //console.log('reschedule leaderboard update functions')
-    //leaderboardController.reSchedule(req, res, leaderBoardUpdate);
+    // }
+
     return res.json({result: "success"});
 });
 
@@ -93,10 +97,11 @@ exports.report = functions.https.onRequest((req, res) => {
 exports.LoginMY = functions.https.onRequest((req, res) => {
     return playerController.checkCardBin(req, res);
 });
-// exports.sendEmail = functions.https.onRequest((req, res) => {
-//     sendEmail(req, res);
-// });
-function sendEmail(req){
+exports.sendEmail = functions.https.onRequest((req, res) => {
+    sendEmail(req, res);
+});
+
+function sendEmail(req, res) {
     try {
         let emailSetting = dal.getFirebaseData('EmailSetting');
         let leaderboard = dal.getFirebaseData('Leaderboard');
@@ -111,30 +116,30 @@ function sendEmail(req){
             //process leaderboard
             let topN = emailSetting.topN ? parseInt(emailSetting.topN) : 0;
             let data = {};
-            Object.keys(leaderboard).map((divisionType, idx)=>{
-                    let dataDivision = [];
-                    Object.keys(leaderboard[divisionType]).map((key, idx) => {
-                        let leaderboarObj = {};
-                        leaderboarObj.TotalScore = leaderboard[divisionType][key].TotalScore ? leaderboard[divisionType][key].TotalScore : 0;
-                        leaderboarObj.UserName = "Player" + idx;
-                        leaderboarObj.Email = "";
-                        leaderboarObj.DOB = "";
-                        leaderboarObj.Telephone = "";
-                        if (userProfile[key] && userProfile[key].UserName) {
-                            leaderboarObj.UserName = userProfile[key].UserName;
-                        }
-                        if (userProfile[key] && userProfile[key].Email) {
-                            leaderboarObj.Email = userProfile[key].Email;
-                        }
-                        if (userProfile[key] && userProfile[key].DOB) {
-                            leaderboarObj.DOB = userProfile[key].DOB;
-                        }
-                        if (userProfile[key] && userProfile[key].Telephone) {
-                            leaderboarObj.Telephone = userProfile[key].Telephone;
-                        }
-                        dataDivision.push(leaderboarObj);
+            Object.keys(leaderboard).map((divisionType, idx) => {
+                let dataDivision = [];
+                Object.keys(leaderboard[divisionType]).map((key, idx) => {
+                    let leaderboarObj = {};
+                    leaderboarObj.TotalScore = leaderboard[divisionType][key].TotalScore ? leaderboard[divisionType][key].TotalScore : 0;
+                    leaderboarObj.UserName = "Player" + idx;
+                    leaderboarObj.Email = "";
+                    leaderboarObj.DOB = "";
+                    leaderboarObj.Telephone = "";
+                    if (userProfile[key] && userProfile[key].UserName) {
+                        leaderboarObj.UserName = userProfile[key].UserName;
+                    }
+                    if (userProfile[key] && userProfile[key].Email) {
+                        leaderboarObj.Email = userProfile[key].Email;
+                    }
+                    if (userProfile[key] && userProfile[key].DOB) {
+                        leaderboarObj.DOB = userProfile[key].DOB;
+                    }
+                    if (userProfile[key] && userProfile[key].Telephone) {
+                        leaderboarObj.Telephone = userProfile[key].Telephone;
+                    }
+                    dataDivision.push(leaderboarObj);
 
-                    });
+                });
                 dataDivision.sort((a, b) => {
                     if (a.TotalScore < b.TotalScore)
                         return 1;
@@ -142,41 +147,68 @@ function sendEmail(req){
                         return -1;
                     return 0;
                 });
-                data[divisionType] = dataDivision.slice(0,topN);
+                data[divisionType] = dataDivision.slice(0, topN);
             });
-
-
-            let emailTo = req.body.emailTo ? req.body.emailTo : emailSetting.emailTo;
-
             let transporter = nodemailer.createTransport({
-                host: 'empower.oneempower.com',
-                port: 587 ,
-                secure: false, // true for 465, false for other ports
+                service: 'gmail',
                 auth: {
-                    user: emailSetting.emailId,
-                    pass: emailSetting.password,
-                },
-                requireTLS: true,
-                tls: {
-                    // do not fail on invalid certs
-                    rejectUnauthorized: true
-                },
-                // secureConnection: false,
-                //tls: {ciphers:'SSLv2'},
-                //ignoreTLS: true
+                    user: 'han.nguyendinh45@gmail.com',
+                    pass: 'conyeubama',
+                }
             });
+
+            // let transporter = nodemailer.createTransport({
+            //     type: "SMTP",
+            //     host: 'smtp.gmail.com',
+            //     port: 465,
+            //     secure: true, // true for 465, false for other ports
+            //     auth: {
+            //         user: 'han.nguyendinh45@gmail.com',
+            //         pass: 'conyeubama',
+            //     },
+            //     secureConnection: true,
+            //     //     ignoreTLS: true
+            //     //     // tls: {
+            //     //     //     // do not fail on invalid certs
+            //     //     //     rejectUnauthorized: true
+            //     //     // },
+            //
+            //     //     //tls: {ciphers:'SSLv2'},
+            //     //     //ignoreTLS: true
+            //     //service: 'gmail',
+            //
+            // });
+
+            //let transporter = nodemailer.createTransport('smtps://han.nguyendinh45%40gmail.com:conyeubama@smtp.gmail.com');
+
+
+            // let transporter = nodemailer.createTransport(
+            //     smtp({
+            //         host: 'empower.oneempower.com',
+            //         port: 587,
+            //         auth: {
+            //             user: 'hannd',
+            //             pass: 'Oeoe123',
+            //         },
+            //     })
+            // );
+            // const transporter = nodemailer.createTransport(
+            //     `smtps://hannd:Oeoe123@empower.oneempower.com`);
 
             let mailOptions = {
-                from: `${emailSetting.emailId}<${emailSetting.emailAddress}>`,
-                to: emailTo,
+                //from: `${emailSetting.emailId}<${emailSetting.emailAddress}>`,
+                //from: `${emailSetting.emailId}<${emailSetting.emailAddress}>`,
+                //from: `${emailSetting.emailId}<${emailSetting.emailAddress}>`,
+                from: 'han.nguyendinh45@gmail.com',
+                to: emailSetting.emailTo,
                 subject: 'Tournament Report',
                 html: ''
             };
 
             let displaydata = '';
-            Object.keys(data).map((division)=>{
+            Object.keys(data).map((division) => {
                 let divisionStr = '';
-                data[division].map((item, idx)=>{
+                data[division].map((item, idx) => {
                     divisionStr += `
                 <tr>
                     <td>${idx + 1}</td>
@@ -232,21 +264,28 @@ function sendEmail(req){
 </html>
     `;
 
-            transporter.sendMail(mailOptions, function(error, info){
+            transporter.sendMail(mailOptions, function (error, info) {
                 if (error) {
                     console.log(error);
-                    //res.status(200).send({'status': 'Email not sent'});
+                    if (res) {
+                        res.status(200).send({'status': 'Email not sent'});
+                    }
                 } else {
                     console.log('Email sent: ' + info.response);
-                    //res.status(200).send({'status': 'Email sent'});
+                    if (res) {
+                        res.status(200).send({'status': 'Email sent'});
+                    }
                 }
             });
         })
     } catch (err) {
-            console.error(err);
-            //res.status(500).send(JSON.stringify({'status': 'Internal Server error'}));
+        console.error(err);
+        if (res) {
+            res.status(500).send(JSON.stringify({'status': 'Internal Server error'}));
+        }
     }
 }
+
 //exports.LoginMY.post('/' + version + '/LoginMY', playerController.checkCardBin);
 
 exports.registerUser = functions.https.onRequest((req, res) => {
@@ -255,12 +294,12 @@ exports.registerUser = functions.https.onRequest((req, res) => {
         result: "register user fail"
     });
     // validattion request
-    if(!req.body.Email){
+    if (!req.body.Email) {
         result.result = "invalid email";
         res.status(200).send(result);
         return;
     }
-    if(!req.body.Password){
+    if (!req.body.Password) {
         result.result = "invalid password";
         res.status(200).send(result);
         return;
@@ -271,20 +310,20 @@ exports.registerUser = functions.https.onRequest((req, res) => {
         email: req.body.Email,
         password: req.body.Password,
     })
-    .then(function(user) {
-        //console.log(user);
-        dal.addDefaultUserData(user, req);
-        result.resultCode = "00";
-        result.result = "success";
-        res.status(200).send(result);
-        return;
-    })
-    .catch(function(error) {
-        //console.log(error)
-        result.result = error.toString();
-        res.status(200).send(result);
-        return;
-    });
+        .then(function (user) {
+            //console.log(user);
+            dal.addDefaultUserData(user, req);
+            result.resultCode = "00";
+            result.result = "success";
+            res.status(200).send(result);
+            return;
+        })
+        .catch(function (error) {
+            //console.log(error)
+            result.result = error.toString();
+            res.status(200).send(result);
+            return;
+        });
 });
 
 

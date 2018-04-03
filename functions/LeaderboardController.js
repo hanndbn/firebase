@@ -25,7 +25,7 @@ exports.getTopPlayers = function (request, response) {
             userProfile = snapshots[1];
             // console.log(leaderboard);
             let data = [];
-            if(!leaderboard){
+            if (!leaderboard) {
                 return response.status(200).send(JSON.stringify(data));
             }
             Object.keys(leaderboard).map((key, idx) => {
@@ -54,9 +54,9 @@ exports.getTopPlayers = function (request, response) {
     }
 };
 
-exports.reportTopPlayer = function(leaderboard, userProfile, lastAccessToken){
+exports.reportTopPlayer = function (leaderboard, userProfile, lastAccessToken) {
     let data = [];
-    if(!leaderboard){
+    if (!leaderboard) {
         return [];
     }
 
@@ -98,50 +98,25 @@ exports.reportTopPlayer = function(leaderboard, userProfile, lastAccessToken){
     });
 
     // set ranking
-    for(let i = 0; i < data.length ; i++){
+    for (let i = 0; i < data.length; i++) {
         data[i].Ranking = i + 1;
-       //delete data[i].TotalScore;
+        //delete data[i].TotalScore;
     }
     return data;
 };
 
-exports.reSchedule = function (request, response, leaderBoardUpdate) {
-    if (!request.body) {
-        response.status(400).send(JSON.stringify({'status': 'Bad Request'}));
+exports.reSchedule = function (req, res, leaderBoardUpdate) {
+    if (!req.body) {
+        //response.status(400).send(JSON.stringify({'status': 'Bad Request'}));
+        console.log('Bad Request');
         return;
     }
-    let isPattern = request.body.isPattern;
-    if(isPattern){
-        let rule = request.body.rule;
-        schedule.rescheduleJob(leaderBoardUpdate, {tz: "Asia/Singapore",rule: rule});
-    }else{
-        let second = request.body.second;
-        let minute = request.body.minute;
-        let hour = request.body.hour;
-        let dayOfWeek = request.body.dayOfWeek;
-        //leaderBoardUpdate.
-        const rule = new schedule.RecurrenceRule();
-        // set second
-        if (second) {
-            rule.second = parseInt(second)
-        }
-
-        // set second
-        if (minute) {
-            rule.minute = parseInt(minute)
-        }
-
-        // set second
-        if (hour) {
-            rule.hour = parseInt(hour)
-        }
-
-        // set second
-        if (dayOfWeek) {
-            rule.dayOfWeek = parseInt(dayOfWeek)
-        }
-        schedule.rescheduleJob(leaderBoardUpdate, {tz: "Asia/Singapore",rule: rule});
-    }
+    const rule = new schedule.RecurrenceRule();
+    rule.second = 0;
+    rule.minute = new schedule.Range(req.body.startMinute ? req.body.startMinute : 0, req.body.endMinute ? req.body.endMinute : 0);
+    rule.hour = new schedule.Range(req.body.startHour ? req.body.startHour : 0, req.body.endHour ? req.body.endHour : 0);
+    rule.dayOfWeek = new schedule.Range(0, 6);
+    schedule.rescheduleJob(leaderBoardUpdate, {tz: "Asia/Singapore", rule: rule});
 };
 
 exports.updateLeaderBoard = function () {
@@ -177,7 +152,7 @@ exports.updateLeaderBoard = function () {
                     let key = item.key;
                     delete item.key;
                     newBronzeRank[key] = item;
-                    if(playerDataVal[key]){
+                    if (playerDataVal[key]) {
                         playerDataVal[key].ProgressStats.CurrentLeaderboard = "bronze";
                         playerDataVal[key].ProgressStats.TotalScore = 0;
                         playerDataVal[key].ProgressStats.TriviaScore = 0;
@@ -198,7 +173,7 @@ exports.updateLeaderBoard = function () {
                     let key = item.key;
                     delete item.key;
                     newSilverRank[key] = item;
-                    if(playerDataVal[key]){
+                    if (playerDataVal[key]) {
                         playerDataVal[key].ProgressStats.CurrentLeaderboard = "silver";
                         playerDataVal[key].ProgressStats.TotalScore = 0;
                         playerDataVal[key].ProgressStats.TriviaScore = 0;
@@ -218,7 +193,7 @@ exports.updateLeaderBoard = function () {
                     let key = item.key;
                     delete item.key;
                     newGoldRank[key] = item;
-                    if(playerDataVal[key]){
+                    if (playerDataVal[key]) {
                         playerDataVal[key].ProgressStats.CurrentLeaderboard = "gold";
                         playerDataVal[key].ProgressStats.TotalScore = 0;
                         playerDataVal[key].ProgressStats.TriviaScore = 0;
@@ -242,7 +217,7 @@ exports.updateLeaderBoard = function () {
 
             let infData = {
                 status: "success",
-                dateBackup : dateStr,
+                dateBackup: dateStr,
                 before: {
                     bronze: bronzeRank.numberPerson,
                     silver: silverRank.numberPerson,
