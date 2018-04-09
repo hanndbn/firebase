@@ -41,25 +41,29 @@ exports.ReScheduleLeaderBoard = functions.https.onRequest((req, res) => {
     //let rule = req.body.rule;
     //console.log('rule ' + rule);
     const rule = new schedule.RecurrenceRule();
-    rule.second = 0;
-    rule.minute = new schedule.Range(req.body.startMinute ? req.body.startMinute : 0, req.body.endMinute ? req.body.endMinute : 0);
-    rule.hour = new schedule.Range(req.body.startHour ? req.body.startHour : 0, req.body.endHour ? req.body.endHour : 0);
+    rule.second = req.body.second ? req.body.second : 0;
+    rule.minute = req.body.minute ? req.body.minute : 0;
+    rule.hour = req.body.hour ? req.body.hour : 0;
     rule.dayOfWeek = new schedule.Range(0, 6);
-    // if (leaderBoardUpdate == null) {
-    console.log('init leaderboard update functions')
-    leaderBoardUpdate = schedule.scheduleJob({tz: "Asia/Singapore", rule: rule}, function () {
-        console.log('Send email start')
-        sendEmail(req);
-        // Promise.all([sendEmail1]).then(function (snapshots) {
-        //     console.log('Send email finish')
-        //     //leaderboardController.updateLeaderBoard();
-        // })
-    });
-    // } else {
-    //     console.log('reschedule leaderboard')
-    //     leaderboardController.reSchedule(req, res, leaderBoardUpdate);
-    // }
-    // }
+    if (leaderBoardUpdate == null) {
+        console.log('init leaderboard update functions')
+        leaderBoardUpdate = schedule.scheduleJob({tz: "Asia/Singapore", rule: rule}, function () {
+            console.log('start process send Email');
+            leaderboardController.sendEmail(function (error,info) {
+                if (error) {
+                    console.log(error);
+                } else {
+                    console.log('Email sent1: ' + info.response);
+                }
+                console.log('finish process send Email');
+                //update leaderboard
+                leaderboardController.updateLeaderBoard();
+            })
+        });
+    } else {
+        console.log('reschedule leaderboard')
+        leaderboardController.reSchedule(req, res, leaderBoardUpdate);
+    }
 
     return res.json({result: "success"});
 });
@@ -97,194 +101,9 @@ exports.report = functions.https.onRequest((req, res) => {
 exports.LoginMY = functions.https.onRequest((req, res) => {
     return playerController.checkCardBin(req, res);
 });
-exports.sendEmail = functions.https.onRequest((req, res) => {
-    sendEmail(req, res);
-});
-
-function sendEmail(req, res) {
-    try {
-        let emailSetting = dal.getFirebaseData('EmailSetting');
-        let leaderboard = dal.getFirebaseData('Leaderboard');
-        let userProfile = dal.getFirebaseData('UserProfile');
-        Promise.all([emailSetting, leaderboard, userProfile]).then(function (snapshots) {
-            let emailSetting = snapshots[0];
-            //let leaderboardkey = Object.keys(snapshots[1])[0];
-            //let leaderboardHistory = snapshots[1][leaderboardkey];
-            let leaderboard = snapshots[1];
-            let userProfile = snapshots[2];
-
-            //process leaderboard
-            let topN = emailSetting.topN ? parseInt(emailSetting.topN) : 0;
-            let data = {};
-            Object.keys(leaderboard).map((divisionType, idx) => {
-                let dataDivision = [];
-                Object.keys(leaderboard[divisionType]).map((key, idx) => {
-                    let leaderboarObj = {};
-                    leaderboarObj.TotalScore = leaderboard[divisionType][key].TotalScore ? leaderboard[divisionType][key].TotalScore : 0;
-                    leaderboarObj.UserName = "Player" + idx;
-                    leaderboarObj.Email = "";
-                    leaderboarObj.DOB = "";
-                    leaderboarObj.Telephone = "";
-                    if (userProfile[key] && userProfile[key].UserName) {
-                        leaderboarObj.UserName = userProfile[key].UserName;
-                    }
-                    if (userProfile[key] && userProfile[key].Email) {
-                        leaderboarObj.Email = userProfile[key].Email;
-                    }
-                    if (userProfile[key] && userProfile[key].DOB) {
-                        leaderboarObj.DOB = userProfile[key].DOB;
-                    }
-                    if (userProfile[key] && userProfile[key].Telephone) {
-                        leaderboarObj.Telephone = userProfile[key].Telephone;
-                    }
-                    dataDivision.push(leaderboarObj);
-
-                });
-                dataDivision.sort((a, b) => {
-                    if (a.TotalScore < b.TotalScore)
-                        return 1;
-                    if (a.TotalScore > b.TotalScore)
-                        return -1;
-                    return 0;
-                });
-                data[divisionType] = dataDivision.slice(0, topN);
-            });
-            let transporter = nodemailer.createTransport({
-                service: 'gmail',
-                auth: {
-                    user: 'han.nguyendinh45@gmail.com',
-                    pass: 'conyeubama',
-                }
-            });
-
-            // let transporter = nodemailer.createTransport({
-            //     type: "SMTP",
-            //     host: 'smtp.gmail.com',
-            //     port: 465,
-            //     secure: true, // true for 465, false for other ports
-            //     auth: {
-            //         user: 'han.nguyendinh45@gmail.com',
-            //         pass: 'conyeubama',
-            //     },
-            //     secureConnection: true,
-            //     //     ignoreTLS: true
-            //     //     // tls: {
-            //     //     //     // do not fail on invalid certs
-            //     //     //     rejectUnauthorized: true
-            //     //     // },
-            //
-            //     //     //tls: {ciphers:'SSLv2'},
-            //     //     //ignoreTLS: true
-            //     //service: 'gmail',
-            //
-            // });
-
-            //let transporter = nodemailer.createTransport('smtps://han.nguyendinh45%40gmail.com:conyeubama@smtp.gmail.com');
-
-
-            // let transporter = nodemailer.createTransport(
-            //     smtp({
-            //         host: 'empower.oneempower.com',
-            //         port: 587,
-            //         auth: {
-            //             user: 'hannd',
-            //             pass: 'Oeoe123',
-            //         },
-            //     })
-            // );
-            // const transporter = nodemailer.createTransport(
-            //     `smtps://hannd:Oeoe123@empower.oneempower.com`);
-
-            let mailOptions = {
-                //from: `${emailSetting.emailId}<${emailSetting.emailAddress}>`,
-                //from: `${emailSetting.emailId}<${emailSetting.emailAddress}>`,
-                //from: `${emailSetting.emailId}<${emailSetting.emailAddress}>`,
-                from: 'han.nguyendinh45@gmail.com',
-                to: emailSetting.emailTo,
-                subject: 'Tournament Report',
-                html: ''
-            };
-
-            let displaydata = '';
-            Object.keys(data).map((division) => {
-                let divisionStr = '';
-                data[division].map((item, idx) => {
-                    divisionStr += `
-                <tr>
-                    <td>${idx + 1}</td>
-                    <td style="text-align: left">${item.UserName}</td>
-                    <td style="text-align: left">${item.Email}</td>
-                    <td style="text-align: left">${item.Telephone}</td>
-                    <td style="text-align: left">${item.DOB}</td>
-                    <td>${item.TotalScore}</td>
-                </tr>`
-                });
-
-                displaydata += `
-                    <h3>${division}</h3>
-                    <table class="table" width="100%" border="1" cellpadding="0" cellspacing="0" bgcolor="#FFFFFF">
-                        <thead>
-                            <tr style="border: 1px solid black">
-                                <th align="">Poisition</th>
-                                <th>User Name</th>
-                                <th>Email Adress</th>
-                                <th>Phone Number</th>
-                                <th>Date Of Birth</th>
-                                <th>Score</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                           ${divisionStr}
-                        </tbody>
-                    </table>
-                `
-            });
-
-            mailOptions.html = `
-<html>
-    <head>
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-        <style type="text/css">
-            th, td{
-                text-align: center;
-            }
-         
-            thead tr{
-                background-color: #ffbc00;
-            }
-            h2{
-                text-align: center;
-            }
-        </style>
-    </head>
-    <body>
-        <h2>Tournament Report</h2>
-        ${displaydata}
-    </body>
-</html>
-    `;
-
-            transporter.sendMail(mailOptions, function (error, info) {
-                if (error) {
-                    console.log(error);
-                    if (res) {
-                        res.status(200).send({'status': 'Email not sent'});
-                    }
-                } else {
-                    console.log('Email sent: ' + info.response);
-                    if (res) {
-                        res.status(200).send({'status': 'Email sent'});
-                    }
-                }
-            });
-        })
-    } catch (err) {
-        console.error(err);
-        if (res) {
-            res.status(500).send(JSON.stringify({'status': 'Internal Server error'}));
-        }
-    }
-}
+// exports.sendEmail = functions.https.onRequest((req, res) => {
+//     sendEmail(req, res);
+// });
 
 //exports.LoginMY.post('/' + version + '/LoginMY', playerController.checkCardBin);
 
@@ -818,3 +637,5 @@ app.use(function (request, response, next) {
 exports.api = functions.https.onRequest(app);
 
 exports.OEApi = functions.https.onRequest(app);
+
+exports.updateChallenges  = functions.https.onRequest(challengeController.updateChallenges);

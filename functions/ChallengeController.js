@@ -17,6 +17,31 @@ exports.getChallengesRemainingTime = function(request, response) {
     return response.status(200).send(JSON.stringify({ChallengesRemainingTime : moment.utc(duration*1000).format('DD HH:mm:ss')}));
 };
 
+exports.updateChallenges = function(request, response) {
+    let challengeData = dal.getFirebaseData('ChallengeData');
+    let challenge = dal.getChallenge();
+    try {
+        Promise.all([challengeData, challenge]).then(function (data) {
+            challengeData = data[0]
+            challenge = data[1];
+            let challengeTmp = {};
+            Object.keys(challengeData).map((item)=>{
+                challengeTmp[item] = {
+                    ChallengeData:challengeData[item],
+                    EndDate: 1639270000000,
+                    StartDate: 1476200768000
+
+                };
+            });
+            challenge.ref.set(challengeTmp);
+            response.status(200).send(challengeTmp);
+        });
+    }catch(err) {
+            console.error(err);
+            response.status(500).send(JSON.stringify({'status' : 'Internal Server error'}));
+    }
+};
+
 
 exports.getWeeklyChallenges = function(request, response) {
     var startOfWeek = moment().utc().startOf('week').toDate();
@@ -24,13 +49,24 @@ exports.getWeeklyChallenges = function(request, response) {
     var endOfWeekTime   = moment().utc().endOf('week').subtract(1, "days").toDate().getTime();
     var currentTime = moment().utc().toDate().getTime();
     var user = request.user;
+    let serverInfo = dal.getFirebaseData('ServerInfo');
+    let currentWeeklyChallengesdal = dal.getCurrentWeeklyChallenges();
     try {
-        Promise.all([dal.getCurrentWeeklyChallenges(currentTime)]).then(function(data) {
+        Promise.all([currentWeeklyChallengesdal, serverInfo]).then(function(data) {
             var levels = data[0];
             var challenges = [];
             if(levels) {
-
-                var levelIds = Object.keys(levels);
+                var levels = data[0];
+                let weeklyChallengeIdx = parseInt(data[1].WeeklyChallengeIdx);
+                console.log(weeklyChallengeIdx);
+                let weeklyArray = [];
+                for(let i = 1; i <= 5; i++){
+                    weeklyArray.push('Level' + (i + ((weeklyChallengeIdx - 1) * 5)));
+                }
+                let levelIds = Object.keys(levels).filter((level, idx)=>{
+                    return weeklyArray.includes(level)
+                });
+               // var levelIds = Object.keys(levels);
                 dal.loadPlayerScores(user, levelIds, function (playScores) {
                     playScores.forEach(function (playScore) {
                         if (playScore) {

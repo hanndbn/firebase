@@ -213,12 +213,20 @@ exports.getLeaderboardPlayersCount = function (userId) {
  * @param startOfWeekTime
  * @returns {*}
  */
-exports.getCurrentWeeklyChallenges = function (currentTime) {
-    console.log(currentTime);
-    return database.ref('Challenge').orderByChild('EndDate').startAt(currentTime)
-        .limitToFirst(5).once("value").then(function (snapshot) {
+exports.getCurrentWeeklyChallenges = function () {
+    return database.ref('Challenge').once("value").then(function (snapshot) {
             return snapshot.val();
         });
+};
+/**
+ * Get Current Weekly challenges.
+ * @param startOfWeekTime
+ * @returns {*}
+ */
+exports.getChallenge = function () {
+    return database.ref('Challenge').once("value").then(function (snapshot) {
+        return snapshot;
+    });
 };
 
 /**

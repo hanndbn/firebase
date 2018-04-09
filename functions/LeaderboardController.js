@@ -9,6 +9,7 @@ const moment = require('moment');
 const dal = require('./dal');
 const utils = require('./utils');
 const schedule = require("node-schedule");
+const nodemailer = require('nodemailer');
 
 exports.getTopPlayers = function (request, response) {
     if (!request.body || !request.body.divisionType) {
@@ -151,13 +152,11 @@ exports.updateLeaderBoard = function () {
                 bronzeArray.map((item) => {
                     let key = item.key;
                     delete item.key;
+                    item.TotalScore = 0;
                     newBronzeRank[key] = item;
                     if (playerDataVal[key]) {
                         playerDataVal[key].ProgressStats.CurrentLeaderboard = "bronze";
-                        playerDataVal[key].ProgressStats.TotalScore = 0;
-                        playerDataVal[key].ProgressStats.TriviaScore = 0;
                     }
-
                 });
             } else {
                 newBronzeRank = {bronze: "bronze"}
@@ -172,11 +171,10 @@ exports.updateLeaderBoard = function () {
                 silverArray.map((item) => {
                     let key = item.key;
                     delete item.key;
+                    item.TotalScore = 0;
                     newSilverRank[key] = item;
                     if (playerDataVal[key]) {
                         playerDataVal[key].ProgressStats.CurrentLeaderboard = "silver";
-                        playerDataVal[key].ProgressStats.TotalScore = 0;
-                        playerDataVal[key].ProgressStats.TriviaScore = 0;
                     }
                 });
             } else {
@@ -192,11 +190,10 @@ exports.updateLeaderBoard = function () {
                 goldArray.map((item) => {
                     let key = item.key;
                     delete item.key;
+                    item.TotalScore = 0;
                     newGoldRank[key] = item;
                     if (playerDataVal[key]) {
                         playerDataVal[key].ProgressStats.CurrentLeaderboard = "gold";
-                        playerDataVal[key].ProgressStats.TotalScore = 0;
-                        playerDataVal[key].ProgressStats.TriviaScore = 0;
                     }
                 });
             } else {
@@ -211,6 +208,12 @@ exports.updateLeaderBoard = function () {
 
             database.ref('Leaderboard').once("value").then(function (snap) {
                 snap.ref.set(newLeaderBoard);
+            });
+
+            //set player data
+            Object.keys(playerDataVal).map((playerKey)=>{
+                playerDataVal[playerKey].ProgressStats.TotalScore = 0;
+                playerDataVal[playerKey].ProgressStats.TriviaScore = 0;
             });
 
             playerData.ref.set(playerDataVal);
@@ -239,9 +242,182 @@ exports.updateLeaderBoard = function () {
         });
     }
     catch (err) {
-        console.error(err);
+        console.log(err);
     }
 };
+exports.sendEmail = function (callback) {
+    try {
+        let emailSetting = dal.getFirebaseData('EmailSetting');
+        let leaderboard = dal.getFirebaseData('Leaderboard');
+        let userProfile = dal.getFirebaseData('UserProfile');
+        let option = "";
+        Promise.all([emailSetting, leaderboard, userProfile]).then(function (snapshots) {
+            let emailSetting = snapshots[0];
+            //let leaderboardkey = Object.keys(snapshots[1])[0];
+            //let leaderboardHistory = snapshots[1][leaderboardkey];
+            let leaderboard = snapshots[1];
+            let userProfile = snapshots[2];
+
+            //process leaderboard
+            let topN = emailSetting.topN ? parseInt(emailSetting.topN) : 0;
+            let data = {
+                bronze: [],
+                silver: [],
+                gold: [],
+            };
+            Object.keys(leaderboard).map((divisionType, idx) => {
+                let dataDivision = [];
+                Object.keys(leaderboard[divisionType]).map((key, idx) => {
+                    let leaderboarObj = {};
+                    leaderboarObj.TotalScore = leaderboard[divisionType][key].TotalScore ? leaderboard[divisionType][key].TotalScore : 0;
+                    leaderboarObj.UserName = "Player" + idx;
+                    leaderboarObj.Email = "";
+                    leaderboarObj.DOB = "";
+                    leaderboarObj.Telephone = "";
+                    if (userProfile[key] && userProfile[key].UserName) {
+                        leaderboarObj.UserName = userProfile[key].UserName;
+                    }
+                    if (userProfile[key] && userProfile[key].Email) {
+                        leaderboarObj.Email = userProfile[key].Email;
+                    }
+                    if (userProfile[key] && userProfile[key].DOB) {
+                        leaderboarObj.DOB = userProfile[key].DOB;
+                    }
+                    if (userProfile[key] && userProfile[key].Telephone) {
+                        leaderboarObj.Telephone = userProfile[key].Telephone;
+                    }
+                    dataDivision.push(leaderboarObj);
+
+                });
+                dataDivision.sort((a, b) => {
+                    if (a.TotalScore < b.TotalScore)
+                        return 1;
+                    if (a.TotalScore > b.TotalScore)
+                        return -1;
+                    return 0;
+                });
+                data[divisionType] = dataDivision.slice(0, topN);
+            });
+            let transporter = nodemailer.createTransport({
+                service: 'gmail',
+                auth: {
+                    user: emailSetting.emailAddress,
+                    pass: emailSetting.password,
+                }
+            });
+
+            // let transporter = nodemailer.createTransport(
+            //     smtp({
+            //         host: 'empower.oneempower.com',
+            //         port: 587,
+            //         auth: {
+            //             user: 'hannd',
+            //             pass: 'Oeoe123',
+            //         },
+            //     })
+            // );
+            // const transporter = nodemailer.createTransport(
+            //     `smtps://hannd:Oeoe123@empower.oneempower.com`);
+
+            let mailOptions = {
+                from: `${emailSetting.emailId}<${emailSetting.emailAddress}>`,
+                //from: `${emailSetting.emailId}<${emailSetting.emailAddress}>`,
+                //from: `${emailSetting.emailId}<${emailSetting.emailAddress}>`,
+                //from: 'han.nguyendinh45@gmail.com',
+                to: emailSetting.emailTo,
+                subject: 'Tournament Report',
+                html: ''
+            };
+
+            let displaydata = '';
+            Object.keys(data).map((division) => {
+
+            });
+
+            Object.keys(data).map((division) => {
+                let divisionStr = '';
+                data[division].map((item, idx) => {
+                    divisionStr += `
+                <tr>
+                    <td>${idx + 1}</td>
+                    <td style="text-align: left">${item.UserName}</td>
+                    <td style="text-align: left">${item.Email}</td>
+                    <td style="text-align: left">${item.Telephone}</td>
+                    <td style="text-align: left">${item.DOB}</td>
+                    <td>${item.TotalScore}</td>
+                </tr>`
+                });
+
+                displaydata += `
+                    <h3>${division == 'bronze' ? 'Division-2' : division == 'silver' ? 'Division-1' : 'Premier League'}</h3>
+                    <table class="table" width="100%" border="1" cellpadding="0" cellspacing="0" bgcolor="#FFFFFF">
+                        <thead>
+                            <tr style="border: 1px solid black">
+                                <th align="">Poisition</th>
+                                <th>User Name</th>
+                                <th>Email Adress</th>
+                                <th>Phone Number</th>
+                                <th>Date Of Birth</th>
+                                <th>Score</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                           ${divisionStr}
+                        </tbody>
+                    </table>
+                `
+            });
+
+            mailOptions.html = `
+<html>
+    <head>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+        <style type="text/css">
+            th, td{
+                text-align: center;
+            }
+         
+            thead tr{
+                background-color: #ffbc00;
+            }
+            h2{
+                text-align: center;
+            }
+        </style>
+    </head>
+    <body>
+        <h2>Tournament Report</h2>
+        ${displaydata}
+    </body>
+</html>
+    `;
+            option = mailOptions;
+            transporter.sendMail(mailOptions, callback
+            // {
+            //     if (error) {
+            //         console.log(error);
+            //         callback(false);
+            //         if (res) {
+            //             res.status(200).send({'status': 'Email not sent'});
+            //         }
+            //     } else {
+            //         console.log('Email sent: ' + info.response);
+            //         if (res) {
+            //             res.status(200).send({'status': 'Email sent'});
+            //         }
+            //         callback(true);
+            //     }
+            // }
+            );
+        });
+    } catch (err) {
+        console.error(err);
+        if (res) {
+            res.status(500).send(JSON.stringify({'status': 'Internal Server error'}));
+        }
+        callback(false);
+    }
+}
 
 
 
