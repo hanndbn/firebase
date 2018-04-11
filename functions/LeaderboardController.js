@@ -30,13 +30,15 @@ exports.getTopPlayers = function (request, response) {
                 return response.status(200).send(JSON.stringify(data));
             }
             Object.keys(leaderboard).map((key, idx) => {
-                let leaderboarObj = {};
-                leaderboarObj.TotalScore = leaderboard[key].TotalScore ? leaderboard[key].TotalScore : 0;
-                leaderboarObj.UserName = "Player" + idx;
-                if (userProfile[key] && userProfile[key].UserName) {
-                    leaderboarObj.UserName = userProfile[key].UserName;
+                if(key != divisionType) {
+                    let leaderboarObj = {};
+                    leaderboarObj.TotalScore = leaderboard[key].TotalScore ? leaderboard[key].TotalScore : 0;
+                    leaderboarObj.UserName = userProfile[key].Email;
+                    if (userProfile[key] && userProfile[key].UserName) {
+                        leaderboarObj.UserName = userProfile[key].UserName;
+                    }
+                    data.push(leaderboarObj);
                 }
-                data.push(leaderboarObj);
             });
             data.sort((a, b) => {
                 if (a.TotalScore < b.TotalScore)

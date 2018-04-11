@@ -11,10 +11,48 @@ const utils = require('./utils');
 
 exports.getChallengesRemainingTime = function(request, response) {
     //console.log(database);
-    let dateStr = moment().utcOffset(480).weekday(6).format('DD/MM/YYYY 23:59:59');
-    let lastDate = moment(dateStr, 'DD/MM/YYYY HH:mm:dd');
-    let duration = lastDate.diff(moment().utcOffset(480), 'seconds');
-    return response.status(200).send(JSON.stringify({ChallengesRemainingTime : moment.utc(duration*1000).format('DD HH:mm:ss')}));
+    let serverInfo = dal.getFirebaseData('ServerInfo');
+    try {
+        Promise.all([serverInfo]).then(function (data) {
+            serverInfo = data[0];
+            let tournamentType = serverInfo.tournamentType;
+            console.log(moment().utcOffset(480))
+            if(tournamentType == 'weekly'){
+                let dateStr = moment().utcOffset(480).weekday(6).format('DD/MM/YYYY 23:59:59');
+                let lastDate = moment(dateStr, 'DD/MM/YYYY HH:mm:ss');
+                let duration = lastDate.diff(moment().utcOffset(480), 'seconds');
+                return response.status(200).send(JSON.stringify({ChallengesRemainingTime : moment.utc(duration*1000).format('DD HH:mm:ss')}));
+            } else if(tournamentType == 'daily'){
+                let dateStr = moment().utcOffset(480).format('DD/MM/YYYY 23:59:59');
+                let lastDate = moment(dateStr, 'DD/MM/YYYY HH:mm:ss');
+                let diffTime = lastDate.diff(moment().utcOffset(480));
+                let duration = moment.duration(diffTime);
+                return response.status(200).send(JSON.stringify({ChallengesRemainingTime : `${duration.days() < 10 ? '0'+ duration.days(): duration.days()} ${duration.hours() < 10 ? '0'+ duration.hours(): duration.hours()}:${duration.minutes() < 10 ? '0'+ duration.minutes(): duration.minutes()}:${duration.seconds() < 10 ? '0'+ duration.seconds(): duration.seconds()}`}));
+            } else if(tournamentType == 'define'){
+                //let dateStr = moment().utcOffset(480).format('DD/MM/YYYY 23:59:59');
+                let startDateStr = serverInfo.dateStartTournament;
+                let startDate = moment(startDateStr, 'DD/MM/YYYY HH:mm:ss').utcOffset(480);
+                let isAfterStartTournament = moment().utcOffset(480).isAfter(startDate);
+
+                let endDateStr = serverInfo.dateEndTournament;
+                let endDate = moment(endDateStr, 'DD/MM/YYYY HH:mm:ss').utcOffset(480);
+                let isBeforeEndTournament = moment().utcOffset(480).isBefore(endDate);
+                if(isAfterStartTournament && isBeforeEndTournament){
+                    let diffTime = endDate.diff(moment().utcOffset(480));
+                    let duration = moment.duration(diffTime);
+                    return response.status(200).send(JSON.stringify({ChallengesRemainingTime : `${duration.days() < 10 ? '0'+ duration.days(): duration.days()} ${duration.hours() < 10 ? '0'+ duration.hours(): duration.hours()}:${duration.minutes() < 10 ? '0'+ duration.minutes(): duration.minutes()}:${duration.seconds() < 10 ? '0'+ duration.seconds(): duration.seconds()}`}));
+                }else{
+                    return response.status(200).send(JSON.stringify({ChallengesRemainingTime : '0 00:00:00'}));
+                }
+            } else{
+                return response.status(200).send(JSON.stringify({ChallengesRemainingTime : '0 00:00:00'}));
+            }
+
+        });
+    }catch(err) {
+        console.error(err);
+        response.status(500).send(JSON.stringify({'status' : 'Internal Server error'}));
+    }
 };
 
 exports.updateChallenges = function(request, response) {
@@ -57,8 +95,14 @@ exports.getWeeklyChallenges = function(request, response) {
             var challenges = [];
             if(levels) {
                 var levels = data[0];
-                let weeklyChallengeIdx = parseInt(data[1].WeeklyChallengeIdx);
-                console.log(weeklyChallengeIdx);
+                let dateStartChallengeStr = data[1].dateStartChallenge;
+                let dateStartChallenge = moment(dateStartChallengeStr, 'DD/MM/YYYY HH:mm:ss');
+                //let dateStartChallengeTmp = moment('02/04/2018 00:00:00', 'DD/MM/YYYY HH:mm:ss');
+
+                let startOfWeek = dateStartChallenge.startOf('isoWeek');
+                let weeklyChallengeIdx = moment().utcOffset(480).diff(startOfWeek, 'week') + 1;
+                // console.log(startOfWeek);
+                // console.log(moment().utc(460).diff(startOfWeek, 'week'));
                 let weeklyArray = [];
                 for(let i = 1; i <= 5; i++){
                     weeklyArray.push('Level' + (i + ((weeklyChallengeIdx - 1) * 5)));
