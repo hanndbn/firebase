@@ -101,6 +101,7 @@ exports.getWeeklyChallenges = function(request, response) {
 
                 let startOfWeek = dateStartChallenge.startOf('isoWeek');
                 let weeklyChallengeIdx = moment().utcOffset(480).diff(startOfWeek, 'week') + 1;
+                weeklyChallengeIdx = weeklyChallengeIdx > 10 ? (weeklyChallengeIdx - ((weeklyChallengeIdx % 10) * 10)) : weeklyChallengeIdx;
                 // console.log(startOfWeek);
                 // console.log(moment().utc(460).diff(startOfWeek, 'week'));
                 let weeklyArray = [];
@@ -109,6 +110,13 @@ exports.getWeeklyChallenges = function(request, response) {
                 }
                 let levelIds = Object.keys(levels).filter((level, idx)=>{
                     return weeklyArray.includes(level)
+                });
+                let levelIds1 = levelIds.sort((a, b) => {
+                    if (parseInt(a.substr(5)) > parseInt(b.substr(5)))
+                        return 1;
+                    if (parseInt(a.substr(5)) < parseInt(b.substr(5)))
+                        return -1;
+                    return 0;
                 });
                // var levelIds = Object.keys(levels);
                 dal.loadPlayerScores(user, levelIds, function (playScores) {

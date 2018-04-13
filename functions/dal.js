@@ -727,7 +727,6 @@ exports.gameDataImport = function (data, callback) {
             });
             item.GameTypes = item.GameTypes.trim().split(',');
             item.GameTypes.forEach(function (key) {
-
                 if (key && typeof key == "string") {
                     var type = gameTypeMap[key.trim()];
                     type.id = key.trim();
@@ -816,6 +815,7 @@ exports.gameDataImport = function (data, callback) {
             delete item.ID;
         }
     });
+    console.log(challengesMap);
 
     if (!utils.isEmpty(challengesMap)) {
         database.ref().child('Challenge').set(challengesMap);
