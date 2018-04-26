@@ -136,6 +136,7 @@ exports.updateLeaderBoard = function () {
         let goldRank = dal.getLeaderBoardWithType("gold");
 
         let playerData = dal.getPlayerData('PlayerData');
+        //let playerScore = dal.getFirebaseData('PlayerScore');
 
 
         Promise.all([backupLeaderBoardData, bronzeRank, silverRank, goldRank, playerData]).then(function (snapshots) {

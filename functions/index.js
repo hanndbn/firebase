@@ -33,13 +33,14 @@ rule.second = 0;
 rule.minute = 45;
 rule.hour = 11;
 rule.dayOfWeek = 5;
-leaderBoardUpdate = null;
+//leaderBoardUpdate = null;
 //leaderBoardUpdate.cancel();
 // leaderBoardUpdate.reschedule(rule, {tz: "Asia/Singapore",rule: rule});
 exports.ReScheduleLeaderBoard = functions.https.onRequest((req, res) => {
     // if(isPattern){
     //let rule = req.body.rule;
     //console.log('rule ' + rule);
+    let leaderBoardUpdate = null;
     const rule = new schedule.RecurrenceRule();
     rule.second = req.body.second ? req.body.second : 0;
     rule.minute = req.body.minute ? req.body.minute : 0;
@@ -68,10 +69,10 @@ exports.ReScheduleLeaderBoard = functions.https.onRequest((req, res) => {
     return res.json({result: "success"});
 });
 
-// exports.LeaderBoardUpdate = functions.https.onRequest((req, res) => {
-//     leaderboardController.updateLeaderBoard();
-//     return res.json({result: "success"});
-// });
+exports.LeaderBoardUpdate = functions.https.onRequest((req, res) => {
+    leaderboardController.updateLeaderBoard();
+    return res.json({result: "success"});
+});
 
 exports.report = functions.https.onRequest((req, res) => {
     try {

@@ -376,7 +376,8 @@ exports.getPlayerChallengeScore = function (user, levelId, callback) {
  * @param oldScore
  */
 exports.addPlayerGameHistory = function (user, levelId, score, oldScore, startTime, endTime) {
-
+    console.log(score);
+    console.log(oldScore);
     if (oldScore < score) {
         updatePlayerTotalScore(user, score, oldScore);
     }
@@ -457,16 +458,17 @@ exports.getUserLeaderboardPosition = function (user, callback) {
             });
 
             let position = 0;
+            let scrore = 0;
             for(let i = 0; i < data.length; i++){
                 if(data[i].userId == user.uid){
+                    scrore = data[i].TotalScore
                     position = i + 1;
                     break;
                 }
             }
-
-            return callback(null, {"Position": position});
+            return callback(null, {"Position": position,"Score": scrore});
         }else {
-            return callback(null, {"Position": 0});
+            return callback(null, {"Position": 0,"Score": 0});
         }
     }, function (error) {
         console.log(error);

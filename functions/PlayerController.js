@@ -720,7 +720,7 @@ exports.checkCardBin = function (req, res) {
                 //console.log(response.toString('ascii').split("\r\n").length)
                 let cardItem = response.toString('ascii').split("\r\n").filter((line) => {
                     //console.log(line)
-                    return (line == cardNumber.substr(0,6));
+                    return (line.substr(0,6) == cardNumber.substr(0,6));
                 });
                 if (cardItem.length > 0) {
                     dal.getUserProfileData(req.user, function (error, data) {
