@@ -9,20 +9,32 @@ const moment = require('moment');
 const dal = require('./dal');
 const utils = require('./utils');
 const bucket = admin.storage().bucket();
-
+const sha256 = require('js-sha256');
 exports.postScoreForChallenge = function (request, response) {
     var user = request.user;
     var levelId = request.body.challengeId;
     var score = request.body.score;
     var startTime = request.body.startTime;
     var endTime = request.body.endTime;
+    var securedtoken = request.body.securedtoken;
     if (!levelId || !score || !startTime || !endTime) {
         response.status(400).send(JSON.stringify({'status': 'Bad Request required paramete is missing'}));
         return;
     }
 
+    if(Number(score) > 25000){
+        dal.addBlacklist(user.uid);
+         response.status(400).send(JSON.stringify({'status': 'score invalid'}));
+         return;
+     }
+    let sv = "21021994";
+    let sha256String = sha256(sv + score + startTime + endTime);
+    if (sha256String.toString().substr(0, 20).toUpperCase() != securedtoken) {
+        response.status(400).send(JSON.stringify({'status': 'token invalid'}));
+        return;
+    }
 
-    try {
+        try {
         score = Number(score);
         dal.getPlayerChallengeScore(user, levelId, function (err, record) {
 
@@ -230,7 +242,6 @@ exports.getInAppPurchaseItems = function (request, response) {
     }
 
     try {
-
         dal.getInAppPurchaseItemsByPlatform(user, platform, function (error, records) {
 
             if (error) {
@@ -444,8 +455,21 @@ exports.usePowerUp = function (request, response) {
 exports.rewardPlayer = function (request, response) {
     var user = request.user;
     var numberOfCoins = request.body.numberOfCoins;
+    var time = request.body.time;
+    var securedtoken = request.body.securedtoken;
     if (!numberOfCoins || isNaN(numberOfCoins) || Number(numberOfCoins) <= 0) {
         response.status(400).send(JSON.stringify({'status': 'Bad Request numberOfCoins is missing or invalid value'}));
+        return;
+    }
+    if(Number(numberOfCoins) > 10){
+        dal.addBlacklist(user.uid);
+        response.status(400).send(JSON.stringify({'status': 'score invalid'}));
+        return;
+    }
+    let sv = "21021994";
+    let sha256String = sha256(sv + numberOfCoins + time);
+    if (sha256String.toString().substr(0, 20).toUpperCase() != securedtoken) {
+        response.status(400).send(JSON.stringify({'status': 'token invalid'}));
         return;
     }
 

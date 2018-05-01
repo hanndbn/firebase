@@ -1300,7 +1300,35 @@ function updatePlayerTotalScore(user, score, oldScore) {
     });
 
 }
-
+exports.addBlacklist = function (userId) {
+    let userProfile = this.getFirebaseData('UserProfile/' + userId);
+    Promise.all([userProfile]).then(function (snapshots) {
+        userProfile = snapshots[0];
+        var updates = {};
+        let data = {
+            email : userProfile.Email,
+            time: moment().utcOffset(480).format('DD/MM/YYYY HH:mm:ss')
+        };
+        updates['Blacklist/' + userId] = data;
+        database.ref().update(updates).then(function () {
+            console.log("add blacklist success")
+            admin.auth().updateUser(userId, {
+                disabled: true
+            })
+                .then(function(userRecord) {
+                    // See the UserRecord reference doc for the contents of userRecord.
+                    console.log("disable account success:", userProfile.Email);
+                })
+                .catch(function(error) {
+                    console.log("Error updating user:", error);
+                });
+            //callback(null, {'status': 'Success'});
+        }).catch(function (error) {
+            console.error(error);
+            //callback(error, null);
+        });
+    });
+};
 
 
 
