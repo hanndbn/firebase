@@ -478,7 +478,7 @@ exports.getUserLeaderboardPosition = function (user, callback) {
 
 
 /**
- * update Player score for challenge.
+ * update Player score foưr challenge.
  * @param user
  * @param levelId
  * @param record

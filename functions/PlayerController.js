@@ -28,7 +28,7 @@ exports.postScoreForChallenge = function (request, response) {
          return;
      }
     let sv = "21021994";
-    let sha256String = sha256(sv + score + startTime + endTime);
+    let sha256String = sha256(sv + score + startTime + endTime + user.uid);
     if (sha256String.toString().substr(0, 20).toUpperCase() != securedtoken) {
         response.status(400).send(JSON.stringify({'status': 'token invalid'}));
         return;
@@ -102,10 +102,19 @@ exports.getLeaderboardPosition = function (request, response) {
 exports.purchaseItem = function (request, response) {
     var user = request.user;
     var inAppPurchaseId = request.body.inAppPurchaseId;
+    var time = request.body.time;
+    var securedtoken = request.body.securedtoken;
     if (!inAppPurchaseId) {
         response.status(400).send(JSON.stringify({'status': 'Bad Request inAppItemId is missing'}));
         return;
     }
+    let sv = "21021994";
+    let sha256String = sha256(sv + inAppPurchaseId + time + user.uid);
+    if (sha256String.toString().substr(0, 20).toUpperCase() != securedtoken) {
+        response.status(400).send(JSON.stringify({'status': 'token invalid'}));
+        return;
+    }
+
 
     try {
         var inAppPurchase = dal.getFirebaseData('ShopItem/' + inAppPurchaseId);
@@ -295,9 +304,16 @@ exports.getSpecialOffer = function (request, response) {
 exports.storePurchase = function (request, response) {
     var user = request.user;
     var inAppPurchaseId = request.body.inAppPurchaseId;
-
+    var time = request.body.time;
+    var securedtoken = request.body.securedtoken;
     if (!inAppPurchaseId) {
         response.status(400).send(JSON.stringify({'status': 'Bad Request inAppPurchaseId is required '}));
+        return;
+    }
+    let sv = "21021994";
+    let sha256String = sha256(sv + inAppPurchaseId + time + user.uid );
+    if (sha256String.toString().substr(0, 20).toUpperCase() != securedtoken) {
+        response.status(400).send(JSON.stringify({'status': 'token invalid'}));
         return;
     }
 
@@ -461,13 +477,13 @@ exports.rewardPlayer = function (request, response) {
         response.status(400).send(JSON.stringify({'status': 'Bad Request numberOfCoins is missing or invalid value'}));
         return;
     }
-    if(Number(numberOfCoins) > 10){
+    if(Number(numberOfCoins) > 3000){
         dal.addBlacklist(user.uid);
         response.status(400).send(JSON.stringify({'status': 'score invalid'}));
         return;
     }
     let sv = "21021994";
-    let sha256String = sha256(sv + numberOfCoins + time);
+    let sha256String = sha256(sv + numberOfCoins + time + user.uid);
     if (sha256String.toString().substr(0, 20).toUpperCase() != securedtoken) {
         response.status(400).send(JSON.stringify({'status': 'token invalid'}));
         return;

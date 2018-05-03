@@ -186,6 +186,8 @@ const authenticate = (req, res, next) => {
 
 app.use(function (req, res, next) {
     console.log(req.originalUrl);
+    console.log(req.user ? req.user.uid : "");
+    console.log(req.body);
     res.header("Content-Type", 'application/json');
     next();
 });
