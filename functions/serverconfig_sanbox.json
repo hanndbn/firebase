@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "footballfansandbox",
+  "private_key_id": "7725694821d04829d72ff943a86fdb74be4a32ec",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDClg1N21TOA4NN\n28w6REgAwKrK/nJ/0zOvZD+Rrj2BS/3LVWbmaGbmbxfNoDWabRyfg520d24cwXhp\nRuM2k8Vr/aR+ve654T/Bv+oGjCSZMSjqgfTMZmlGwGtySjUeXj7dGBXiQrXA66gI\nGQxQ7qYQB3CYpBkEJnBZxGQlCwCprSsRClM6lQiUNUnzjQ6zNGct5y/ZTjLUp22c\ncdSbZGjITpNZdJF3W4s0t/1lHnGcOwROhV17UnEQGeO+X/6+Yn5+mfXI/jDfUAi2\nj+Gg48qqE8Tg2C7RtnlVaFdNMfQ5Bf82Cqi6HIFG5K7vdfLsg6Pn1QBHnjVW3kIu\n1jY5YHSdAgMBAAECggEAEArVFyDjcuZNE49w3NyRxMbISJrl34jO90wQG0eD8xkL\n2BEW/h0dNKzJMoRIPw51Vb0BChFERFMlWqVD6L/nPsIR0dArXRWcucbDzsfhjDlb\nv/UNtLH8cR8+jH+L4GXROs2i9Ofej69DXRg25iToDyS/NppleeyIW+I/hmKhP/EY\nQY05cuBHGYeTI2XI95C9mgNOZ8dF6WjtHOLPj7T8cD6Xt530m4e+o1/oob7K7Tjj\nbEvSjCPCF6Q5jfDYBL0//IYn73grpYnb6xBmrGILtYY09kperWmqaGonfqGxPqC8\nt2daHHn/FjkQmDC9+VwlLzGa7pIzHmOp2TICPFoWOQKBgQD77Bzx6YYXo50fXSnb\n1zpXUYGNi+1LelvHWN5AlMUMkYQWev9icVjwwBSIvzoMP5rnoq5gRL8kvPWemRwR\nbPKRsxM8VsQMC6yWI2fd99UT9ximN9Smbwi/tMDokkeSBWI1W1Ap2hUd0iB3sdsm\nXhS14sxlfJCTYy93WunJB75Z6QKBgQDFvFsV29EZX05eEUivFffp/fReAuVj0fRR\niXxhUPK8HuTdWWC9gjuP9YvfLOn5iATQ5boaNzhkUt+7p92/0DDMuaxEcT8yOrnb\nR/nn6eMZge81TNzvYYNtST4C+D+bYvAnPAJLvnl6NkS/YkbkeoclnMJpoLFjzu8Q\nd8SDCPEglQKBgQDL6T84lJQEWFvawjcaiijf+spJf0RwvrbBMe6cCY9B8Bshcyd6\nUFL0dBVq5pYeyfEhoy1QIPUy0Hxjhn0QocXqJy/fvD9tnJly4W+2XF8tjOl3yWMn\n4GINgkpPNfAWgqMOmz3U0oAbJjU/jUfc03QiEVTupJgFpNgL3Ru0q77o2QKBgQCa\nisURx3SchO2F/bI2DVBu1CnqVA8evhhapb7NfGvKdcbf7Rv74U5WDE5ehgb0HMfO\n0M1r8d6kIlV0oBVi9f898pvd/jirNFTQOmfqRtVUuUXQ/ZrriOYkQwsxXP6xnlke\nAPu2YU8mIkYG4nOP3OfFkMgtsAcUf8Y+s6yl0RZMJQKBgGbzX5oR0vEVmrIbk9Wo\nhNmo+wpSFTqGOrBxxWrMwjFkrSyoHGSEbkae+dHikFLShW5rBC5YhP3ysm3vOHD0\nO7bpXLQcAqmu5yjRC/UNLKKv6rkU6n0tH9TqebVkdM2i54tFDSyb7A6ZgG9LqfOy\nhPh508SYepH5XDrjeYTk+u6B\n-----END PRIVATE KEY-----\n",
+  "client_email": "firebase-adminsdk-0qq9i@footballfansandbox.iam.gserviceaccount.com",
+  "client_id": "109653194089132444188",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://accounts.google.com/o/oauth2/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-0qq9i%40footballfansandbox.iam.gserviceaccount.com"
+}

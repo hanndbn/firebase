@@ -11,6 +11,14 @@ admin.initializeApp({
     "apiKey": "AIzaSyBTO0VLHb4zA8gEvDUgRsCYhECWF8OdddM",
     "authDomain": "footballfan-e341f.firebaseapp.com"
 });
+// const serviceAccount = require("./serverconfig_sanbox");
+// admin.initializeApp({
+//     credential: admin.credential.cert(serviceAccount),
+//     "databaseURL": "https://footballfansandbox.firebaseio.com",
+//     "storageBucket": "footballfansandbox.appspot.com",
+//     "apiKey": "AIzaSyDXCJ8Wohu4TOsLIUc9YwL4MefpEB35LAM",
+//     "authDomain": "footballfansandbox.firebaseapp.com"
+// });
 //const database = admin.database();
 const express = require('express');
 const fileUpload = require('express-fileupload');
@@ -28,49 +36,124 @@ const nodemailer = require('nodemailer');
 
 const schedule = require("node-schedule");
 var smtp = require('nodemailer-smtp-transport');
-const rule = new schedule.RecurrenceRule();
-rule.second = 0;
-rule.minute = 45;
-rule.hour = 11;
-rule.dayOfWeek = 5;
-//leaderBoardUpdate = null;
-//leaderBoardUpdate.cancel();
-// leaderBoardUpdate.reschedule(rule, {tz: "Asia/Singapore",rule: rule});
-exports.ReScheduleLeaderBoard = functions.https.onRequest((req, res) => {
-    // if(isPattern){
-    //let rule = req.body.rule;
-    //console.log('rule ' + rule);
-    let leaderBoardUpdate = null;
-    const rule = new schedule.RecurrenceRule();
-    rule.second = req.body.second ? req.body.second : 0;
-    rule.minute = req.body.minute ? req.body.minute : 0;
-    rule.hour = req.body.hour ? req.body.hour : 0;
-    rule.dayOfWeek = new schedule.Range(0, 6);
-    if (leaderBoardUpdate == null) {
-        console.log('init leaderboard update functions')
-        leaderBoardUpdate = schedule.scheduleJob({tz: "Asia/Singapore", rule: rule}, function () {
-            console.log('start process send Email');
-            leaderboardController.sendEmail(function (error,info) {
-                if (error) {
-                    console.log(error);
-                } else {
-                    console.log('Email sent1: ' + info.response);
-                }
-                console.log('finish process send Email');
-                //update leaderboard
-                leaderboardController.updateLeaderBoard();
-            })
-        });
-    } else {
-        console.log('reschedule leaderboard')
-        leaderboardController.reSchedule(req, res, leaderBoardUpdate);
-    }
+//const mySchedule = require('./schedule');
 
+// auto run reset score
+var checkSchedule  = schedule.scheduleJob({tz: "Asia/Singapore", rule: "*/60 * * * *"}, function () {
+    console.log(moment().utcOffset(480).format('DD/MM/YYYY HH:mm:ss') + ': check every 1 minute');
+    let serverInfo = dal.getFirebaseData('ServerInfo');
+    try {
+        Promise.all([serverInfo]).then(function (data) {
+            serverInfo = data[0];
+            let promotionDemotionSchedule = serverInfo.PromotionDemotionSchedule;
+            if(promotionDemotionSchedule == 'define'){
+                let promotionDemotionTimeStr = serverInfo.PromotionDemotionTime;
+                let promotionDemotionTime = moment(promotionDemotionTimeStr, 'DD/MM/YYYY HH:mm:ss');
+                let myRule = new schedule.RecurrenceRule();
+                myRule.second = promotionDemotionTime.second();
+                myRule.minute = promotionDemotionTime.minute();
+                myRule.hour = promotionDemotionTime.hour();
+                myRule.date = promotionDemotionTime.date();
+                myRule.month = promotionDemotionTime.month();
+                myRule.year = promotionDemotionTime.year();
+                schedule.rescheduleJob(promotionSchedule,{tz: "Asia/Singapore", rule: myRule});
+                console.log("check success");
+            }
+        });
+    }catch(err) {
+        console.error(err);
+    }
+});
+schedule.cancelJob(checkSchedule);
+
+var promotionSchedule  = schedule.scheduleJob({tz: "Asia/Singapore", rule: "*/60 * * * *"}, function () {
+    console.log(moment().utcOffset(480).format('DD/MM/YYYY HH:mm:ss'));
+    console.log('start process send Email');
+    //console.log('check every 10 second');
+    leaderboardController.sendEmail(function (error,info) {
+        if (error) {
+            console.log(error);
+        } else {
+            console.log('Email sent1: ' + info.response);
+        }
+        console.log('finish process send Email');
+        //update leaderboard
+        //leaderboardController.updateLeaderBoard();
+    })
+});
+schedule.cancelJob(promotionSchedule);
+exports.RunScheduleLeaderBoard = functions.https.onRequest((req, res) => {
+    let endate = moment("31/12/2018 23:59:59", 'DD/MM/YYYY HH:mm:ss');
+    schedule.rescheduleJob(checkSchedule,{tz: "Asia/Singapore", rule: "/*10 * * * * *", end: endate.toDate()});
     return res.json({result: "success"});
+    // let playerData = dal.getPlayerData('PlayerData');
+    // Promise.all([playerData]).then(function (snapshots) {
+    //     let playerDataVal =  snapshots[0].val();
+    //     //set player data
+    //     Object.keys(playerDataVal).map((playerKey)=>{
+    //         playerDataVal[playerKey].ProgressStats.TotalScore = 0;
+    //         playerDataVal[playerKey].ProgressStats.TriviaScore = 0;
+    //     });
+    //
+    //     playerData.ref.set(playerDataVal);
+    // }
 });
 
+
+
+
+// const rule = new schedule.RecurrenceRule();
+// rule.second = 0;
+// rule.minute = 45;
+// rule.hour = 11;
+// rule.dayOfWeek = 5;
+// //leaderBoardUpdate = null;
+// //leaderBoardUpdate.cancel();
+// // leaderBoardUpdate.reschedule(rule, {tz: "Asia/Singapore",rule: rule});
+// exports.ReScheduleLeaderBoard = functions.https.onRequest((req, res) => {
+//     // if(isPattern){
+//     //let rule = req.body.rule;
+//     //console.log('rule ' + rule);
+//     let leaderBoardUpdate = null;
+//     const rule = new schedule.RecurrenceRule();
+//     rule.second = req.body.second ? req.body.second : 0;
+//     rule.minute = req.body.minute ? req.body.minute : 0;
+//     rule.hour = req.body.hour ? req.body.hour : 0;
+//     rule.dayOfWeek = new schedule.Range(0, 6);
+//     if (leaderBoardUpdate == null) {
+//         console.log('init leaderboard update functions')
+//         leaderBoardUpdate = schedule.scheduleJob({tz: "Asia/Singapore", rule: rule}, function () {
+//             console.log('start process send Email');
+//             leaderboardController.sendEmail(function (error,info) {
+//                 if (error) {
+//                     console.log(error);
+//                 } else {
+//                     console.log('Email sent1: ' + info.response);
+//                 }
+//                 console.log('finish process send Email');
+//                 //update leaderboard
+//                 leaderboardController.updateLeaderBoard();
+//             })
+//         });
+//     } else {
+//         console.log('reschedule leaderboard')
+//         leaderboardController.reSchedule(req, res, leaderBoardUpdate);
+//     }
+//
+//     return res.json({result: "success"});
+// });
+
 exports.LeaderBoardUpdate = functions.https.onRequest((req, res) => {
-    leaderboardController.updateLeaderBoard();
+    leaderboardController.sendEmail(function (error,info) {
+        if (error) {
+            console.log(error);
+        } else {
+            console.log('Email sent1: ' + info.response);
+        }
+        console.log('finish process send Email');
+        //update leaderboard
+        leaderboardController.updateLeaderBoard();
+    })
     return res.json({result: "success"});
 });
 
@@ -170,24 +253,27 @@ const authenticate = (req, res, next) => {
         // res.status(403).send(JSON.stringify({'status' : 'Unauthorized'}));
         // return;
         req.user = {uid: 'S4iBgV67kebptSKJzEZjvUdKs4e2', name: 'bob'};
+        console.log(req.originalUrl + " " + req.user.uid + " " +  JSON.stringify(req.body));
         next();
     } else {
         idToken = req.headers.authorization.split('Bearer ')[1];
         admin.auth().verifyIdToken(idToken).then(decodedIdToken => {
             req.user = decodedIdToken;
-            console.log(req.user.uid);
+            //console.log(req.user.uid);
+            console.log(req.originalUrl + " " +  req.user.uid  + " " +  JSON.stringify(req.body));
             next();
         }).catch(error => {
             console.log(error);
             res.status(403).send(JSON.stringify({'status': 'Unauthorized'}));
         });
     }
+    //console.log(req.originalUrl + " " +  req.user ? req.user.uid : "" + " " +  JSON.stringify(req.body));
 };
 
 app.use(function (req, res, next) {
-    console.log(req.originalUrl);
-    console.log(req.user ? req.user.uid : "");
-    console.log(req.body);
+    //console.log(req.originalUrl);
+    //console.log(req.originalUrl + " " + req.user ? req.user.uid + " " +  req.body : req.body);
+    // console.log(req.body);
     res.header("Content-Type", 'application/json');
     next();
 });
@@ -641,4 +727,4 @@ exports.api = functions.https.onRequest(app);
 
 exports.OEApi = functions.https.onRequest(app);
 
-exports.updateChallenges  = functions.https.onRequest(challengeController.updateChallenges);
+//exports.updateChallenges  = functions.https.onRequest(challengeController.updateChallenges);

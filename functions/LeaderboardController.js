@@ -32,6 +32,9 @@ exports.getTopPlayers = function (request, response) {
             Object.keys(leaderboard).map((key, idx) => {
                 if(key != divisionType) {
                     let leaderboarObj = {};
+                    if(!userProfile[key]){
+                        return;
+                    }
                     leaderboarObj.TotalScore = leaderboard[key].TotalScore ? leaderboard[key].TotalScore : 0;
                     leaderboarObj.UserName = userProfile[key].Email;
                     if (userProfile[key] && userProfile[key].UserName) {
@@ -136,15 +139,20 @@ exports.updateLeaderBoard = function () {
         let goldRank = dal.getLeaderBoardWithType("gold");
 
         let playerData = dal.getPlayerData('PlayerData');
+        let playerScore = dal.getPlayerScore('PlayerScore');
         //let playerScore = dal.getFirebaseData('PlayerScore');
 
 
-        Promise.all([backupLeaderBoardData, bronzeRank, silverRank, goldRank, playerData]).then(function (snapshots) {
+        Promise.all([backupLeaderBoardData, bronzeRank, silverRank, goldRank, playerData, playerScore]).then(function (snapshots) {
             bronzeRank = snapshots[1];
             silverRank = snapshots[2];
             goldRank = snapshots[3];
             playerData = snapshots[4];
             let playerDataVal = snapshots[4].val();
+            playerScore = snapshots[5];
+            let playerScoreVal = snapshots[5].val();
+
+            let resetItem = ["PU5", "PU6", "PU7", "PU8", "PU9", "PU10", "PU11", "PU12", "PU13", "PU14"]
 
             // bronze data
             let newBronzeRank = {};
@@ -155,10 +163,21 @@ exports.updateLeaderBoard = function () {
                 bronzeArray.map((item) => {
                     let key = item.key;
                     delete item.key;
-                    item.TotalScore = 0;
+                    //item.TotalScore = 0;
                     newBronzeRank[key] = item;
                     if (playerDataVal[key]) {
                         playerDataVal[key].ProgressStats.CurrentLeaderboard = "bronze";
+                        let newPowerUps = [];
+                        let powerUps = playerDataVal[key].PowerUps;
+                        if(powerUps){
+                            powerUps.forEach(function (powerUp) {
+                                if(resetItem.indexOf(powerUp.id) == -1){
+                                    newPowerUps.push(powerUp);
+                                }
+                            });
+                        }
+                        // console.log(newPowerUps)
+                        playerDataVal[key].PowerUps = newPowerUps;
                     }
                 });
             } else {
@@ -174,10 +193,20 @@ exports.updateLeaderBoard = function () {
                 silverArray.map((item) => {
                     let key = item.key;
                     delete item.key;
-                    item.TotalScore = 0;
+                    //item.TotalScore = 0;
                     newSilverRank[key] = item;
                     if (playerDataVal[key]) {
                         playerDataVal[key].ProgressStats.CurrentLeaderboard = "silver";
+                        let newPowerUps = [];
+                        let powerUps = playerDataVal[key].PowerUps;
+                        if(powerUps){
+                            powerUps.forEach(function (powerUp) {
+                                if(resetItem.indexOf(powerUp.id) == -1){
+                                    newPowerUps.push(powerUp);
+                                }
+                            });
+                        }
+                        playerDataVal[key].PowerUps = newPowerUps;
                     }
                 });
             } else {
@@ -193,10 +222,20 @@ exports.updateLeaderBoard = function () {
                 goldArray.map((item) => {
                     let key = item.key;
                     delete item.key;
-                    item.TotalScore = 0;
+                    //item.TotalScore = 0;
                     newGoldRank[key] = item;
                     if (playerDataVal[key]) {
                         playerDataVal[key].ProgressStats.CurrentLeaderboard = "gold";
+                        let newPowerUps = [];
+                        let powerUps = playerDataVal[key].PowerUps;
+                        if(powerUps){
+                            powerUps.forEach(function (powerUp) {
+                                if(resetItem.indexOf(powerUp.id) == -1){
+                                    newPowerUps.push(powerUp);
+                                }
+                            });
+                        }
+                        playerDataVal[key].PowerUps = newPowerUps;
                     }
                 });
             } else {
@@ -214,12 +253,14 @@ exports.updateLeaderBoard = function () {
             });
 
             //set player data
-            Object.keys(playerDataVal).map((playerKey)=>{
-                playerDataVal[playerKey].ProgressStats.TotalScore = 0;
-                playerDataVal[playerKey].ProgressStats.TriviaScore = 0;
+            Object.keys(playerScoreVal).map((playerKey)=>{
+                Object.keys(playerScoreVal[playerKey]).map((level)=>{
+                    playerScoreVal[playerKey][level].BestScore = 0
+                });
             });
 
             playerData.ref.set(playerDataVal);
+            playerScore.ref.set(playerScoreVal);
 
             let infData = {
                 status: "success",
@@ -233,12 +274,12 @@ exports.updateLeaderBoard = function () {
                     bronze: bronzeArray.length,
                     silver: silverArray.length,
                     gold: goldArray.length,
-                },
-                dataCalculateBefore: {
-                    bronze: bronzeRank,
-                    silver: silverRank,
-                    gold: goldRank,
                 }
+                // dataCalculateBefore: {
+                //     bronze: bronzeRank,
+                //     silver: silverRank,
+                //     gold: goldRank,
+                // }
             };
             console.log(JSON.stringify(infData));
             console.log("end update leaderBoard");
@@ -271,9 +312,12 @@ exports.sendEmail = function (callback) {
             Object.keys(leaderboard).map((divisionType, idx) => {
                 let dataDivision = [];
                 Object.keys(leaderboard[divisionType]).map((key, idx) => {
+                    if(!userProfile[key]){
+                        return;
+                    }
                     let leaderboarObj = {};
                     leaderboarObj.TotalScore = leaderboard[divisionType][key].TotalScore ? leaderboard[divisionType][key].TotalScore : 0;
-                    leaderboarObj.UserName = "Player" + idx;
+                    leaderboarObj.UserName = userProfile[key].Email;
                     leaderboarObj.Email = "";
                     leaderboarObj.DOB = "";
                     leaderboarObj.Telephone = "";
@@ -352,7 +396,7 @@ exports.sendEmail = function (callback) {
                 });
 
                 displaydata += `
-                    <h3>${division == 'bronze' ? 'Division-2' : division == 'silver' ? 'Division-1' : 'Premier League'}</h3>
+                    <h3>${division == 'bronze' ? 'Division 3' : division == 'silver' ? 'Division 2' : 'Division 1'}</h3>
                     <table class="table" width="100%" border="1" cellpadding="0" cellspacing="0" bgcolor="#FFFFFF">
                         <thead>
                             <tr style="border: 1px solid black">

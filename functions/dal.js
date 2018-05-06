@@ -22,6 +22,11 @@ exports.getPlayerData = function (endpoint) {
         return snapshot;
     });
 };
+exports.getPlayerScore = function (endpoint) {
+    return database.ref(endpoint).once("value").then(function (snapshot) {
+        return snapshot;
+    });
+};
 
 exports.getLeaderBoardData = function (endpoint) {
     return database.ref(endpoint).orderByChild('TotalScore').limitToLast(50).once("value").then(function (snapshot) {
@@ -1279,20 +1284,33 @@ function updatePlayerTotalScore(user, score, oldScore) {
 
             record.ProgressStats.TotalScore += parseInt(score, 10) - oldScore;
             dbRef.set(record);
-            var childRef = database.ref('Leaderboard/' + playerDivision).child(user.uid);
-            childRef.once("value", function (snap) {
-                var data = snap.val();
-                if (!data) {
-                    data = {};
-                    data.PlayerLocation = "";
-                    data.PlayerName = user.name;
-                    data.UserRank = 0;
-                }
-                data.LastPlayedTime = new Date().getTime();
-                data.TotalScore = record.ProgressStats.TotalScore;
-                childRef.update(data);
-                console.log("Leaderboard has been saved succesfully");
-            });
+
+
+            let leaderBoardData = {};
+            leaderBoardData.PlayerLocation = "";
+            leaderBoardData.PlayerName = user.name;
+            leaderBoardData.UserRank = 0;
+            leaderBoardData.LastPlayedTime = new Date().getTime();
+            leaderBoardData.TotalScore = record.ProgressStats.TotalScore;
+            var leaderBoardUpdate = {};
+            leaderBoardUpdate['Leaderboard/' + playerDivision + "/" + user.uid] = leaderBoardData;
+            database.ref().update(leaderBoardUpdate);
+            console.log("Leaderboard has been saved succesfully");
+
+            // var childRef = database.ref('Leaderboard/' + playerDivision).child(user.uid);
+            // childRef.once("value", function (snap) {
+            //     var data = snap.val();
+            //     if (!data) {
+            //         data = {};
+            //         data.PlayerLocation = "";
+            //         data.PlayerName = user.name;
+            //         data.UserRank = 0;
+            //     }
+            //     data.LastPlayedTime = new Date().getTime();
+            //     data.TotalScore = record.ProgressStats.TotalScore;
+            //     childRef.update(data);
+            //     console.log("Leaderboard has been saved succesfully");
+            // });
             console.log("Player TotalScore has been saved succesfully");
         }
     }, function (error) {
