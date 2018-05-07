@@ -35,12 +35,16 @@ exports.getChallengesRemainingTime = function(request, response) {
                 let isAfterStartTournament = moment().utcOffset(480).isAfter(startDate);
 
                 let endDateStr = serverInfo.dateEndTournament;
-                let endDate = moment(endDateStr, 'DD/MM/YYYY HH:mm:ss').utcOffset(480);
+                let endDate = moment(endDateStr, 'DD/MM/YYYY HH:mm:ss Z').utcOffset(480);
+                //console.log(endDate)
                 let isBeforeEndTournament = moment().utcOffset(480).isBefore(endDate);
                 if(isAfterStartTournament && isBeforeEndTournament){
+                    //console.log(moment().utcOffset(480));
                     let diffTime = endDate.diff(moment().utcOffset(480));
+                    let days = endDate.diff(moment().utcOffset(480), 'days');
+                    //console.log(days)
                     let duration = moment.duration(diffTime);
-                    return response.status(200).send(JSON.stringify({ChallengesRemainingTime : `${duration.days() < 10 ? '0'+ duration.days(): duration.days()} ${duration.hours() < 10 ? '0'+ duration.hours(): duration.hours()}:${duration.minutes() < 10 ? '0'+ duration.minutes(): duration.minutes()}:${duration.seconds() < 10 ? '0'+ duration.seconds(): duration.seconds()}`}));
+                    return response.status(200).send(JSON.stringify({ChallengesRemainingTime : `${days < 10 ? '0'+ days: days} ${duration.hours() < 10 ? '0'+ duration.hours(): duration.hours()}:${duration.minutes() < 10 ? '0'+ duration.minutes(): duration.minutes()}:${duration.seconds() < 10 ? '0'+ duration.seconds(): duration.seconds()}`}));
                 }else{
                     return response.status(200).send(JSON.stringify({ChallengesRemainingTime : '0 00:00:00'}));
                 }

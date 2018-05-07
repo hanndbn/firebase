@@ -1288,14 +1288,20 @@ function updatePlayerTotalScore(user, score, oldScore) {
 
             let leaderBoardData = {};
             leaderBoardData.PlayerLocation = "";
-            leaderBoardData.PlayerName = user.name;
-            leaderBoardData.UserRank = 0;
-            leaderBoardData.LastPlayedTime = new Date().getTime();
-            leaderBoardData.TotalScore = record.ProgressStats.TotalScore;
-            var leaderBoardUpdate = {};
-            leaderBoardUpdate['Leaderboard/' + playerDivision + "/" + user.uid] = leaderBoardData;
-            database.ref().update(leaderBoardUpdate);
-            console.log("Leaderboard has been saved succesfully");
+            database.ref("UserProfile/"  + user.uid).once("value").then(function (snapshot) {
+                let userProfile = snapshot.val();
+                let userName = userProfile.UserName ? userProfile.UserName : userProfile.Email;
+
+                leaderBoardData.PlayerName = userName;
+                console.log(user.name);
+                leaderBoardData.UserRank = 0;
+                leaderBoardData.LastPlayedTime = new Date().getTime();
+                leaderBoardData.TotalScore = record.ProgressStats.TotalScore;
+                var leaderBoardUpdate = {};
+                leaderBoardUpdate['Leaderboard/' + playerDivision + "/" + user.uid] = leaderBoardData;
+                database.ref().update(leaderBoardUpdate);
+                console.log("Leaderboard has been saved succesfully");
+            });
 
             // var childRef = database.ref('Leaderboard/' + playerDivision).child(user.uid);
             // childRef.once("value", function (snap) {
