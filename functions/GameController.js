@@ -12,6 +12,10 @@ const xlsxtojson = require("xlsx-to-json-depfix");
 const path = require('path');
 const os = require('os');
 const fs = require('fs');
+const readline = require('readline');
+const stream = require('stream');
+const bucket = admin.storage().bucket();
+const sha256 = require('js-sha256');
 
 exports.findGameTypeById = function(request, response) {
     var key = request.params.id;
@@ -334,6 +338,114 @@ exports.getServerInfo = function(request, response) {
         response.status(500).send(JSON.stringify({'status' : 'Internal Server error'}));
     }
 };
+
+exports.getTriviaQuestion = function(request, response) {
+    try {
+        // get file from bucget
+        let file = bucket.file('TriviaQuestion.txt');
+        var instream = file.createReadStream();
+        var outstream = new stream;
+        outstream.readable = true;
+        outstream.writable = true;
+
+        var rl = readline.createInterface({
+            input: instream,
+            output: outstream,
+            terminal: false
+        });
+        let result = {};
+        rl.on('line', function(line) {
+            //console.log(line);
+            //let questions = res.toString('ascii').split("\r\n");
+            //console.log(res)
+                let questionObj = {
+                    Q: "",
+                    A: [],
+                };
+                let id = line.split("|")[0];
+                if(!result[id]){
+                    result[id] = questionObj;
+                }
+                let type = line.split("|")[1];
+                if(type == 'Q'){
+                    result[id]['Q'] = line.split("|")[2]
+                } else if(type == 'A'){
+                    let answerId = line.split("|")[2];
+                    let sv = "21021994";
+                    let correctValue = line.split("|")[4];
+                    let sha256String = sha256(sv + id + answerId + correctValue);
+                    let correct = sha256String.toString().substr(0, 20).toUpperCase();
+                    let answer = {
+                        id: answerId,
+                        content: line.split("|")[3],
+                        correct: correct
+                    };
+                    result[id]['A'].push(answer)
+                }
+            }).on('close', function() {
+            return response.status(200).send(result);
+        });;
+
+
+
+
+
+        // file.createReadStream()
+        //     .on('data', function (res) {
+        //         let result = {};
+        //         let questions = res.toString('ascii').split("\r\n");
+        //         console.log(res)
+        //         questions.map((question)=>{
+        //             let questionObj = {
+        //                 Q: "",
+        //                 A: [],
+        //             };
+        //             let id = question.split("|")[0];
+        //             if(!result[id]){
+        //                 result[id] = questionObj;
+        //             }
+        //             let type = question.split("|")[1];
+        //             if(type == 'Q'){
+        //                 result[id]['Q'] = question.split("|")[2]
+        //             } else if(type == 'A'){
+        //                 let answer = {
+        //                     content: question.split("|")[2],
+        //                     correct: question.split("|")[3]
+        //                 };
+        //                 result[id]['A'].push(answer)
+        //             }
+        //         });
+        //         // if (cardItem.length > 0) {
+        //         //     dal.getUserProfileData(req.user, function (error, data) {
+        //         //         if (error) {
+        //         //             console.log(error)
+        //         //         } else {
+        //         //             if (!data) {
+        //         //                 data = {};
+        //         //             }
+        //         //             data.MaybankLoggedIn = true;
+        //         //             dal.updateUserProfileData(req.user, data, function (error, result) {
+        //         //                 if (error) {
+        //         //                     console.log("set data error when login MY")
+        //         //                 } else {
+        //         //                     console.log("set MaybankLoggedIn success when login MY")
+        //         //                 }
+        //         //             });
+        //         //         }
+        //         //     });
+        //         //     result.resultCode = '00';
+        //         //     result.result = 'success';
+        //         // }
+        //         this.end();
+        //         //console.log(JSON.stringify(result))
+        //         return response.status(200).send(result);
+        //     });
+    } catch (err) {
+        console.error(err);
+        return response.status(500).send(JSON.stringify({'status': 'Internal Server error'}));
+    }
+};
+
 
 
 

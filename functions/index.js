@@ -3,22 +3,22 @@
  */
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
-const serviceAccount = require("./serverconfig");
-admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-    "databaseURL": "https://footballfan-e341f.firebaseio.com",
-    "storageBucket": "footballfan-e341f.appspot.com",
-    "apiKey": "AIzaSyBTO0VLHb4zA8gEvDUgRsCYhECWF8OdddM",
-    "authDomain": "footballfan-e341f.firebaseapp.com"
-});
-// const serviceAccount = require("./serverconfig_sanbox");
+//const serviceAccount = require("./serverconfig");
 // admin.initializeApp({
 //     credential: admin.credential.cert(serviceAccount),
-//     "databaseURL": "https://footballfansandbox.firebaseio.com",
-//     "storageBucket": "footballfansandbox.appspot.com",
-//     "apiKey": "AIzaSyDXCJ8Wohu4TOsLIUc9YwL4MefpEB35LAM",
-//     "authDomain": "footballfansandbox.firebaseapp.com"
+//     "databaseURL": "https://footballfan-e341f.firebaseio.com",
+//     "storageBucket": "footballfan-e341f.appspot.com",
+//     "apiKey": "AIzaSyBTO0VLHb4zA8gEvDUgRsCYhECWF8OdddM",
+//     "authDomain": "footballfan-e341f.firebaseapp.com"
 // });
+const serviceAccount = require("./serverconfig_sanbox");
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    "databaseURL": "https://footballfansandbox.firebaseio.com",
+    "storageBucket": "footballfansandbox.appspot.com",
+    "apiKey": "AIzaSyDXCJ8Wohu4TOsLIUc9YwL4MefpEB35LAM",
+    "authDomain": "footballfansandbox.firebaseapp.com"
+});
 //const database = admin.database();
 const express = require('express');
 const fileUpload = require('express-fileupload');
@@ -341,6 +341,8 @@ app.get('/' + version + '/GetChallengesRemainingTime', challengeController.getCh
 app.post('/' + version + '/GetVoucherReward', playerController.getVoucherReward);
 
 app.post('/' + version + '/LoginMY', playerController.checkCardBin);
+
+app.get('/' + version + '/GetTriviaQuestion', gameController.getTriviaQuestion);
 
 // app.post('/' + version + '/ReSchedule', (request, response) => {
 //     leaderboardController.reSchedule(request, response, leaderBoardUpdate);
