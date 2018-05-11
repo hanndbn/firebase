@@ -16,6 +16,7 @@ const readline = require('readline');
 const stream = require('stream');
 const bucket = admin.storage().bucket();
 const sha256 = require('js-sha256');
+const _ = require('underscore');
 
 exports.findGameTypeById = function(request, response) {
     var key = request.params.id;
@@ -341,6 +342,17 @@ exports.getServerInfo = function(request, response) {
 
 exports.getTriviaQuestion = function(request, response) {
     try {
+        let numberQuestion = _.isFinite(request.query.numberQuestion) ? parseInt(request.query.numberQuestion) : 60;
+        // create list request
+        let listQuestionId = [];
+        for(let i =1; i <=numberQuestion; i++ ){
+            let questionId = _.random(1,200);
+            while(_.contains(listQuestionId, questionId)){
+                questionId = _.random(1,200);
+            }
+            listQuestionId.push(questionId);
+        }
+
         // get file from bucget
         let file = bucket.file('TriviaQuestion.txt');
         var instream = file.createReadStream();
@@ -355,32 +367,31 @@ exports.getTriviaQuestion = function(request, response) {
         });
         let result = {};
         rl.on('line', function(line) {
-            //console.log(line);
-            //let questions = res.toString('ascii').split("\r\n");
-            //console.log(res)
                 let questionObj = {
                     Q: "",
                     A: [],
                 };
                 let id = line.split("|")[0];
-                if(!result[id]){
-                    result[id] = questionObj;
-                }
-                let type = line.split("|")[1];
-                if(type == 'Q'){
-                    result[id]['Q'] = line.split("|")[2]
-                } else if(type == 'A'){
-                    let answerId = line.split("|")[2];
-                    let sv = "21021994";
-                    let correctValue = line.split("|")[4];
-                    let sha256String = sha256(sv + id + answerId + correctValue);
-                    let correct = sha256String.toString().substr(0, 20).toUpperCase();
-                    let answer = {
-                        id: answerId,
-                        content: line.split("|")[3],
-                        correct: correct
-                    };
-                    result[id]['A'].push(answer)
+                if(_.contains(listQuestionId, parseInt(id))){
+                    if(!result[id]){
+                        result[id] = questionObj;
+                    }
+                    let type = line.split("|")[1];
+                    if(type == 'Q'){
+                        result[id]['Q'] = line.split("|")[2]
+                    } else if(type == 'A'){
+                        let answerId = line.split("|")[2];
+                        let sv = "21021994";
+                        let correctValue = line.split("|")[4];
+                        let sha256String = sha256(sv + id + answerId + correctValue);
+                        let correct = sha256String.toString().substr(0, 20).toUpperCase();
+                        let answer = {
+                            id: answerId,
+                            content: line.split("|")[3],
+                            correct: correct
+                        };
+                        result[id]['A'].push(answer)
+                    }
                 }
             }).on('close', function() {
             return response.status(200).send(result);
