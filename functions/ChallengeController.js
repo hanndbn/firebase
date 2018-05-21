@@ -100,7 +100,8 @@ exports.getWeeklyChallenges = function(request, response) {
             if(levels) {
                 var levels = data[0];
                 let dateStartChallengeStr = data[1].dateStartChallenge;
-                let dateStartChallenge = moment(dateStartChallengeStr, 'DD/MM/YYYY HH:mm:ss');
+                let dateStartChallenge = moment(dateStartChallengeStr, 'DD/MM/YYYY HH:mm:ss Z').utcOffset(480);
+                console.log(dateStartChallenge)
                 //let dateStartChallengeTmp = moment('02/04/2018 00:00:00', 'DD/MM/YYYY HH:mm:ss');
 
                 let startOfWeek = dateStartChallenge.startOf('isoWeek');

@@ -368,7 +368,7 @@ exports.getTriviaQuestion = function(request, response) {
         let result = {};
         rl.on('line', function(line) {
                 let questionObj = {
-                    Q: "",
+                    Q: {},
                     A: [],
                 };
                 let id = line.split("|")[0];
@@ -378,7 +378,11 @@ exports.getTriviaQuestion = function(request, response) {
                     }
                     let type = line.split("|")[1];
                     if(type == 'Q'){
-                        result[id]['Q'] = line.split("|")[2]
+                        result[id]['Q'] =
+                            {
+                                "id": id,
+                                "content": line.split("|")[2]
+                            }
                     } else if(type == 'A'){
                         let answerId = line.split("|")[2];
                         let sv = "21021994";
@@ -394,7 +398,11 @@ exports.getTriviaQuestion = function(request, response) {
                     }
                 }
             }).on('close', function() {
-            return response.status(200).send(result);
+                let finalResult = [];
+                Object.keys(result).map((question)=>{
+                    finalResult.push(result[question])
+                });
+                return response.status(200).send(finalResult);
         });;
 
 
