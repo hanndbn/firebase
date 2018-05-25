@@ -3,22 +3,22 @@
  */
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
-// const serviceAccount = require("./serverconfig");
-// admin.initializeApp({
-//     credential: admin.credential.cert(serviceAccount),
-//     "databaseURL": "https://footballfan-e341f.firebaseio.com",
-//     "storageBucket": "footballfan-e341f.appspot.com",
-//     "apiKey": "AIzaSyBTO0VLHb4zA8gEvDUgRsCYhECWF8OdddM",
-//     "authDomain": "footballfan-e341f.firebaseapp.com"
-// });
-const serviceAccount = require("./serverconfig_sanbox");
+const serviceAccount = require("./serverconfig");
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
-    "databaseURL": "https://footballfansandbox.firebaseio.com",
-    "storageBucket": "footballfansandbox.appspot.com",
-    "apiKey": "AIzaSyDXCJ8Wohu4TOsLIUc9YwL4MefpEB35LAM",
-    "authDomain": "footballfansandbox.firebaseapp.com"
+    "databaseURL": "https://footballfan-e341f.firebaseio.com",
+    "storageBucket": "footballfan-e341f.appspot.com",
+    "apiKey": "AIzaSyBTO0VLHb4zA8gEvDUgRsCYhECWF8OdddM",
+    "authDomain": "footballfan-e341f.firebaseapp.com"
 });
+// const serviceAccount = require("./serverconfig_sanbox");
+// admin.initializeApp({
+//     credential: admin.credential.cert(serviceAccount),
+//     "databaseURL": "https://footballfansandbox.firebaseio.com",
+//     "storageBucket": "footballfansandbox.appspot.com",
+//     "apiKey": "AIzaSyDXCJ8Wohu4TOsLIUc9YwL4MefpEB35LAM",
+//     "authDomain": "footballfansandbox.firebaseapp.com"
+// });
 //const database = admin.database();
 const express = require('express');
 const fileUpload = require('express-fileupload');
@@ -97,6 +97,26 @@ exports.RunScheduleLeaderBoard = functions.https.onRequest((req, res) => {
     //
     //     playerData.ref.set(playerDataVal);
     // }
+});
+
+exports.updatePassword = functions.https.onRequest((req, res) => {
+    let password = req.body.password;
+    let uid = req.body.uid;
+    let securedKey = req.body.securedKey;
+    if(securedKey == "21021994"){
+        admin.auth().updateUser(uid, {
+            password: password,
+        })
+            .then(function(userRecord) {
+                console.log("Successfully updated user", userRecord.toJSON());
+            })
+            .catch(function(error) {
+                console.log("Error updating user:", error);
+            });
+        return res.json({result: "success"});
+    }else{
+        return res.json({result: "false"});
+    }
 });
 
 

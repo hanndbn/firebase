@@ -1324,14 +1324,15 @@ function updatePlayerTotalScore(user, score, oldScore) {
     });
 
 }
-exports.addBlacklist = function (userId) {
+exports.addBlacklist = function (userId, body) {
     let userProfile = this.getFirebaseData('UserProfile/' + userId);
     Promise.all([userProfile]).then(function (snapshots) {
         userProfile = snapshots[0];
         var updates = {};
         let data = {
             email : userProfile.Email,
-            time: moment().utcOffset(480).format('DD/MM/YYYY HH:mm:ss')
+            time: moment().utcOffset(480).format('DD/MM/YYYY HH:mm:ss'),
+            body: body
         };
         updates['Blacklist/' + userId] = data;
         database.ref().update(updates).then(function () {

@@ -22,8 +22,8 @@ exports.postScoreForChallenge = function (request, response) {
         return;
     }
 
-    if(Number(score) > 25000){
-        dal.addBlacklist(user.uid);
+    if(Number(score) > 35000){
+        dal.addBlacklist(user.uid, request.body);
          response.status(400).send(JSON.stringify({'status': 'score invalid'}));
          return;
      }
@@ -477,8 +477,8 @@ exports.rewardPlayer = function (request, response) {
         response.status(400).send(JSON.stringify({'status': 'Bad Request numberOfCoins is missing or invalid value'}));
         return;
     }
-    if(Number(numberOfCoins) > 3000){
-        dal.addBlacklist(user.uid);
+    if(Number(numberOfCoins) > 3500){
+        dal.addBlacklist(user.uid, request.body);
         response.status(400).send(JSON.stringify({'status': 'score invalid'}));
         return;
     }
