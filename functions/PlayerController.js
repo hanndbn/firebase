@@ -473,7 +473,7 @@ exports.rewardPlayer = function (request, response) {
     var numberOfCoins = request.body.numberOfCoins;
     var time = request.body.time;
     var securedtoken = request.body.securedtoken;
-    if (!numberOfCoins || isNaN(numberOfCoins) || Number(numberOfCoins) <= 0) {
+    if (!numberOfCoins || isNaN(numberOfCoins) || Number(numberOfCoins) < 0) {
         response.status(400).send(JSON.stringify({'status': 'Bad Request numberOfCoins is missing or invalid value'}));
         return;
     }
