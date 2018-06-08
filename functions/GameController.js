@@ -346,11 +346,11 @@ exports.getTriviaQuestion = function(request, response) {
         // create list request
         let listQuestionId = [];
         for(let i =1; i <=numberQuestion; i++ ){
-            let questionId = _.random(1,200);
-            while(_.contains(listQuestionId, questionId)){
-                questionId = _.random(1,200);
-            }
-            listQuestionId.push(questionId);
+            // let questionId = _.random(1,200);
+            // while(_.contains(listQuestionId, questionId)){
+            //     questionId = _.random(1,200);
+            // }
+            listQuestionId.push(i);
         }
 
         // get file from bucget
