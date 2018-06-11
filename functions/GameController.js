@@ -399,9 +399,13 @@ exports.getTriviaQuestion = function(request, response) {
                 }
             }).on('close', function() {
                 let finalResult = [];
-                Object.keys(result).map((question)=>{
-                    finalResult.push(result[question])
+                listQuestionId.map((id)=>{
+                    finalResult.push(result[id])
                 });
+                console.log(finalResult)
+                // Object.keys(result).map((question)=>{
+                //     finalResult.push(result[question])
+                // });
                 return response.status(200).send(finalResult);
         });;
 
