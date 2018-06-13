@@ -33,6 +33,9 @@ const leaderboardController = require('./LeaderboardController');
 const sha256 = require('js-sha256');
 const version = '1.0';
 const nodemailer = require('nodemailer');
+const where = require('node-where');
+const requestIp = require('request-ip');
+const requestCountry = require('request-country');
 
 const schedule = require("node-schedule");
 var smtp = require('nodemailer-smtp-transport');
@@ -173,7 +176,7 @@ exports.LeaderBoardUpdate = functions.https.onRequest((req, res) => {
         console.log('finish process send Email');
         //update leaderboard
         leaderboardController.updateLeaderBoard();
-    })
+    });
     return res.json({result: "success"});
 });
 
@@ -268,6 +271,33 @@ const authenticate = (req, res, next) => {
     // console.log(moment.utc(duration * 1000).format('DD HH:mm:ss'));
 
     //console.log(moment("20171003 010000", "YYYYMMDD HHmmss").utcOffset(480).fromNow());
+
+    let countryCode = req.requestCountryCode;
+    console.log(req.clientIp + " " + req.requestCountryCode);
+    res.setHeader('country', countryCode);
+    if(countryCode == 'VN' || countryCode == 'MY' || countryCode == 'SG'){
+        res.setHeader('accessdenied', false);
+    }else{
+        res.setHeader('accessdenied', true);
+        where.is(req.clientIp, function(err, result) {
+            if (result) {
+                countryCode = result.get('countryCode');
+                console.log("recheck:" + countryCode);
+                res.setHeader('country', countryCode);
+                if(countryCode == 'VN' || countryCode == 'MY' || countryCode == 'SG'){
+                    res.setHeader('accessdenied', false);
+                }
+            }
+        });
+    }
+
+    //console.log(countryCode);
+    // if(country == 'VN' || country == 'MY' || country == 'SG'){
+    //     accessDenied = false
+    // }
+    // res.setHeader('accessdenied', accessDenied);
+    // console.log(req.clientIp + " " + country);
+
     var idToken = '';
     if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
         // res.status(403).send(JSON.stringify({'status' : 'Unauthorized'}));
@@ -298,6 +328,12 @@ app.use(function (req, res, next) {
     next();
 });
 
+app.use(requestIp.mw());
+
+app.use(requestCountry.middleware({
+    attributeName: 'requestCountryCode', // default is 'requestCountryCode'
+    privateIpCountry: 'VN' // Result for private network IPs
+}));
 
 // default options
 app.use(fileUpload());
