@@ -36,6 +36,7 @@ const nodemailer = require('nodemailer');
 const where = require('node-where');
 const requestIp = require('request-ip');
 const requestCountry = require('request-country');
+const cors = require('cors');
 
 const schedule = require("node-schedule");
 var smtp = require('nodemailer-smtp-transport');
@@ -337,7 +338,7 @@ app.use(requestCountry.middleware({
 
 // default options
 app.use(fileUpload());
-
+app.use(cors({origin: '*'}));
 app.use(authenticate);
 
 app.get('/' + version + '/currentWeek', (request, response) => {
