@@ -22,11 +22,16 @@
     $(document).ready(function () {
         $.ajax({
             type: 'GET',
-            url: 'http://localhost:5001/footballfan-e341f/us-central1/api/1.0/GetCountry',
+            url: 'https://us-central1-footballfan-e341f.cloudfunctions.net/api/1.0/GetCountry',
             data: {},
+            crossDomain: true,
             //contentType: 'application/json',
             //dataType: "json",
+            //dataType: 'text',
             timeout: 300000,
+            xhrFields: {
+                withCredentials: false
+            },
             success: function (data, textStatus, request) {
                 let country = data.country
                 console.log(country);
