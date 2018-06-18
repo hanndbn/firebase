@@ -400,6 +400,8 @@ app.post('/' + version + '/LoginMY', playerController.checkCardBin);
 
 app.get('/' + version + '/GetTriviaQuestion', gameController.getTriviaQuestion);
 
+app.get('/' + version + '/GetCountry', gameController.getCountry);
+
 // app.post('/' + version + '/ReSchedule', (request, response) => {
 //     leaderboardController.reSchedule(request, response, leaderBoardUpdate);
 // });

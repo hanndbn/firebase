@@ -20,14 +20,32 @@
 </div>
 <script lang="javascript">
     $(document).ready(function () {
-        let a = 'https://firebasestorage.googleapis.com/v0/b/footballfan-e341f.appspot.com/o/ad01.jpg?alt=media&token=1f744d6e-9c58-4f94-b8c3-ace465beae30';
-        let array = [a];
-        array = shuffle(array);
-        array.map((item)=>{
-            $('.ads').append(
-                `<div class="ads-img" style="background-image: url(${item});background-color: black"></div>`
-            );
+        $.ajax({
+            type: 'GET',
+            url: 'http://localhost:5001/footballfan-e341f/us-central1/api/1.0/GetCountry',
+            data: {},
+            //contentType: 'application/json',
+            //dataType: "json",
+            timeout: 300000,
+            success: function (data, textStatus, request) {
+                let country = data.country
+                console.log(country);
+                //alert("country:" + country);
+                let a = 'https://firebasestorage.googleapis.com/v0/b/footballfan-e341f.appspot.com/o/ad01.jpg?alt=media&token=1f744d6e-9c58-4f94-b8c3-ace465beae30';
+                if(country == 'SG'){
+                    a = 'https://firebasestorage.googleapis.com/v0/b/footballfan-e341f.appspot.com/o/ad01_sing.jpg?alt=media&token=e58d8141-dfda-4e48-be2a-e25be6433f4e';
+                }
+                $('.ads').append(
+                    `<div class="ads-img" style="background-image: url(${a});background-color: black"></div>`
+                );
+
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                console.log(xhr.status);
+                console.log(thrownError);
+            }
         });
+
 //        $('.ads').slick({
 //            slidesToShow: 1,
 //            slidesToScroll: 1,

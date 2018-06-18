@@ -469,6 +469,15 @@ exports.getTriviaQuestion = function(request, response) {
     }
 };
 
+exports.getCountry = function(request, response) {
+    try {
+        return response.status(200).send(JSON.stringify({country: response.getHeader('country')}));
+    } catch(err) {
+        console.error(err);
+        response.status(500).send(JSON.stringify({'status' : 'Internal Server error'}));
+    }
+};
+
 
 
 
