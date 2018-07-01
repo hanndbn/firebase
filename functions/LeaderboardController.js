@@ -289,6 +289,87 @@ exports.updateLeaderBoard = function () {
         console.log(err);
     }
 };
+exports.updateLeaderBoard1 = function () {
+    try {
+        console.log("start update leaderBoard");
+        // backup leaderboard
+        let dateStr = moment().utcOffset(480).format('YYYYMMDD-HHmmss');
+        let backupLeaderBoardData = dal.backupLeaderBoardData(dateStr);
+
+        let bronzeRank = dal.getLeaderBoardWithType("bronze");
+        let silverRank = dal.getLeaderBoardWithType("silver");
+        //console.log(silverRank)
+        //return response.json(silverRank);
+        let goldRank = dal.getLeaderBoardWithType("gold");
+
+        let playerData = dal.getPlayerData('PlayerData');
+        let playerScore = dal.getPlayerScore('PlayerScore');
+        //let playerScore = dal.getFirebaseData('PlayerScore');
+
+
+        Promise.all([backupLeaderBoardData, bronzeRank, silverRank, goldRank, playerData, playerScore]).then(function (snapshots) {
+            bronzeRank = snapshots[1];
+            silverRank = snapshots[2];
+            goldRank = snapshots[3];
+            playerData = snapshots[4];
+            let playerDataVal = snapshots[4].val();
+            playerScore = snapshots[5];
+            let playerScoreVal = snapshots[5].val();
+
+            let newLeaderBoard = {
+                bronze: {bronze: "bronze"},
+                silver: {silver: "silver"},
+                gold: {gold: "gold"},
+            };
+
+            database.ref('Leaderboard').once("value").then(function (snap) {
+                snap.ref.set(newLeaderBoard);
+            });
+
+            //set player data
+            Object.keys(playerScoreVal).map((playerKey)=>{
+                Object.keys(playerScoreVal[playerKey]).map((level)=>{
+                    playerScoreVal[playerKey][level].BestScore = 0
+                });
+            });
+            //set player data
+            Object.keys(playerDataVal).map((playerKey)=>{
+                playerDataVal[playerKey]['ProgressStats']['CurrentLeaderboard'] = 'bronze';
+                playerDataVal[playerKey]['ProgressStats']['TotalScore'] = 0;
+                playerDataVal[playerKey]['ProgressStats']['TriviaScore'] = 0;
+                playerDataVal[playerKey].PowerUps = [];
+            });
+
+            playerData.ref.set(playerDataVal);
+            playerScore.ref.set(playerScoreVal);
+
+            // let infData = {
+            //     status: "success",
+            //     dateBackup: dateStr,
+            //     before: {
+            //         bronze: bronzeRank.numberPerson,
+            //         silver: silverRank.numberPerson,
+            //         gold: goldRank.numberPerson,
+            //     },
+            //     after: {
+            //         bronze: bronzeArray.length,
+            //         silver: silverArray.length,
+            //         gold: goldArray.length,
+            //     }
+            //     // dataCalculateBefore: {
+            //     //     bronze: bronzeRank,
+            //     //     silver: silverRank,
+            //     //     gold: goldRank,
+            //     // }
+            // };
+            //console.log(JSON.stringify(infData));
+            console.log("end update leaderBoard");
+        });
+    }
+    catch (err) {
+        console.log(err);
+    }
+};
 exports.sendEmail = function (callback) {
     try {
         let emailSetting = dal.getFirebaseData('EmailSetting');

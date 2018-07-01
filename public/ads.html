@@ -36,9 +36,9 @@
                 let country = data.country
                 console.log(country);
                 //alert("country:" + country);
-                let a = 'https://firebasestorage.googleapis.com/v0/b/footballfan-e341f.appspot.com/o/ad01.jpg?alt=media&token=1f744d6e-9c58-4f94-b8c3-ace465beae30';
-                if(country == 'SG'){
-                    a = 'https://firebasestorage.googleapis.com/v0/b/footballfan-e341f.appspot.com/o/ad01_sing.jpg?alt=media&token=e58d8141-dfda-4e48-be2a-e25be6433f4e';
+                let a = 'https://firebasestorage.googleapis.com/v0/b/footballfan-e341f.appspot.com/o/ad01_Malay.jpg?alt=media&token=6904b164-33d2-414a-98e1-66d0226889fd';
+                if(country != 'SG'){
+                    a = 'https://firebasestorage.googleapis.com/v0/b/footballfan-e341f.appspot.com/o/ad01_Malay.jpg?alt=media&token=6904b164-33d2-414a-98e1-66d0226889fd';
                 }
                 $('.ads').append(
                     `<div class="ads-img" style="background-image: url(${a});background-color: black"></div>`

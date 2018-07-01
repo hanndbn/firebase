@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<!-- xlsx.js (C) 2013-present  SheetJS http://sheetjs.com -->
+<!-- vim: set ts=2: -->
+<html ng-app="app">
+<head>
+    <title>hannd</title>
+    <script src="./js/jquery.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/4.2.0/firebase.js"></script>
+    <!-- SheetJS js-xlsx library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.0.4/popper.js"></script>
+    <script src="./js/bootstrap.min.js"></script>
+    <script src="./js/slick.min.js"></script>
+    <link rel="stylesheet" href="./styles/bootstrap.min.css"/>
+    <link rel="stylesheet" href="./styles/slick-theme.css"/>
+    <link rel="stylesheet" href="./styles/slick.css"/>
+    <link rel="stylesheet" href="./styles/styles.css"/>
+    <style>
+        body {margin-top: 20px;margin-left: 0px;padding-bottom: 20px;}
+
+        #page_1 {position:relative; overflow: hidden;margin-left: 90px;padding: 0px;border: none;}
+
+        #page_1 #p1dimg1 {position:absolute;top:0px;left:2px;z-index:-1;width:189px;height:53px;}
+        #page_1 #p1dimg1 #p1img1 {width:189px;height:53px;}
+
+
+
+
+        #page_2 {position:relative; overflow: hidden;margin-left: 90px;padding: 0px;border: none;}
+
+
+
+
+
+        #page_3 {position:relative; overflow: hidden;margin-left: 90px;padding: 0px;border: none;}
+
+
+
+
+
+        #page_4 {position:relative; overflow: hidden;margin-left: 90px;padding: 0px;border: none;}
+
+
+
+
+
+        #page_5 {position:relative; overflow: hidden;margin-left: 90px;padding: 0px;border: none;}
+
+
+
+
+
+        #page_6 {position:relative; overflow: hidden;margin-left: 90px;padding: 0px;border: none;}
+
+
+
+
+
+        #page_7 {position:relative; overflow: hidden;margin-left: 90px;padding: 0px;border: none;}
+
+
+
+
+
+        #page_8 {position:relative; overflow: hidden;margin-left: 90px;padding: 0px;border: none;}
+
+
+
+
+
+        #page_9 {position:relative; overflow: hidden;margin-left: 90px;padding: 0px;border: none;;}
+
+
+
+
+
+        .dclr {clear:both;float:none;height:1px;margin:0px;padding:0px;overflow:hidden;}
+
+        .ft0{font: 25px 'Calibri';text-decoration: underline;line-height: 30px;}
+        .ft1{font: bold 25px 'Calibri';text-decoration: underline;margin-left: 12px;line-height: 30px;}
+        .ft2{font: bold 25px 'Calibri';text-decoration: underline;line-height: 30px;}
+        .ft3{font: 25px 'Calibri';line-height: 30px;}
+        .ft4{font: 25px 'Calibri';margin-left: 14px;line-height: 30px;}
+        .ft5{font: 25px 'Gautami';line-height: 30px;;}
+        .ft6{font: bold 25px 'Calibri';line-height: 30px;}
+        .ft7{font: bold 25px 'Gautami';line-height: 30px;;}
+        .ft8{font: 25px 'Calibri';line-height: 30px;}
+        .ft9{font: 25px 'Calibri';margin-left: 10px;line-height: 30px;}
+        .ft10{font: 25px 'Calibri';margin-left: 9px;line-height: 30px;}
+        .ft11{font: 25px 'Calibri';margin-left: 12px;line-height: 30px;}
+        .ft12{font: 25px 'Calibri';line-height: 18px;}
+        .ft13{font: 25px 'Calibri';margin-left: 7px;line-height: 30px;}
+        .ft14{font: 25px 'Calibri';margin-left: 7px;line-height: 30px;;}
+        .ft15{font: 25px 'Calibri';line-height: 30px;;}
+        .ft16{font: 25px 'Calibri';margin-left: 13px;line-height: 30px;}
+        .ft17{font: 25px 'Calibri';margin-left: 8px;line-height: 30px;}
+        .ft18{font: 8px 'Calibri';line-height: 10px;position: relative; bottom: 5px;}
+        .ft19{font: 25px 'Calibri';margin-left: 14px;line-height: 30px;}
+        .ft20{font: 25px 'Calibri';line-height: 30px;}
+        .ft21{font: 25px 'Calibri';color: #231f20;margin-left: 7px;line-height: 30px;}
+        .ft22{font: 25px 'Calibri';color: #231f20;line-height: 30px;}
+        .ft23{font: 25px 'Calibri';margin-left: 20px;line-height: 30px;}
+        .ft24{font: 25px 'Calibri';margin-left: 19px;line-height: 30px;}
+        .ft25{font: 25px 'Gautami';line-height: 26px;}
+        .ft26{font: 25px 'Calibri';text-decoration: underline;color: #0563c1;line-height: 30px;}
+        .ft27{font: bold 25px 'Calibri';text-decoration: underline;margin-left: 13px;line-height: 30px;}
+        .ft28{font: 25px 'Calibri';margin-left: 15px;line-height: 30px;}
+        .ft29{font: 25px 'Calibri';margin-left: 17px;line-height: 30px;}
+        .ft30{font: 25px 'Calibri';margin-left: 16px;line-height: 30px;}
+        .ft31{font: 25px 'Calibri';margin-left: 7px;line-height: 30px;}
+        .ft32{font: 25px 'Calibri';line-height: 30px;}
+        .ft33{font: 25px 'Calibri';margin-left: 11px;line-height: 30px;}
+        .ft34{font: 25px 'Gautami';color: #0563c1;line-height: 26px;}
+        .ft35{font: 25px 'Calibri';color: #231f20;margin-left: 7px;line-height: 30px;}
+        .ft36{font: 25px 'Calibri';color: #231f20;line-height: 30px;}
+        .ft37{font: 25px 'Calibri';margin-left: 22px;line-height: 30px;}
+
+        .p0{text-align: left;margin-top: 92px;margin-bottom: 0px;}
+        .p1{text-align: justify;padding-left: 24px;padding-right: 96px;margin-top: 30px;margin-bottom: 0px;text-indent: -24px;}
+        .p2{text-align: justify;padding-left: 24px;padding-right: 96px;margin-top: 13px;margin-bottom: 0px;text-indent: -24px;}
+        .p3{text-align: justify;padding-left: 24px;padding-right: 96px;margin-top: 12px;margin-bottom: 0px;text-indent: -24px;}
+        .p4{text-align: left;margin-top: 11px;margin-bottom: 0px;}
+        .p5{text-align: left;padding-left: 96px;padding-right: 96px;margin-top: 9px;margin-bottom: 0px;text-indent: -24px;}
+        .p6{text-align: left;padding-left: 72px;margin-top: 10px;margin-bottom: 0px;}
+        .p7{text-align: left;padding-left: 72px;margin-top: 9px;margin-bottom: 0px;}
+        .p8{text-align: left;padding-left: 96px;padding-right: 97px;margin-top: 9px;margin-bottom: 0px;text-indent: -24px;}
+        .p9{text-align: justify;padding-left: 24px;padding-right: 96px;margin-top: 9px;margin-bottom: 0px;text-indent: -24px;}
+        .p10{text-align: left;padding-left: 24px;padding-right: 96px;margin-top: 11px;margin-bottom: 0px;text-indent: -24px;}
+        .p11{text-align: justify;padding-left: 24px;padding-right: 97px;margin-top: 10px;margin-bottom: 0px;text-indent: -24px;}
+        .p12{text-align: justify;padding-left: 24px;padding-right: 97px;margin-top: 11px;margin-bottom: 0px;text-indent: -24px;}
+        .p13{text-align: left;padding-left: 308px;margin-top: 40px;margin-bottom: 0px;}
+        .p14{text-align: justify;padding-left: 24px;padding-right: 97px;margin-top: 0px;margin-bottom: 0px;}
+        .p15{text-align: left;margin-top: 27px;margin-bottom: 0px;}
+        .p16{text-align: justify;padding-left: 24px;padding-right: 97px;margin-top: 9px;margin-bottom: 0px;text-indent: -24px;}
+        .p17{text-align: left;margin-top: 8px;margin-bottom: 0px;}
+        .p18{text-align: justify;padding-left: 24px;padding-right: 96px;margin-top: 10px;margin-bottom: 0px;text-indent: -24px;}
+        .p19{text-align: left;padding-left: 24px;padding-right: 97px;margin-top: 8px;margin-bottom: 0px;text-indent: -24px;}
+        .p20{text-align: left;padding-left: 24px;padding-right: 97px;margin-top: 10px;margin-bottom: 0px;text-indent: -24px;}
+        .p21{text-align: left;padding-left: 95px;padding-right: 93px;margin-top: 10px;margin-bottom: 0px;text-indent: -19px;}
+        .p22{text-align: left;padding-left: 95px;padding-right: 92px;margin-top: 10px;margin-bottom: 0px;text-indent: -19px;}
+        .p23{text-align: left;padding-left: 308px;margin-top: 62px;margin-bottom: 0px;}
+        .p24{text-align: justify;padding-left: 24px;padding-right: 97px;margin-top: 0px;margin-bottom: 0px;text-indent: -24px;}
+        .p25{text-align: justify;padding-left: 24px;padding-right: 96px;margin-top: 8px;margin-bottom: 0px;text-indent: -24px;}
+        .p26{text-align: left;margin-top: 35px;margin-bottom: 0px;}
+        .p27{text-align: left;padding-left: 24px;margin-top: 11px;margin-bottom: 0px;}
+        .p28{text-align: justify;padding-left: 48px;padding-right: 97px;margin-top: 10px;margin-bottom: 0px;text-indent: -24px;}
+        .p29{text-align: left;margin-top: 56px;margin-bottom: 0px;}
+        .p30{text-align: left;padding-left: 308px;margin-top: 86px;margin-bottom: 0px;}
+        .p31{text-align: left;padding-left: 66px;margin-top: 9px;margin-bottom: 0px;}
+        .p32{text-align: left;padding-left: 24px;padding-right: 97px;margin-top: 9px;margin-bottom: 0px;text-indent: -24px;}
+        .p33{text-align: justify;padding-left: 24px;padding-right: 96px;margin-top: 11px;margin-bottom: 0px;text-indent: -24px;}
+        .p34{text-align: justify;padding-left: 24px;padding-right: 97px;margin-top: 8px;margin-bottom: 0px;text-indent: -24px;}
+        .p35{text-align: left;padding-left: 24px;padding-right: 97px;margin-top: 13px;margin-bottom: 0px;text-indent: -24px;}
+        .p36{text-align: left;padding-left: 308px;margin-top: 57px;margin-bottom: 0px;}
+        .p37{text-align: left;padding-left: 24px;padding-right: 96px;margin-top: 0px;margin-bottom: 0px;text-indent: -24px;}
+        .p38{text-align: left;margin-top: 10px;margin-bottom: 0px;}
+        .p39{text-align: left;padding-left: 24px;padding-right: 97px;margin-top: 12px;margin-bottom: 0px;text-indent: -24px;}
+        .p40{text-align: justify;padding-left: 24px;padding-right: 96px;margin-top: 0px;margin-bottom: 0px;text-indent: -24px;}
+        .p41{text-align: left;margin-top: 64px;margin-bottom: 0px;}
+        .p42{text-align: left;padding-left: 308px;margin-top: 66px;margin-bottom: 0px;}
+        .p43{text-align: left;padding-left: 96px;padding-right: 97px;margin-top: 0px;margin-bottom: 0px;text-indent: -24px;}
+        .p44{text-align: left;margin-top: 29px;margin-bottom: 0px;}
+        .p45{text-align: justify;padding-left: 24px;padding-right: 92px;margin-top: 10px;margin-bottom: 0px;text-indent: -24px;}
+        .p46{text-align: left;padding-left: 308px;margin-top: 47px;margin-bottom: 0px;}
+        .p47{text-align: justify;padding-left: 24px;padding-right: 96px;margin-top: 0px;margin-bottom: 0px;}
+        .p48{text-align: justify;padding-left: 24px;padding-right: 97px;margin-top: 34px;margin-bottom: 0px;text-indent: -24px;}
+        .p49{text-align: left;margin-top: 34px;margin-bottom: 0px;}
+        .p50{text-align: left;padding-left: 24px;margin-top: 3px;margin-bottom: 0px;}
+        .p51{text-align: justify;padding-left: 48px;padding-right: 96px;margin-top: 10px;margin-bottom: 0px;text-indent: -24px;}
+        .p52{text-align: justify;padding-left: 24px;padding-right: 91px;margin-top: 8px;margin-bottom: 0px;text-indent: -24px;}
+        .p53{text-align: left;padding-left: 308px;margin-top: 34px;margin-bottom: 0px;}
+        .p54{text-align: justify;padding-left: 24px;padding-right: 92px;margin-top: 8px;margin-bottom: 0px;text-indent: -24px;}
+        .p55{text-align: left;padding-left: 308px;margin-top: 72px;margin-bottom: 0px;}
+        .p56{text-align: left;padding-left: 24px;padding-right: 97px;margin-top: 0px;margin-bottom: 0px;}
+        .p57{text-align: left;padding-left: 24px;padding-right: 96px;margin-top: 13px;margin-bottom: 0px;text-indent: -24px;}
+        .p58{text-align: left;padding-left: 308px;margin-top: 300px;margin-bottom: 0px;}
+    </style>
+</head>
+<body>
+<body>
+<div id="page_1">
+    <div id="p1dimg1">
+        <img src="data:image/jpg;base64,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" alt=""></div>
+    <div class="dclr"></div>
+    <p class="p0 ft2"><span class="ft0">A)</span><span class="ft1">MAYBANK FOOTBALL FAN GAME APP MALAYSIA TERMS AND CONDITIONS</span></p>
+    <p class="p1 ft3"><span class="ft3">1.</span><span class="ft4">In these Terms and Conditions, unless the context requires otherwise, references to pronouns in the second person refer to any user who downloads or otherwise uses the Maybank Football Fan Game Application (‘</span><span class="ft5">​</span><span class="ft6">the App</span><span class="ft7">​</span>’) and references in the first person plural and ‘<span class="ft5">​</span><span class="ft6">Maybank</span><span class="ft7">​</span>’ refer to Malayan Banking Berhad <nobr>(3818-K),</nobr> a Company incorporated in and under the laws of Malaysia; and its successors and assigns.</p>
+    <p class="p2 ft3"><span class="ft3">2.</span><span class="ft4">Downloading the App onto your mobile device shall be construed as conclusive proof of your absolute agreement to abide and be bound by these Terms and Conditions. Use of the App shall be at all times compliant with these terms and conditions as well as any instructions for which notice may be from time to time given via the App or any other means as we may from time to time determine.</span></p>
+    <p class="p3 ft3"><span class="ft3">3.</span><span class="ft4">Use of the App shall be construed as conclusive proof of your absolute consent to us accessing, using, storing, and disclosing any and all information you may input into the Game App for the purposes of accessing the services within the App.</span></p>
+    <p class="p4 ft3"><span class="ft3">4.</span><span class="ft4">You agree to use the Game App for lawful and shall not:</span></p>
+    <p class="p5 ft3"><span class="ft8">(a)</span><span class="ft9">reproduce, duplicate, sell, resell, or otherwise exploit or make commercial use of the App; or do the same for the content of the App notwithstanding the fair use of the content therein;</span></p>
+    <p class="p6 ft3"><span class="ft3">(b)</span><span class="ft10">make false representations or otherwise provide false or inaccurate information within the App;</span></p>
+    <p class="p7 ft3"><span class="ft3">(c)</span><span class="ft9">make unauthorised derivative use of the App or its content;</span></p>
+    <p class="p7 ft3"><span class="ft3">(d)</span><span class="ft10">disrupt the access or use of the App by others;</span></p>
+    <p class="p8 ft3"><span class="ft3">(e)</span><span class="ft10">use the App to send spam, upload malicious or otherwise harmful content, or otherwise engage in any other inappropriate activities as may be determined absolutely by us;</span></p>
+    <p class="p6 ft3"><span class="ft3">(f)</span><span class="ft11">assist or enable others to perform or carry out any of the aforementioned acts.</span></p>
+    <p class="p9 ft3"><span class="ft3">5.</span><span class="ft4">You guarantee that you will assume responsibility for all use of and access to, whether authorised or not, the App via your mobile device; and for all fees and charges incurred by you owing to your mobile service provider as a result of downloading or continuing to utilise the services offered by the App.</span></p>
+    <p class="p10 ft3"><span class="ft3">6.</span><span class="ft4">We and our agents shall not be liable in the event something happens to a person playing the game on a jailbreak/ rooted device.</span></p>
+    <p class="p11 ft3"><span class="ft3">7.</span><span class="ft4">The App shall include functionality by which users may purchase discrete amounts of </span><nobr>In-Game</nobr> Currency that may be exclusively exchanged within the App to enable additional functionality therein. The purchase of such <nobr>In-Game</nobr> Currency may be effected via credit or debit card.</p>
+    <p class="p12 ft3"><span class="ft3">8.</span><span class="ft4">You acknowledge that said </span><nobr>In-Game</nobr> Currency has no intrinsic monetary value. <nobr>In-Game</nobr> Currency and any <nobr>in-game</nobr> items, services, privileges, or other additional functionality unlocked through the redemption of <nobr>In-Game</nobr> Currency cannot be spent, sold, transferred, or otherwise used beyond the confines of the App; and neither shall they be redeemable for any goods and services from us or any other party.</p>
+    <p class="p3 ft3"><span class="ft3">9.</span><span class="ft4">The App may, from time to time as required, be inaccessible or otherwise inoperable due to system maintenance or for other reasons beyond our control. The App may further be affected by weak network</span></p>
+</div>
+<div id="page_2">
+
+
+    <p class="p14 ft3">signals or restricted device functionality, both of which may similarly result in the App being inaccessible or otherwise inoperable. While every effort shall be made to enable the App to have full functionality at all times; we do not warrant, with your acknowledgement, that the App will be available for use at any given time</p>
+    <p class="p15 ft2">Contests and other Promotional Campaigns offered through the App (“Contests”)</p>
+    <p class="p16 ft3"><span class="ft3">10.</span><span class="ft13">You may only participate in a Contest or be eligible to win a prize in relation to any such Contest if you fall within the eligibility criteria in Clause 10. Persons not qualifying as such may nonetheless experience use and enjoyment of the games and other content offered by the App provided always that they will not be eligible to participate in any such Contest or to win any such prize in relation to a Contest.</span></p>
+    <p class="p3 ft15"><span class="ft3">11.</span><span class="ft14">Participation in a Contest is open only to Maybank customers holding a personal Maybank credit, debit, or prepaid card issued in Malaysia with an open account in good standing during the Contest’s qualifying period as stated in the App except for Maybank Islamic Cards. Participants must be 18 years old and above to participate and to win the prizes. Eligibility for a Prize is predicated on you holding a Maybank Manchester United Debit, Credit, or Prepaid Card. In the event a customer eligible to participate in a contest wins a prize but does not hold a Maybank Manchester United Card, they must then register for a Maybank Manchester United Card in order to be entitled to claim their prize.</span></p>
+    <p class="p17 ft3"><span class="ft3">12.</span><span class="ft13">Notwithstanding clauses 9 and 10, the following persons are also excluded from participating in a Contest:</span></p>
+    <p class="p8 ft3"><span class="ft8">a)</span><span class="ft4">Cards Malaysia staff, their immediate families, and employees of our advertising agencies or sponsors;</span></p>
+    <p class="p6 ft3"><span class="ft3">b)</span><span class="ft16">Cardmembers who terminate their accounts with us during the Promotional period; or</span></p>
+    <p class="p8 ft3"><span class="ft3">c)</span><span class="ft4">Persons with accounts that are deemed to be delinquent or unsatisfactorily conducted by us at our sole and absolute discretion.</span></p>
+    <p class="p18 ft15"><span class="ft3">13.</span><span class="ft14">You acknowledge that we are not the supplier or manufacturer of any prize offered via the App, and that we make no representation or warranty whatsoever as to the availability, quality, or fitness for purpose of the prizes; nor are we bound by any other implied terms or conditions with respect to the prizes or any related services. We assume no responsibility or liability for the acts or defects of merchants supplying or facilitating the prizes; or for any delay, postponement, </span><nobr>non-delivery,</nobr> <nobr>non-performance,</nobr> or defects in the prizes or any related services. We are not an agent of the merchants supplying the prizes or any related services. Any dispute arising over the prizes themselves or the quality or performance of the prizes or any related services must be resolved directly with the respective supplying merchants.</p>
+    <p class="p19 ft3"><span class="ft3">14.</span><span class="ft13">The use of any prize you win may be subject to such other terms and conditions as may be imposed by the respective merchant supplying the prize.</span></p>
+    <p class="p20 ft3"><span class="ft3">15.</span><span class="ft13">‘Flyaway’ prizes and all other prizes incorporating any element of travel shall include only the costs and fees specifically listed in the App, and shall </span><nobr>non-exhaustively</nobr> exclude:</p>
+    <p class="p21 ft3"><span class="ft8">a)</span><span class="ft10">Costs related to visas, applicable airline taxes and surcharges, peak season surcharges, and other travel related expenses;</span></p>
+    <p class="p21 ft3"><span class="ft3">b)</span><span class="ft17">Long distance phone calls, room service, laundry, minibar items, room service, loss of hotel property, damage to hotel property, or any other expenses incurred in or by the hotel;</span></p>
+    <p class="p22 ft3"><span class="ft3">c)</span><span class="ft10">Personal expenses unrelated to the prize (e.g. shopping, transportation during free time, food expenses aside from scheduled meals); and</span></p>
+    <p class="p21 ft3"><span class="ft3">d)</span><span class="ft17">Any personal tax that may be levied on you or your guests with respect to the receipt of the prize or any part thereof.</span></p>
+</div>
+<div id="page_3">
+
+
+    <p class="p24 ft3"><span class="ft3">16.</span><span class="ft13">All prizes issued under the Game App are neither transferable nor exchangeable for cash, credit, or any other valuable consideration. The winner must be among the users of the prize. We may at any time, without prior notice and at our sole discretion, substitute the prize with another prize of similar value without jeopardising our rights and responsibilities under this contract or incurring liability to any person.</span></p>
+    <p class="p25 ft3"><span class="ft3">17.</span><span class="ft13">Contest winners for the TreatsFair Contest </span><nobr>(3-6</nobr> May 2018) will be selected to comprise the holders of the top 10 scores on the leaderboards on the App at the <nobr>cut-off</nobr> time of 12pm on the 6<span class="ft5">​</span><span class="ft18">th </span>of May 2018, and will be contacted thereafter. The winners must be present during the prize presentation in order to validly take possession of their prize.</p>
+    <p class="p3 ft3"><span class="ft3">18.</span><span class="ft13">Contest winners during the </span><nobr>two-month</nobr> period after the Treats Fair Contest (3 May 2018 until 3 July 2018) i.e. the second contest will be selected to comprise the top 5 winners of each division (with three divisions for a total of 15 winners) and will be contacted thereafter. All prizes will be mailed to the respective winners.</p>
+    <p class="p26 ft2">Maybank Privacy Notice</p>
+    <p class="p16 ft15"><span class="ft3">19.</span><span class="ft14">By participating in this Campaign, participants agree and consent to allow their personal data being collected, processed, and used by Maybank in accordance with the Maybank Privacy Notice, which may be viewed at www.maybank.com.my (“Maybank’s Privacy Notice”) for purposes including, but not limited to:</span></p>
+    <p class="p27 ft3"><span class="ft3">a.</span><span class="ft4">the purposes of the Campaign; or</span></p>
+    <p class="p28 ft20"><span class="ft3">b.</span><span class="ft19">marketing and promotional activities conducted in any manner as Maybank deems fit, including but not limited to in any form of advertising or publicity material whether physical or digital, and wheresoever published in print, television, radio, or online; without further express consent from the participants. The aforementioned marketing and promotion activities shall include without limitation the use and publication of any details provided in or in connection to the entries and any subsequent interviews, as well as responses thereto and related photographs. In this regard, each participant agrees to cooperate and participate in all reasonable advertising and publicity activities of Maybank in relation to the Campaign without any requirement for further express consent, payment, or consideration.</span></p>
+    <p class="p25 ft22"><span class="ft3">20.</span><span class="ft21">If you have applied for or are currently holding a </span><nobr>Maybank-issued</nobr> Manchester United Card, by downloading the App you expressly consent to the Manchester United  (“MU”) Group (being all companies bearing the MU name) and other MU Commercial Partners (as may both change over time) collecting, using, and disclosing your personal data (a) to provide you with the products and services which you have requested, (b) for consumer profiling and market research in relation to benefits and privileges, products, and services related to and/or associated with the MU Card and (c) to contact you by post, phone, or electronically (including via email, text, fax, and other electronic means of communication) about benefits, privileges, products, services, offers, and events related to and/or associated with the MU <nobr>Co-Brand</nobr> Card. If you would prefer not to receive any promotional and marketing communications with regards to the MU Card, please email marketingoptout@manutd.co.uk within 14 days of receipt of the Card ensuring that you use the email address that was provided in your application form.</p>
+    <p class="p29 ft2">General</p>
+</div>
+<div id="page_4">
+
+
+    <p class="p24 ft3"><span class="ft3">21.</span><span class="ft13">Provided always that we give 21 days’ prior written notice, we are entitled absolutely to at our own discretion change the cost in </span><nobr>In-Game</nobr> Currency or any other details whatsoever of any <nobr>in-game</nobr> items, services, privileges, or other additional functionality unlocked through the redemption of <nobr>In-Game</nobr> Currency.</p>
+    <p class="p4 ft3">We reserve absolutely the right to:</p>
+    <p class="p31 ft3"><span class="ft8">a)</span><span class="ft23">cancel, suspend, or terminate the operation of the App and of any Promotion;</span></p>
+    <p class="p31 ft3"><span class="ft3">b)</span><span class="ft24">modify, eliminate, or terminate any items, games, or Promotions offered within the App; and</span></p>
+    <p class="p31 ft3"><span class="ft3">c)</span><span class="ft23">vary, delete, or make additions to these terms and conditions from time to time;</span></p>
+    <p class="p7 ft3">provided always we give 21 days of prior written notice.</p>
+    <p class="p32 ft3"><span class="ft3">22.</span><span class="ft13">You acknowledge that in the event your continuing access of the App is terminated, jeopardised, or otherwise for whatever reason interrupted, any refund of </span><nobr>In-Game</nobr> Currency is at our sole and absolute discretion.</p>
+    <p class="p18 ft15"><span class="ft3">23.</span><span class="ft14">We and our agents shall not be liable for any loss whatsoever, whether direct or indirect, incurred by you or any other person in relation to the use of the App or participation in any Promotion; including but not limited to loss of life, personal injury, damage to any mobile device by downloading or utilising the App. We and our agents shall further not be held liable for any damage or loss caused by improper or unauthorised use of the App by you or any other person, negligent acts or wilful misconduct, governmental powers, force majeure, war, strikes, sabotage, computer breakdown, any other cause whatsoever beyond our control; or any event which makes it impossible or otherwise impracticable for us to perform our obligations in respect of any instruction submitted by you to us, or where we are required to act in accordance with the laws and regulations in Malaysia or any jurisdiction which relate to any services to any persons, legal or natural, which may be subject to sanctions.</span></p>
+    <p class="p25 ft3"><span class="ft3">24.</span><span class="ft13">In addition, we shall not be responsible for any lost, late, misdirected, damaged, incomplete, illegible, or </span><nobr>postage-due</nobr> mail or any transactions that are processed late, processed incorrectly, or lost due to computer or other electronic breakdown, malfunction, or any other reason.</p>
+    <p class="p33 ft15"><span class="ft3">25.</span><span class="ft14">The Game App is in no way sponsored, endorsed, administered by, or associated with Facebook. To the extent permitted by applicable laws, the users of the App agree that Facebook will not be liable, under any circumstance and in any way, for any errors, omissions, loss, or damage of any kind incurred as a result of your use of Facebook in connection with the App. You also acknowledge that we do not own or host Facebook, and the relevant privacy notices and other terms and conditions found on Facebook’s website shall apply as appropriate.</span></p>
+    <p class="p34 ft3"><span class="ft3">26.</span><span class="ft13">The Game App is in no way sponsored, endorsed, administered by, or associated with Apple or Google. To the extent permitted by applicable laws, the users of the App agree that Apple or Google will not be liable, under any circumstance and in any way, for any errors, omissions, loss or damage of any kind incurred as a result of your use of the App. The relevant privacy notices and other terms and conditions related to Apple or Google shall apply as appropriate.</span></p>
+    <p class="p35 ft3"><span class="ft3">27.</span><span class="ft13">The App is developed and administered by One Empower, however One Empower does not sponsor or endorse the Game App.</span></p>
+    <p class="p20 ft3"><span class="ft3">28.</span><span class="ft13">You hereby authorise us to disclose and publish your name and other relevant particulars in accordance with applicable law in the event that you win a prize offered through a Promotion in the App.</span></p>
+    <p class="p18 ft3"><span class="ft3">29.</span><span class="ft13">If you are a winner under a Promotion, and where required by us, you hereby agree to attend a prize presentation and/or participate in the appropriate publicity programmes. All expenses and costs incurred for such attendance shall be borne by you, and we reserve the right to use your name, address, photographs, information, particulars, or documents in any advertisement or other forms of publicity from time to time as we deem fit.</span></p>
+</div>
+<div id="page_5">
+
+
+    <p class="p37 ft3"><span class="ft3">30.</span><span class="ft13">We have the sole discretion to exclude you from participating in any Promotion or using the App without any obligation to furnish any notice or reason therefore.</span></p>
+    <p class="p38 ft3"><span class="ft3">31.</span><span class="ft13">Our decision on all matters relating to the App and any Promotion shall be final, conclusive and binding.</span></p>
+    <p class="p9 ft3"><span class="ft3">32.</span><span class="ft13">We may at any time either unconditionally or on such terms and conditions as we deem fit in our discretion waive any right we have under these terms and conditions; however, any such waiver shall not preclude us from exercising such rights in the future.</span></p>
+    <p class="p12 ft3"><span class="ft3">33.</span><span class="ft13">In the event of any inconsistency between these terms and conditions and any brochure, marketing, or promotional material relating to the App; the terms and conditions in www.maybank2u.com.my shall prevail. Any image of any prize offered through Promotions via the App in any collateral is for illustrative purposes only.</span></p>
+    <p class="p39 ft3"><span class="ft3">34.</span><span class="ft13">These terms and conditions shall be governed by the laws of Malaysia and you irrevocably submit to the exclusive jurisdiction of the courts of Malaysia for the resolution of any disputes herein arising.</span></p>
+    <p class="p20 ft3"><span class="ft3">35.</span><span class="ft13">The Maybank Credit Card, Debit Card, and Prepaid Card Agreements shall apply as appropriate. For full details, please visit </span><a href="http://www.maybank2u.com.my/"><span class="ft25">​</span></a><a href="http://www.maybank2u.com.my/"><span class="ft26">www.maybank2u.com.my</span></a></p>
+    <p class="p40 ft15"><span class="ft3">36.</span><span class="ft14">The Card Bin Number (being the first six digits of the Card number) shall be used to register for the competition. Disclosure of the Card Bin Number shall be purely to verify said card is a Maybank Card number, and does not represent the full card number in any way nor may it be used to make purchases or identify the Cardholder.</span></p>
+    <p class="p41 ft2"><span class="ft0">B)</span><span class="ft27">MAYBANK FOOTBALL FAN GAME APP SINGAPORE TERMS AND CONDITIONS</span></p>
+    <p class="p1 ft3"><span class="ft3">1.</span><span class="ft4">In these Terms and Conditions, unless the context requires otherwise, references to pronouns in the second person refer to any user who downloads or otherwise uses the Maybank Football Fan Game Application (‘</span><span class="ft5">​</span><span class="ft6">the App</span><span class="ft7">​</span>’) and references in the first person plural and ‘<span class="ft5">​</span><span class="ft6">Maybank</span><span class="ft7">​</span>’ refer to Malayan Banking Berhad, Singapore branch, a Company incorporated in and under the laws of Malaysia; and its successors and assigns.</p>
+    <p class="p2 ft3"><span class="ft3">2.</span><span class="ft4">Downloading the App onto your mobile device shall be construed as conclusive proof of your absolute agreement to abide and be bound by these Terms and Conditions. Use of the App shall be at all times compliant with these terms and conditions as well as any instructions for which notice may be from time to time given via the App or any other means as we may from time to time determine.</span></p>
+    <p class="p3 ft3"><span class="ft3">3.</span><span class="ft4">Use of the App shall be construed as conclusive proof of your absolute consent to us accessing, using, storing, and disclosing any and all information you may input into the Game App for the purposes of accessing the services within the App.</span></p>
+    <p class="p4 ft3"><span class="ft3">4.</span><span class="ft4">You agree to use the Game App for lawful and shall not:</span></p>
+    <p class="p5 ft3"><span class="ft3">a.</span><span class="ft4">reproduce, duplicate, sell, resell, or otherwise exploit or make commercial use of the App; or do the same for the content of the App notwithstanding the fair use of the content therein;</span></p>
+    <p class="p6 ft3"><span class="ft3">b.</span><span class="ft4">make false representations or otherwise provide false or inaccurate information within the App;</span></p>
+    <p class="p7 ft3"><span class="ft3">c.</span><span class="ft28">make unauthorised derivative use of the App or its content;</span></p>
+    <p class="p7 ft3"><span class="ft3">d.</span><span class="ft4">disrupt the access or use of the App by others;</span></p>
+</div>
+<div id="page_6">
+
+
+    <p class="p43 ft3"><span class="ft3">e.</span><span class="ft4">use the App to send spam, upload malicious or otherwise harmful content, or otherwise engage in any other inappropriate activities as may be determined absolutely by us;</span></p>
+    <p class="p6 ft3"><span class="ft3">f.</span><span class="ft29">assist or enable others to perform or carry out any of the aforementioned acts.</span></p>
+    <p class="p9 ft3"><span class="ft3">5.</span><span class="ft4">You guarantee that you will assume responsibility for all use of and access to, whether authorised or not, the App via your mobile device; and for all fees and charges incurred by you owing to your mobile service provider as a result of downloading or continuing to utilise the services offered by the App.</span></p>
+    <p class="p10 ft3"><span class="ft3">6.</span><span class="ft4">We and our agents shall not be liable in the event something happens to a person playing the game on a jailbreak/ rooted device.</span></p>
+    <p class="p11 ft3"><span class="ft3">7.</span><span class="ft4">The App shall include functionality by which users may purchase discrete amounts of </span><nobr>In-Game</nobr> Currency that may be exclusively exchanged within the App to enable additional functionality therein. The purchase of such <nobr>In-Game</nobr> Currency may be effected via credit or debit card.</p>
+    <p class="p12 ft3"><span class="ft3">8.</span><span class="ft4">You acknowledge that said </span><nobr>In-Game</nobr> Currency has no intrinsic monetary value. <nobr>In-Game</nobr> Currency and any <nobr>in-game</nobr> items, services, privileges, or other additional functionality unlocked through the redemption of <nobr>In-Game</nobr> Currency cannot be spent, sold, transferred, or otherwise used beyond the confines of the App; and neither shall they be redeemable for any goods and services from us or any other party.</p>
+    <p class="p3 ft3"><span class="ft3">9.</span><span class="ft4">The App may, from time to time as required, be inaccessible or otherwise inoperable due to system maintenance or for other reasons beyond our control. The App may further be affected by weak network signals or restricted device functionality, both of which may similarly result in the App being inaccessible or otherwise inoperable. While every effort shall be made to enable the App to have full functionality at all times; we do not warrant, with your acknowledgement, that the App will be available for use at any given time</span></p>
+    <p class="p44 ft2">Contests and other Promotional Campaigns offered through the App (“Contests”)</p>
+    <p class="p16 ft3"><span class="ft3">10.</span><span class="ft13">You may only participate in a Contest or be eligible to win a prize in relation to any such Contest if you fall within the eligibility criteria in Clause 11. Persons not qualifying as such may nonetheless experience use and enjoyment of the games and other content offered by the App provided always that they will not be eligible to participate in any such Contest or to win any such prize in relation to a Contest.</span></p>
+    <p class="p3 ft15"><span class="ft3">11.</span><span class="ft14">Participation in a Contest is open only to Maybank customers holding a personal Maybank credit or debit card issued in Singapore with an open account in good standing during the Contest’s qualifying period as stated in the App. Participants must be 18 years old and above to participate and to win the prizes. Eligibility for a Prize is predicated on you holding a Maybank Manchester United Credit or Debit Card. In the event a customer eligible to participate in a contest wins a prize but does not hold a Maybank Manchester United Credit or Debit Card, they must then register for a Maybank Manchester United Credit or Debit Card in order to be entitled to claim their prize.</span></p>
+    <p class="p17 ft3"><span class="ft3">12.</span><span class="ft13">Notwithstanding clauses 10 and 11, the following persons are also excluded from participating in a Contest:</span></p>
+    <p class="p5 ft3"><span class="ft3">d)</span><span class="ft16">Maybank Singapore Cards and Unsecured Lending staff, their immediate families, and employees of our advertising agencies or sponsors;</span></p>
+    <p class="p6 ft3"><span class="ft3">e)</span><span class="ft16">Cardmembers who terminate their accounts with us during the Promotional period; or</span></p>
+    <p class="p8 ft3"><span class="ft3">f)</span><span class="ft30">Persons with accounts that are deemed to be delinquent or unsatisfactorily conducted by us at our sole and absolute discretion.</span></p>
+    <p class="p45 ft32"><span class="ft3">13.</span><span class="ft31">You acknowledge that we are not the supplier or manufacturer of any prize offered via the App, and that we make no representation or warranty whatsoever as to the availability, quality, or fitness for purpose of the prizes; nor are we bound by any other implied terms or conditions with respect to the prizes or any related services. We assume no responsibility or liability for the acts or defects of merchants supplying or facilitating</span></p>
+</div>
+<div id="page_7">
+
+
+    <p class="p47 ft3">the prizes; or for any delay, postponement, <nobr>non-delivery,</nobr> <nobr>non-performance,</nobr> or defects in the prizes or any related services. We are not an agent of the merchants supplying the prizes or any related services. Any dispute arising over the prizes themselves or the quality or performance of the prizes or any related services must be resolved directly with the respective supplying merchants.</p>
+    <p class="p39 ft3"><span class="ft3">14.</span><span class="ft13">The use of any prize you win may be subject to such other terms and conditions as may be imposed by the respective merchant supplying the prize.</span></p>
+    <p class="p20 ft3"><span class="ft3">15.</span><span class="ft13">‘Flyaway’ prizes and all other prizes incorporating any element of travel shall include only the costs and fees specifically listed in the App, and shall </span><nobr>non-exhaustively</nobr> exclude:</p>
+    <p class="p21 ft3"><span class="ft3">e)</span><span class="ft17">Costs related to visas, applicable airline taxes and surcharges, peak season surcharges, and other travel related expenses;</span></p>
+    <p class="p21 ft3"><span class="ft3">f)</span><span class="ft33">Long distance phone calls, room service, laundry, minibar items, room service, loss of hotel property, damage to hotel property, or any other expenses incurred in or by the hotel;</span></p>
+    <p class="p22 ft3"><span class="ft3">g)</span><span class="ft10">Personal expenses unrelated to the prize (e.g. shopping, transportation during free time, food expenses aside from scheduled meals); and</span></p>
+    <p class="p21 ft3"><span class="ft3">h)</span><span class="ft17">Any personal tax that may be levied on you or your guests with respect to the receipt of the prize or any part thereof.</span></p>
+    <p class="p48 ft3"><span class="ft3">16.</span><span class="ft13">All prizes issued under the Game App are neither transferable nor exchangeable for cash, credit, or any other valuable consideration. The winner must be among the users of the prize. We may at any time, without prior notice and at our sole discretion, substitute the prize with another prize of similar value without jeopardising our rights and responsibilities under this contract or incurring liability to any person.</span></p>
+    <p class="p39 ft3"><span class="ft3">17.</span><span class="ft13">Each competition is 2 months in duration. The top 5 winners of each division (with three divisions for a total of 15 winners) will be contacted within 21 days after the competition period to collect the prize.</span></p>
+    <p class="p49 ft2">Maybank Privacy Notice</p>
+    <p class="p9 ft3"><span class="ft3">18.</span><span class="ft13">By participating in the Contests , participants agree and consent to allow their personal data being collected, processed, and used by Maybank in accordance with the Maybank Privacy Notice, which may be viewed at </span><a href="http://www.maybank2u.com.sg/"><span class="ft26">www.maybank2u.com.sg</span></a><span class="ft34">​</span>(“Maybank’s Privacy Notice”) for purposes including, but not limited to:</p>
+    <p class="p50 ft3"><span class="ft3">c.</span><span class="ft28">the purposes of the Contests; or</span></p>
+    <p class="p51 ft20"><span class="ft3">d.</span><span class="ft19">marketing and promotional activities conducted in any manner as Maybank deems fit, including but not limited to in any form of advertising or publicity material whether physical or digital, and wheresoever published in print, television, radio, or online; without further express consent from the participants. The aforementioned marketing and promotion activities shall include without limitation the use and publication of any details provided in or in connection to the entries and any subsequent interviews, as well as responses thereto and related photographs. In this regard, each participant agrees to cooperate and participate in all reasonable advertising and publicity activities of Maybank in relation to the Contests without any requirement for further express consent, payment, or consideration.</span></p>
+    <p class="p52 ft36"><span class="ft3">19.</span><span class="ft35">If you have applied for or are currently holding a </span><nobr>Maybank-issued</nobr> Manchester United Card, by downloading the App you expressly consent to the Manchester United  (“MU”) Group (being all companies bearing the MU name) and other MU Commercial Partners (as may both change over time) collecting, using, and disclosing your personal data (a) to provide you with the products and services which you have requested, (b) for consumer profiling and market research in relation to benefits and privileges, products, and services related to</p>
+</div>
+<div id="page_8">
+
+
+    <p class="p47 ft22">and/or associated with the MU Card and (c) to contact you by post, phone, or electronically (including via email, text, fax, and other electronic means of communication) about benefits, privileges, products, services, offers, and events related to and/or associated with the MU <nobr>Co-Brand</nobr> Card. If you would prefer not to receive any promotional and marketing communications with regards to the MU Card, please email marketingoptout@manutd.co.uk within 14 days of receipt of the Card ensuring that you use the email address that was provided in your application form.</p>
+    <p class="p29 ft2">General</p>
+    <p class="p16 ft3"><span class="ft3">20.</span><span class="ft13">Provided always that we give 21 days’ prior written notice, we are entitled absolutely to at our own discretion change the cost in </span><nobr>In-Game</nobr> Currency or any other details whatsoever of any <nobr>in-game</nobr> items, services, privileges, or other additional functionality unlocked through the redemption of <nobr>In-Game</nobr> Currency.</p>
+    <p class="p4 ft3">We reserve absolutely the right to:</p>
+    <p class="p31 ft3"><span class="ft3">d)</span><span class="ft24">cancel, suspend, or terminate the operation of the App and of any Promotion;</span></p>
+    <p class="p31 ft3"><span class="ft3">e)</span><span class="ft24">modify, eliminate, or terminate any items, games, or Promotions offered within the App; and</span></p>
+    <p class="p31 ft3"><span class="ft3">f)</span><span class="ft37">vary, delete, or make additions to these terms and conditions from time to time;</span></p>
+    <p class="p7 ft3">provided always we give 21 days of prior written notice.</p>
+    <p class="p32 ft3"><span class="ft3">21.</span><span class="ft13">You acknowledge that in the event your continuing access of the App is terminated, jeopardised, or otherwise for whatever reason interrupted, any refund of </span><nobr>In-Game</nobr> Currency is at our sole and absolute discretion.</p>
+    <p class="p18 ft15"><span class="ft3">22.</span><span class="ft14">We and our agents shall not be liable for any loss whatsoever, whether direct or indirect, incurred by you or any other person in relation to the use of the App or participation in any Promotion; including but not limited to loss of life, personal injury, damage to any mobile device by downloading or utilising the App. We and our agents shall further not be held liable for any damage or loss caused by improper or unauthorised use of the App by you or any other person, negligent acts or wilful misconduct, governmental powers, force majeure, war, strikes, sabotage, computer breakdown, any other cause whatsoever beyond our control; or any event which makes it impossible or otherwise impracticable for us to perform our obligations in respect of any instruction submitted by you to us, or where we are required to act in accordance with the laws and regulations in Singapore or any jurisdiction which relate to any services to any persons, legal or natural, which may be subject to sanctions.</span></p>
+    <p class="p25 ft3"><span class="ft3">23.</span><span class="ft13">In addition, we shall not be responsible for any lost, late, misdirected, damaged, incomplete, illegible, or </span><nobr>postage-due</nobr> mail or any transactions that are processed late, processed incorrectly, or lost due to computer or other electronic breakdown, malfunction, or any other reason.</p>
+    <p class="p33 ft15"><span class="ft3">24.</span><span class="ft14">The Game App is in no way sponsored, endorsed, administered by, or associated with Facebook. To the extent permitted by applicable laws, the users of the App agree that Facebook will not be liable, under any circumstance and in any way, for any errors, omissions, loss, or damage of any kind incurred as a result of your use of Facebook in connection with the App. You also acknowledge that we do not own or host Facebook, and the relevant privacy notices and other terms and conditions found on Facebook’s website shall apply as appropriate.</span></p>
+    <p class="p54 ft32"><span class="ft3">25.</span><span class="ft31">The Game App is in no way sponsored, endorsed, administered by, or associated with Apple or Google. To the extent permitted by applicable laws, the users of the App agree that Apple or Google will not be liable, under any circumstance and in any way, for any errors, omissions, loss or damage of any kind incurred as a result of</span></p>
+</div>
+<div id="page_9">
+
+
+    <p class="p56 ft3">your use of the App. The relevant privacy notices and other terms and conditions related to Apple or Google shall apply as appropriate.</p>
+    <p class="p20 ft3"><span class="ft3">26.</span><span class="ft13">The App is developed and administered by One Empower, however One Empower does not sponsor or endorse the Game App.</span></p>
+    <p class="p20 ft3"><span class="ft3">27.</span><span class="ft13">You hereby authorise us to disclose and publish your name and other relevant particulars in accordance with applicable law in the event that you win a prize offered through a Promotion in the App.</span></p>
+    <p class="p18 ft3"><span class="ft3">28.</span><span class="ft13">If you are a winner under a Promotion, and where required by us, you hereby agree to attend a prize presentation and/or participate in the appropriate publicity programmes. All expenses and costs incurred for such attendance shall be borne by you, and we reserve the right to use your name, address, photographs, information, particulars, or documents in any advertisement or other forms of publicity from time to time as we deem fit.</span></p>
+    <p class="p57 ft3"><span class="ft3">29.</span><span class="ft13">We have the sole discretion to exclude you from participating in any Promotion or using the App without any obligation to furnish any notice or reason therefore.</span></p>
+    <p class="p38 ft3"><span class="ft3">30.</span><span class="ft13">Our decision on all matters relating to the App and any Promotion shall be final, conclusive and binding.</span></p>
+    <p class="p9 ft3"><span class="ft3">31.</span><span class="ft13">We may at any time either unconditionally or on such terms and conditions as we deem fit in our discretion waive any right we have under these terms and conditions; however, any such waiver shall not preclude us from exercising such rights in the future.</span></p>
+    <p class="p12 ft3"><span class="ft3">32.</span><span class="ft13">In the event of any inconsistency between these terms and conditions and any brochure, marketing, or promotional material relating to the App; the terms and conditions in www.maybank2u.com.sg shall prevail. Any image of any prize offered through Promotions via the App in any collateral is for illustrative purposes only.</span></p>
+    <p class="p39 ft3"><span class="ft3">33.</span><span class="ft13">These terms and conditions shall be governed by the laws of Singapore and you irrevocably submit to the exclusive jurisdiction of the courts of Singapore for the resolution of any disputes herein arising.</span></p>
+    <p class="p20 ft3"><span class="ft3">34.</span><span class="ft13">The Maybank Credit Card and Debit Card Agreements shall apply as appropriate. For full details, please visit www.maybank2u.com.sg</span></p>
+    <p class="p18 ft15"><span class="ft3">35.</span><span class="ft14">The Card Bin Number (being the first six digits of the Card number) shall be used to register for the competition. Disclosure of the Card Bin Number shall be purely to verify said card is a Maybank Card number, and does not represent the full card number in any way nor may it be used to make purchases or identify the Cardholder.</span></p>
+</div>
+</body>
+</body>
+</html>

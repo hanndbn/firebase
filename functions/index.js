@@ -180,6 +180,10 @@ exports.LeaderBoardUpdate = functions.https.onRequest((req, res) => {
     });
     return res.json({result: "success"});
 });
+exports.LeaderBoardUpdate1 = functions.https.onRequest((req, res) => {
+    leaderboardController.updateLeaderBoard1();
+    return res.json({result: "success"});
+});
 
 exports.report = functions.https.onRequest((req, res) => {
     try {
@@ -788,4 +792,4 @@ exports.api = functions.https.onRequest(app);
 
 exports.OEApi = functions.https.onRequest(app);
 
-//exports.updateChallenges  = functions.https.onRequest(challengeController.updateChallenges);
+exports.updateChallenges  = functions.https.onRequest(challengeController.updateChallenges);
