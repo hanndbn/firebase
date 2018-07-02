@@ -346,9 +346,9 @@ exports.getTriviaQuestion = function(request, response) {
         // create list request
         let listQuestionId = [];
         for(let i =1; i <=numberQuestion; i++ ){
-            let questionId = _.random(1,200);
+            let questionId = _.random(1,196);
             while(_.contains(listQuestionId, questionId)){
-                questionId = _.random(1,200);
+                questionId = _.random(1,196);
             }
             listQuestionId.push(questionId);
         }

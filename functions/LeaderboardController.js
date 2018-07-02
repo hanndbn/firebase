@@ -332,12 +332,23 @@ exports.updateLeaderBoard1 = function () {
                     playerScoreVal[playerKey][level].BestScore = 0
                 });
             });
+            let resetItem = ["PU5", "PU6", "PU7", "PU8", "PU9", "PU10", "PU11", "PU12", "PU13", "PU14"]
             //set player data
             Object.keys(playerDataVal).map((playerKey)=>{
                 playerDataVal[playerKey]['ProgressStats']['CurrentLeaderboard'] = 'bronze';
                 playerDataVal[playerKey]['ProgressStats']['TotalScore'] = 0;
                 playerDataVal[playerKey]['ProgressStats']['TriviaScore'] = 0;
-                playerDataVal[playerKey].PowerUps = [];
+                //playerDataVal[playerKey].PowerUps = [];
+                let newPowerUps = [];
+                let powerUps = playerDataVal[playerKey].PowerUps;
+                if(powerUps){
+                    powerUps.forEach(function (powerUp) {
+                        if(resetItem.indexOf(powerUp.id) == -1){
+                            newPowerUps.push(powerUp);
+                        }
+                    });
+                }
+                playerDataVal[playerKey].PowerUps = newPowerUps;
             });
 
             playerData.ref.set(playerDataVal);
