@@ -3,14 +3,14 @@
  */
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
-const serviceAccount = require("./serverconfig");
-admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-    "databaseURL": "https://footballfan-e341f.firebaseio.com",
-    "storageBucket": "footballfan-e341f.appspot.com",
-    "apiKey": "AIzaSyBTO0VLHb4zA8gEvDUgRsCYhECWF8OdddM",
-    "authDomain": "footballfan-e341f.firebaseapp.com"
-});
+// const serviceAccount = require("./serverconfig");
+// admin.initializeApp({
+//     credential: admin.credential.cert(serviceAccount),
+//     "databaseURL": "https://footballfan-e341f.firebaseio.com",
+//     "storageBucket": "footballfan-e341f.appspot.com",
+//     "apiKey": "AIzaSyBTO0VLHb4zA8gEvDUgRsCYhECWF8OdddM",
+//     "authDomain": "footballfan-e341f.firebaseapp.com"
+// });
 // const serviceAccount = require("./serverconfig_sanbox");
 // admin.initializeApp({
 //     credential: admin.credential.cert(serviceAccount),
@@ -19,6 +19,14 @@ admin.initializeApp({
 //     "apiKey": "AIzaSyDXCJ8Wohu4TOsLIUc9YwL4MefpEB35LAM",
 //     "authDomain": "footballfansandbox.firebaseapp.com"
 // });
+const serviceAccount = require("./serverconfig_CMS.json");
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    "databaseURL": "https://oevcms.firebaseio.com",
+    "storageBucket": "oevcms.appspot.com",
+    "apiKey": "AIzaSyB7Jbuu4v1DU4JzEYgvgXrAjslEdigP-E0",
+    "authDomain": "oevcms.firebaseapp.com"
+});
 //const database = admin.database();
 const express = require('express');
 const fileUpload = require('express-fileupload');
