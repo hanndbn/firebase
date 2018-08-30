@@ -822,7 +822,7 @@ exports.gameDataImport = function (data, callback) {
             delete item.ID;
         }
     });
-    console.log(challengesMap);
+    console.log(JSON.stringify(challengesMap));
 
     if (!utils.isEmpty(challengesMap)) {
         database.ref().child('Challenge').set(challengesMap);

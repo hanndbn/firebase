@@ -788,7 +788,7 @@ exports.importToDatabase = functions.https.onRequest((req, res) => {
     //         tableData.push(data);
     //     })
     // }
-    return res.json({result: "false"});
+    // return res.json({result: "false"});
 });
 
 app.use(function (request, response, next) {
