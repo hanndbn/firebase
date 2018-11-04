@@ -11,6 +11,25 @@ admin.initializeApp({
     "apiKey": "AIzaSyBTO0VLHb4zA8gEvDUgRsCYhECWF8OdddM",
     "authDomain": "footballfan-e341f.firebaseapp.com"
 });
+const db = admin.firestore();
+
+// // Disable deprecated features
+// db.settings({
+//     timestampsInSnapshots: true
+// });
+
+exports.firestore = functions.https.onRequest((req, res) => {
+    let docRef = db.collection('users').doc('alovelace');
+
+    let setAda = docRef.set({
+        first: 'Ada',
+        last: 'Lovelace',
+        born: 1815
+    });
+
+    return res.json({result: setAda});
+});
+
 // const serviceAccount = require("./serverconfig_sanbox");
 // admin.initializeApp({
 //     credential: admin.credential.cert(serviceAccount),
